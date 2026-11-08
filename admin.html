@@ -16,58 +16,24 @@ body{font-family:Rubik,sans-serif;background:var(--bg);color:var(--paper);font-w
 h1{font-weight:900;letter-spacing:.05em;margin-bottom:8px;font-size:2rem}
 .sub{color:var(--mut);font-size:.9rem;margin-bottom:36px}
 .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
-.tabs button{
-  border:1px solid var(--glass-border);
-  background:var(--glass);
-  backdrop-filter:blur(10px);
-  color:var(--mut);
-  border-radius:999px;
-  padding:12px 24px;cursor:pointer;
-  font:600 .85rem Rubik;
-  transition:all 0.3s;
-}
+.tabs button{border:1px solid var(--glass-border);background:var(--glass);backdrop-filter:blur(10px);color:var(--mut);border-radius:999px;padding:12px 24px;cursor:pointer;font:600 .85rem Rubik;transition:all 0.3s}
 .tabs button.on{color:var(--paper);border-color:var(--acc);background:rgba(232,17,121,0.2)}
-.card{
-  background:var(--glass);
-  backdrop-filter:blur(20px);
-  border:1px solid var(--glass-border);
-  border-radius:24px;
-  padding:32px;margin-bottom:24px;
-}
+.card{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:24px;padding:32px;margin-bottom:24px}
 .card h3{font-weight:700;margin-bottom:20px;font-size:1.1rem}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-input,select{
-  width:100%;
-  background:rgba(0,0,0,0.3);
-  border:1px solid var(--glass-border);
-  border-radius:14px;
-  color:var(--paper);
-  padding:14px;
-  margin-bottom:14px;
-  font:400 .95rem Rubik;
-  transition:border-color 0.3s;
-}
+input,select{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);border-radius:14px;color:var(--paper);padding:14px;margin-bottom:14px;font:400 .95rem Rubik;transition:border-color 0.3s}
 input:focus{outline:none;border-color:var(--acc)}
-.btn{
-  border-radius:999px;padding:14px 32px;
-  font:700 .9rem Rubik;cursor:pointer;
-  border:1px solid var(--paper);
-  background:var(--paper);color:var(--bg);
-  transition:all 0.3s;
-}
+.btn{border-radius:999px;padding:14px 32px;font:700 .9rem Rubik;cursor:pointer;border:1px solid var(--paper);background:var(--paper);color:var(--bg);transition:all 0.3s}
 .btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}
 .btn.del{background:none;border-color:var(--glass-border);color:var(--mut);padding:8px 18px;font-size:.85rem}
 .btn.del:hover{border-color:#e81179;color:#e81179}
-.row{
-  display:flex;justify-content:space-between;align-items:center;gap:16px;
-  padding:16px 8px;
-  border-bottom:1px solid var(--glass-border);
-  font-size:.95rem;
-}
+.row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 8px;border-bottom:1px solid var(--glass-border);font-size:.95rem}
 .row:last-child{border:0}
 .msg{color:var(--acc);font-size:.85rem;margin-top:12px;min-height:20px}
 a.back{color:var(--mut);font-size:.85rem}
 #lock{text-align:center;padding:100px 20px}
+.badge-main{color:var(--acc);font-size:.75rem;margin-left:8px}
+.badge-protected{color:var(--mut);font-size:.8rem}
 </style>
 </head>
 <body>
@@ -77,6 +43,7 @@ a.back{color:var(--mut);font-size:.85rem}
   <a class="back" href="index.html">← На сайт</a> · 
   <button class="btn" style="margin-top:20px" onclick="location.reload()">Проверить снова</button></p>
 </div>
+
 <div class="wrap" id="panel" style="display:none">
   <h1>RUSVISION · АДМИН</h1>
   <div class="sub"><span id="who"></span> · <a class="back" href="index.html">← На сайт</a> · <a class="back" href="#" id="logout">Выйти</a></div>
@@ -148,14 +115,23 @@ a.back{color:var(--mut);font-size:.85rem}
 </div>
 
 <script>
+const MAIN_ADMIN = 'shkiphunt@gmail.com';
 const $ = id => document.getElementById(id);
+
+// Переключение вкладок
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
   document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('on'));
   b.classList.add('on');
   ['news','part','set','soc','admins'].forEach(t => $('t-'+t).style.display = t === b.dataset.t ? '' : 'none');
 });
-$('logout').onclick = async e => { e.preventDefault(); if(window.rv_supabase) await window.rv_supabase.auth.signOut(); location.href = 'index.html'; };
 
+$('logout').onclick = async e => {
+  e.preventDefault();
+  if (window.rv_supabase) await window.rv_supabase.auth.signOut();
+  location.href = 'index.html';
+};
+
+// Проверка доступа
 async function boot() {
   const client = window.rv_supabase;
   if (!client) { $('lock').style.display = ''; return; }
@@ -165,92 +141,123 @@ async function boot() {
     $('who').textContent = session.user.email;
     $('panel').style.display = '';
     refreshAll();
-  } catch (e) { console.error(e); $('lock').style.display = ''; }
+  } catch (e) {
+    console.error('Boot error:', e);
+    $('lock').style.display = '';
+  }
 }
 
+// Обновление всех списков (все переменные УНИКАЛЬНЫ — дублей нет)
 async function refreshAll() {
-
   const client = window.rv_supabase;
   if (!client) return;
   try {
-    const n = await client.from('news').select('*').order('created_at', { ascending: false });
-    $('list-news').innerHTML = (n.data||[]).map(x => `<div class="row"><span><b>${x.code}</b> · ${x.region} — ${x.title}</span><button class="btn del" onclick="del('news',${x.id})">Удалить</button></div>`).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет новостей</p>';
-    
-    const p = await client.from('participants').select('*').order('sort');
-    $('list-part').innerHTML = (p.data||[]).map(x => `<div class="row"><span><b>${x.code}</b> · ${x.artist} — ${x.region}</span><button class="btn del" onclick="del('participants',${x.id})">Удалить</button></div>`).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет участников</p>';
-    
-    const s = await client.from('site_settings').select('*').eq('id',1).single();
-    if (s.data) { $('s_name').value = s.data.site_name||''; $('s_tag').value = s.data.tagline||''; $('s_note').value = s.data.footer_note||''; $('s_email').value = s.data.contact_email||''; }
-    
-    const so = await client.from('social_links').select('*').order('sort');
-    $('list-soc').innerHTML = (so.data||[]).map(x => `<div class="row"><span>${x.icon} ${x.title} — ${x.url}</span><button class="btn del" onclick="del('social_links',${x.id})">Удалить</button></div>`).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет ссылок</p>';
+    const newsRes = await client.from('news').select('*').order('created_at', { ascending: false });
+    $('list-news').innerHTML = (newsRes.data || []).map(x =>
+      `<div class="row"><span><b>${x.code}</b> · ${x.region} — ${x.title}</span><button class="btn del" onclick="del('news',${x.id})">Удалить</button></div>`
+    ).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет новостей</p>';
 
-    const a = await client.from('admins').select('email');
-    $('list-admins').innerHTML = (a.data||[]).map(x => `<div class="row"><span>👤 ${x.email}</span><button class="btn del" onclick="removeAdmin('${x.email}')">Удалить</button></div>`).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет администраторов</p>';
-    
-    const a = await client.from('admins').select('email');
-    $('list-admins').innerHTML = (a.data||[]).map(x => {
-    const isMain = x.email === 'shkiphunt@gmail.com';
-    return `<div class="row"><span>👤 ${x.email} ${isMain ? '<span style="color:var(--acc);font-size:.75rem">(главный)</span>' : ''}</span>
-    ${isMain ? '<span style="color:var(--mut);font-size:.8rem">защищён</span>' : `<button class="btn del" onclick="removeAdmin('${x.email}')">Удалить</button>`}</div>`;
+    const partRes = await client.from('participants').select('*').order('sort');
+    $('list-part').innerHTML = (partRes.data || []).map(x =>
+      `<div class="row"><span><b>${x.code}</b> · ${x.artist} — ${x.region}</span><button class="btn del" onclick="del('participants',${x.id})">Удалить</button></div>`
+    ).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет участников</p>';
+
+    const setRes = await client.from('site_settings').select('*').eq('id', 1).single();
+    if (setRes.data) {
+      $('s_name').value = setRes.data.site_name || '';
+      $('s_tag').value = setRes.data.tagline || '';
+      $('s_note').value = setRes.data.footer_note || '';
+      $('s_email').value = setRes.data.contact_email || '';
+    }
+
+    const socRes = await client.from('social_links').select('*').order('sort');
+    $('list-soc').innerHTML = (socRes.data || []).map(x =>
+      `<div class="row"><span>${x.icon} ${x.title} — ${x.url}</span><button class="btn del" onclick="del('social_links',${x.id})">Удалить</button></div>`
+    ).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет ссылок</p>';
+
+    const admRes = await client.from('admins').select('email');
+    $('list-admins').innerHTML = (admRes.data || []).map(x => {
+      const isMain = x.email === MAIN_ADMIN;
+      return `<div class="row"><span>👤 ${x.email}${isMain ? '<span class="badge-main">(главный)</span>' : ''}</span>` +
+        (isMain
+          ? '<span class="badge-protected">защищён</span>'
+          : `<button class="btn del" onclick="removeAdmin('${x.email}')">Удалить</button>`) +
+        `</div>`;
     }).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет администраторов</p>';
-  } catch (e) { console.error(e); }
-  
+  } catch (e) {
+    console.error('Refresh error:', e);
+  }
 }
 
+// Удаление записей
 async function del(table, id) {
   await window.rv_supabase.from(table).delete().eq('id', id);
   refreshAll();
 }
 
+// Добавить новость
 async function addNews() {
   const { error } = await window.rv_supabase.from('news').insert({
-    region: $('n_region').value, code: $('n_code').value,
-    title: $('n_title').value, excerpt: $('n_excerpt').value,
-    image_url: $('n_image').value, accent: +$('n_accent').value
+    region: $('n_region').value,
+    code: $('n_code').value,
+    title: $('n_title').value,
+    excerpt: $('n_excerpt').value,
+    image_url: $('n_image').value,
+    accent: +$('n_accent').value
   });
   $('m-news').textContent = error ? '❌ ' + error.message : '✅ Готово';
   if (!error) { ['n_region','n_code','n_title','n_excerpt','n_image'].forEach(i => $(i).value = ''); refreshAll(); }
 }
 
+// Добавить исполнителя
 async function addPart() {
   const { error } = await window.rv_supabase.from('participants').insert({
-    artist: $('p_artist').value, region: $('p_region').value,
-    code: $('p_code').value, image_url: $('p_image').value, sort: Date.now() % 100000
+    artist: $('p_artist').value,
+    region: $('p_region').value,
+    code: $('p_code').value,
+    image_url: $('p_image').value,
+    sort: Date.now() % 100000
   });
   $('m-part').textContent = error ? '❌ ' + error.message : '✅ Готово';
   if (!error) { ['p_artist','p_region','p_code','p_image'].forEach(i => $(i).value = ''); refreshAll(); }
 }
 
+// Добавить соцсеть
 async function addSoc() {
   const { error } = await window.rv_supabase.from('social_links').insert({
-    title: $('so_title').value, url: $('so_url').value,
-    icon: $('so_icon').value || '🔗', sort: Date.now() % 100000
+    title: $('so_title').value,
+    url: $('so_url').value,
+    icon: $('so_icon').value || '🔗',
+    sort: Date.now() % 100000
   });
   $('m-soc').textContent = error ? '❌ ' + error.message : '✅ Готово';
   if (!error) { ['so_title','so_url','so_icon'].forEach(i => $(i).value = ''); refreshAll(); }
 }
 
+// Сохранить реквизиты
 async function saveSet() {
   const { error } = await window.rv_supabase.from('site_settings').update({
-    site_name: $('s_name').value, tagline: $('s_tag').value,
-    footer_note: $('s_note').value, contact_email: $('s_email').value
+    site_name: $('s_name').value,
+    tagline: $('s_tag').value,
+    footer_note: $('s_note').value,
+    contact_email: $('s_email').value
   }).eq('id', 1);
   $('m-set').textContent = error ? '❌ ' + error.message : '✅ Сохранено';
 }
 
+// Добавить админа
 async function addAdmin() {
-  const email = $('a_email').value;
+  const email = $('a_email').value.trim();
   if (!email) { $('m-admins').textContent = '❌ Введите email'; return; }
   const { error } = await window.rv_supabase.rpc('add_admin', { email });
   $('m-admins').textContent = error ? '❌ ' + error.message : '✅ Админ добавлен';
   if (!error) { $('a_email').value = ''; refreshAll(); }
 }
 
+// Удалить админа (с защитой главного)
 async function removeAdmin(email) {
-  // Защита главного админа на уровне JS
-  if (email === 'shkiphunt@gmail.com') {
-    alert('❌ Нельзя удалить Шкипера из списка админов!');
+  if (email === MAIN_ADMIN) {
+    alert('❌ Нельзя удалить главного администратора!');
     return;
   }
   if (!confirm('Удалить администратора ' + email + '?')) return;
