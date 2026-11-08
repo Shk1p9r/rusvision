@@ -1,10 +1,9 @@
-// ⚠️ ЗАМЕНИ НА СВОИ ДАННЫЕ ИЗ SUPABASE DASHBOARD → Settings → API
 const SUPABASE_URL = 'https://whqicbrivhiaegtzelci.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_FfYb_P8kESdDW8I488cYtA_UPFlPSi8';
+const SUPABASE_ANON_KEY = 'sb_publishable_Ffyb_P8kESdDW8I488cYTA_UPF1PSI8';
 
 let supabase = null;
 try {
-  if (SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes('XXXX') && !SUPABASE_ANON_KEY.includes('ВСТАВЬ')) {
+  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     console.log('✅ Supabase подключён');
   } else {
