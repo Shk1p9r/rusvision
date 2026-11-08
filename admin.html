@@ -129,19 +129,15 @@ async function refreshAll() {
   if (!client) return;
   
   try {
-    // Новости
     const n = await client.from('news').select('*').order('created_at', { ascending: false });
     $('list-news').innerHTML = (n.data||[]).map(x => `<div class="row"><span><b>${x.code}</b> · ${x.region} — ${x.title}</span><button class="btn del" onclick="del('news',${x.id})">Удалить</button></div>`).join('') || '<p style="color:var(--mut)">Пока нет новостей</p>';
     
-    // Участники
     const p = await client.from('participants').select('*').order('sort');
     $('list-part').innerHTML = (p.data||[]).map(x => `<div class="row"><span><b>${x.code}</b> · ${x.artist} — ${x.region}</span><button class="btn del" onclick="del('participants',${x.id})">Удалить</button></div>`).join('') || '<p style="color:var(--mut)">Пока нет участников</p>';
     
-    // Реквизиты
     const s = await client.from('site_settings').select('*').eq('id',1).single();
     if (s.data) { $('s_name').value = s.data.site_name||''; $('s_tag').value = s.data.tagline||''; $('s_note').value = s.data.footer_note||''; $('s_email').value = s.data.contact_email||''; }
     
-    // Соцсети
     const so = await client.from('social_links').select('*').order('sort');
     $('list-soc').innerHTML = (so.data||[]).map(x => `<div class="row"><span>${x.icon} ${x.title} — ${x.url}</span><button class="btn del" onclick="del('social_links',${x.id})">Удалить</button></div>`).join('') || '<p style="color:var(--mut)">Пока нет ссылок</p>';
   } catch (e) {
