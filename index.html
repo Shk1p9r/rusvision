@@ -6,7 +6,9 @@
 <title>ROSVISION — Song Contest of the Regions</title>
 <link rel="icon" href="logo.png" type="image/png">
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<!-- Загружаем библиотеку Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Загружаем наш конфиг (он создаст window.rv_supabase) -->
 <script src="sb.js"></script>
 <style>
 :root{--bg:#221b2a;--paper:#f4f2f7;--mut:rgba(244,242,247,.55);--line:rgba(244,242,247,.14);--acc:#e81179}
@@ -103,15 +105,15 @@ footer{border-top:1px solid var(--line);padding:56px 0 30px}
     <div class="lang">
       <button class="lang-btn" id="langBtn">🇷🇺 RU</button>
       <div class="lang-menu" id="langMenu">
-        <button data-l="ru">🇷🇺 Русский</button>
-        <button data-l="en">🇬🇧 English</button>
-        <button data-l="fr">🇫🇷 Français</button>
-        <button data-l="es">🇪🇸 Español</button>
-        <button data-l="de">🇩🇪 Deutsch</button>
-        <button data-l="tt">🟢 Татарча</button>
-        <button data-l="be">🇧🇾 Беларуская</button>
-        <button data-l="kh">🔵 Хӑнты</button>
-        <button data-l="ba">🟢 Башҡортса</button>
+        <button data-l="ru">RUS Русский</button>
+        <button data-l="en">ENG English</button>
+        <button data-l="fr">FRA Français</button>
+        <button data-l="es">ESP Español</button>
+        <button data-l="de">DEU Deutsch</button>
+        <button data-l="tt">TTR Татарча</button>
+        <button data-l="be">BEL Беларуская</button>
+        <button data-l="kh">KHN Хӑнты</button>
+        <button data-l="ba">BSH Башҡортса</button>
       </div>
     </div>
     <span class="user-chip" id="userChip"></span>
@@ -194,15 +196,14 @@ footer{border-top:1px solid var(--line);padding:56px 0 30px}
 </div>
 
 <script>
-// ===== ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКОВ (простой) =====
+// ===== ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКОВ =====
 const langBtn = document.getElementById('langBtn');
 const langMenu = document.getElementById('langMenu');
 langBtn.onclick = e => { e.stopPropagation(); langMenu.classList.toggle('open'); };
 langMenu.onclick = e => {
   const b = e.target.closest('button');
   if (!b) return;
-  const l = b.dataset.l;
-  localStorage.setItem('rv_lang', l);
+  localStorage.setItem('rv_lang', b.dataset.l);
   langBtn.textContent = b.textContent.trim();
   langMenu.classList.remove('open');
 };
@@ -213,18 +214,21 @@ if (savedLang) {
   if (btn) langBtn.textContent = btn.textContent.trim();
 }
 
-// ===== АВТОРИЗАЦИЯ =====
+// ===== АВТОРИЗАЦИЯ (ИСПРАВЛЕНО) =====
 let mode = 'login';
 const modal = document.getElementById('modal');
+const msgBox = document.getElementById('authMsg');
+
 function openModal(m) {
   mode = m;
   modal.classList.add('open');
   document.getElementById('tabLogin').classList.toggle('on', m === 'login');
   document.getElementById('tabReg').classList.toggle('on', m === 'reg');
   document.getElementById('authSubmit').textContent = m === 'login' ? 'Войти' : 'Регистрация';
-  document.getElementById('authMsg').textContent = '';
+  msgBox.textContent = '';
 }
 function closeModal() { modal.classList.remove('open'); }
+
 document.getElementById('authBtn').onclick = () => openModal('login');
 document.getElementById('tabLogin').onclick = () => openModal('login');
 document.getElementById('tabReg').onclick = () => openModal('reg');
@@ -233,16 +237,52 @@ document.getElementById('authForm').onsubmit = async e => {
   e.preventDefault();
   const email = document.getElementById('email').value;
   const pass = document.getElementById('pass').value;
-  const msg = document.getElementById('authMsg');
-  if (!supabase) { msg.textContent = '⚠️ Supabase не подключён (проверь sb.js)'; return; }
-  if (mode === 'reg') {
-    const { error } = await supabase.auth.signUp({ email, password: pass });
-    msg.textContent = error ? '❌ ' + error.message : '✅ Проверьте почту и подтвердите аккаунт';
-    if (!error) setTimeout(closeModal, 2500);
-  } else {
-    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
-    msg.textContent = error ? '❌ Неверный e-mail или пароль' : '✅ Вы вошли';
-    if (!error) setTimeout(closeModal, 800);
+  
+  // Проверяем наличие клиента Supabase из sb.js
+  const client = window.rv_supabase;
+  if (!client) {
+    msgBox.style.color = '#ffaa00';
+    msgBox.textContent = '⚠️ База данных недоступна (проверь консоль F12)';
+    console.error('Supabase client not initialized');
+    return;
+  }
+
+  msgBox.style.color = '#f4f2f7';
+  msgBox.textContent = 'Обработка запроса...';
+
+  try {
+    let result;
+    if (mode === 'reg') {
+      result = await client.auth.signUp({ 
+        email, 
+        password: pass,
+        options: { emailRedirectTo: window.location.origin } 
+      });
+      
+      if (result.error) throw result.error;
+      
+      msgBox.style.color = '#0e9f6e';
+      if (result.data.user && !result.data.user.email_confirmed_at) {
+         msgBox.textContent = '✅ Аккаунт создан! Проверьте почту для подтверждения.';
+      } else {
+         msgBox.textContent = '✅ Вы вошли (почта уже подтверждена).';
+         setTimeout(closeModal, 1500);
+      }
+    } else {
+      result = await client.auth.signInWithPassword({ email, password: pass });
+      if (result.error) throw result.error;
+      
+      msgBox.style.color = '#0e9f6e';
+      msgBox.textContent = '✅ Успешный вход!';
+      setTimeout(() => {
+        closeModal();
+        refreshAuth(); 
+      }, 1000);
+    }
+  } catch (err) {
+    console.error(err);
+    msgBox.style.color = '#e81179';
+    msgBox.textContent = '❌ ' + err.message;
   }
 };
 
@@ -250,13 +290,20 @@ async function refreshAuth() {
   const chip = document.getElementById('userChip');
   const ab = document.getElementById('adminBtn');
   const btn = document.getElementById('authBtn');
-  if (!supabase) { btn.textContent = 'Войти'; btn.onclick = () => openModal('login'); return; }
-  const { data: { session } } = await supabase.auth.getSession();
+  const client = window.rv_supabase;
+  
+  if (!client) return;
+
+  const { data: { session } } = await client.auth.getSession();
   if (session) {
-    const adm = await isAdmin();
-    chip.textContent = session.user.email + ' ';
+    chip.textContent = session.user.email.split('@')[0] + '@... ';
     btn.textContent = 'Выйти';
-    btn.onclick = async () => { await supabase.auth.signOut(); refreshAuth(); };
+    btn.onclick = async () => { 
+      await client.auth.signOut(); 
+      location.reload(); 
+    };
+    
+    const adm = await isAdmin();
     ab.style.display = adm ? '' : 'none';
   } else {
     chip.textContent = '';
@@ -265,7 +312,14 @@ async function refreshAuth() {
     btn.onclick = () => openModal('login');
   }
 }
-if (supabase) supabase.auth.onAuthStateChange(() => refreshAuth());
+
+// Слушаем изменения состояния авторизации
+if (window.rv_supabase) {
+  window.rv_supabase.auth.onAuthStateChange((event, session) => {
+    refreshAuth();
+  });
+  refreshAuth(); // Первый запуск
+}
 
 // ===== COOKIES =====
 function okCookies() {
@@ -274,26 +328,27 @@ function okCookies() {
 }
 if (localStorage.getItem('rv_ck')) document.getElementById('cookies').style.display = 'none';
 
-// ===== ЗАГРУЗКА ДАННЫХ ИЗ SUPABASE (опционально, поверх fallback) =====
+// ===== ЗАГРУЗКА ДАННЫХ ИЗ SUPABASE =====
 async function loadFromSupabase() {
-  if (!supabase) { console.log('ℹ️ Работаем на демо-данных'); return; }
+  const client = window.rv_supabase;
+  if (!client) return;
   try {
-    const { data: news } = await supabase.from('news').select('*').eq('published', true).order('created_at', { ascending: false });
-    const { data: parts } = await supabase.from('participants').select('*').order('sort');
-    const { data: soc } = await supabase.from('social_links').select('*').order('sort');
-    const { data: settings } = await supabase.from('site_settings').select('*').eq('id', 1).single();
+    const { data: news } = await client.from('news').select('*').eq('published', true).order('created_at', { ascending: false });
+    const { data: parts } = await client.from('participants').select('*').order('sort');
+    const { data: soc } = await client.from('social_links').select('*').order('sort');
+    const { data: settings } = await client.from('site_settings').select('*').eq('id', 1).single();
 
-    if (news && news.length) {
-      const ACC = ['#e81179','#00b3c4','#f7b733','#6a2bd9','#0e9f6e','#ff7a59'];
-      document.getElementById('newsGrid').innerHTML = news.map(n => `
+    if (news && news.length > 0) {
+       const ACC = ['#e81179','#00b3c4','#f7b733','#6a2bd9','#0e9f6e','#ff7a59'];
+       document.getElementById('newsGrid').innerHTML = news.map(n => `
         <article class="news-card"><div class="nc-top"><span class="nc-code">${n.code||'···'}</span><span class="nc-dot" style="background:${ACC[(n.accent||1)%6]}"></span></div>
         <div class="nc-region">${n.region}</div><div class="nc-title">${n.title}</div><div class="nc-ex">${n.excerpt||''}</div></article>`).join('');
     }
-    if (parts && parts.length) {
+    if (parts && parts.length > 0) {
       document.getElementById('partList').innerHTML = parts.map(p => `
         <div class="part-row"><span class="pr-code">${p.code||'—'}</span><span class="pr-artist">${p.artist}</span><span class="pr-region">${p.region}</span></div>`).join('');
     }
-    if (soc && soc.length) {
+    if (soc && soc.length > 0) {
       document.getElementById('fSocials').innerHTML = soc.map(x => `<a href="${x.url}" title="${x.title}" target="_blank">${x.icon}</a>`).join('');
     }
     if (settings) {
@@ -303,13 +358,8 @@ async function loadFromSupabase() {
       document.getElementById('fEmail').textContent = settings.contact_email;
     }
     console.log('✅ Данные из Supabase загружены');
-  } catch (e) {
-    console.warn('⚠️ Ошибка загрузки из Supabase, используем демо:', e);
-  }
+  } catch (e) { console.warn('Load data error:', e); }
 }
-
-// Запуск
-refreshAuth();
 loadFromSupabase();
 </script>
 </body>
