@@ -71,7 +71,7 @@ section{padding:100px 0}
 .news-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:24px}
 .news-card{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:24px;overflow:hidden;transition:all 0.4s ease;cursor:pointer}
 .news-card:hover{transform:translateY(-8px);box-shadow:0 20px 60px rgba(0,0,0,0.4);border-color:var(--acc)}
-.news-image{width:100%;height:220px;object-fit:cover;transition:transform 0.4s}
+.news-image{width:100%;aspect-ratio:4/5;object-fit:cover;transition:transform 0.5s}
 .news-card:hover .news-image{transform:scale(1.05)}
 .news-body{padding:28px}
 .nc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
@@ -81,14 +81,15 @@ section{padding:100px 0}
 .nc-title{font-weight:700;font-size:1.15rem;line-height:1.35;margin-bottom:10px}
 .nc-ex{color:var(--mut);font-size:.9rem}
 
-.part-list{display:grid;gap:16px}
-.part-row{display:grid;grid-template-columns:100px 1fr auto;padding:24px;background:var(--glass);backdrop-filter:blur(15px);border:1px solid var(--glass-border);border-radius:20px;align-items:center;gap:20px;transition:all 0.3s}
-.part-row:hover{background:rgba(255,255,255,0.12);transform:translateX(8px);border-color:var(--acc)}
-.pr-image{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--glass-border)}
-.pr-info{display:flex;flex-direction:column;gap:4px}
-.pr-artist{font-weight:700;font-size:1.1rem}
-.pr-region{color:var(--mut);font-size:.85rem}
-.pr-code{font-weight:900;font-size:1.3rem;color:var(--acc)}
+.part-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:24px}
+.part-card{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/5;background:var(--glass);border:1px solid var(--glass-border);transition:all .4s ease;cursor:pointer}
+.part-card:hover{transform:translateY(-8px);box-shadow:0 20px 60px rgba(0,0,0,.45);border-color:var(--acc)}
+.part-card img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.part-card:hover img{transform:scale(1.07)}
+.part-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(5,5,12,.9) 0%,rgba(5,5,12,.25) 45%,transparent 70%);display:flex;flex-direction:column;justify-content:flex-end;padding:22px}
+.part-code{position:absolute;top:14px;right:14px;background:rgba(10,10,20,.55);backdrop-filter:blur(10px);border:1px solid var(--glass-border);border-radius:999px;padding:6px 14px;font-weight:900;font-size:.75rem;letter-spacing:.12em}
+.part-artist{font-weight:800;font-size:1.3rem;line-height:1.2}
+.part-region{color:rgba(255,255,255,.75);font-size:.85rem;margin-top:6px;letter-spacing:.06em}
 
 .about-content{max-width:800px;background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:32px;padding:60px}
 .about-content p{color:var(--mut);font-size:1.1rem;line-height:1.8}
@@ -181,7 +182,7 @@ footer{border-top:1px solid var(--line);padding:80px 0 40px;background:rgba(0,0,
 
 <section id="part" style="padding-top:0"><div class="wrap">
   <div class="sec-head"><h2 data-i18n="sec_part">Участники 2026</h2><a href="#" data-i18n="sec_all2">Все участники</a></div>
-  <div class="part-list" id="partList"></div>
+  <div class="part-grid" id="partGrid"></div>
 </div></section>
 
 <section id="about" class="about" style="padding-top:0"><div class="wrap">
@@ -514,7 +515,18 @@ async function loadFromSupabase() {
       : '<p style="grid-column:1/-1;text-align:center;color:var(--mut);padding:60px">Новостей пока нет</p>';
     document.getElementById('newsGrid').innerHTML = newsHtml;
 
-    const partHtml = parts?.length > 0
+        const partHtml = parts?.length > 0
+      ? parts.map(p => `
+        <div class="part-card">
+          <img src="${p.image_url || 'https://via.placeholder.com/400x500/1a1a2e/e81179?text=' + encodeURIComponent(p.artist || 'RUSVISION')}" alt="${p.artist}">
+          <span class="part-code">${p.code || '—'}</span>
+          <div class="part-overlay">
+            <div class="part-artist" data-original="${p.artist}">${p.artist}</div>
+            <div class="part-region" data-original="${p.region}">${p.region}</div>
+          </div>
+        </div>`).join('')
+      : '<p style="grid-column:1/-1;text-align:center;color:var(--mut);padding:40px">Участников пока нет</p>';
+    document.getElementById('partGrid').innerHTML = partHtml;
       ? parts.map(p => `
         <div class="part-row">
           <img class="pr-image" src="${p.image_url || 'https://via.placeholder.com/80/e81179/ffffff?text=' + (p.artist||'?')[0]}" alt="${p.artist}">
