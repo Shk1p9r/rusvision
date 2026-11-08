@@ -1,6 +1,6 @@
 // Данные из Supabase Dashboard → Settings → API
 const SUPABASE_URL = 'https://whqicbrivhiaegtzelci.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_Ffyb_P8kESdDW8I488cYTA_UPF1PSI8';
+const SUPABASE_ANON_KEY = 'sb_publishable_FfYb_P8kESdDW8I488cYtA_UPFlPSi8';
 
 // ВАЖНО: Используем window.supabase для создания клиента
 window.rv_supabase = null; 
