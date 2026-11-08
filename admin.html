@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ROSVISION · Админ</title>
+<title>RUSVISION · Админ</title>
 <link rel="icon" href="logo.png" type="image/png">
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -40,7 +40,7 @@ a.back{color:var(--mut);font-size:.8rem}
   <button class="btn" style="margin-top:16px" onclick="location.reload()">Проверить снова</button></p>
 </div>
 <div class="wrap" id="panel" style="display:none">
-  <h1>ROSVISION · АДМИН</h1>
+  <h1>RUSVISION · АДМИН</h1>
   <div class="sub"><span id="who"></span> · <a class="back" href="index.html">← На сайт</a> · <a class="back" href="#" id="logout">Выйти</a></div>
   <div class="tabs">
     <button data-t="news" class="on">Новости</button>
@@ -105,38 +105,61 @@ document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
   b.classList.add('on');
   ['news','part','set','soc'].forEach(t => $('t-'+t).style.display = t === b.dataset.t ? '' : 'none');
 });
-$('logout').onclick = async e => { e.preventDefault(); if(supabase) await supabase.auth.signOut(); location.href = 'index.html'; };
+$('logout').onclick = async e => { e.preventDefault(); if(window.rv_supabase) await window.rv_supabase.auth.signOut(); location.href = 'index.html'; };
 
 async function boot() {
-  if (!supabase) { $('lock').style.display = ''; return; }
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session || !(await isAdmin())) { $('lock').style.display = ''; return; }
-  $('who').textContent = session.user.email;
-  $('panel').style.display = '';
-  refreshAll();
+  const client = window.rv_supabase;
+  if (!client) { $('lock').style.display = ''; return; }
+  
+  try {
+    const { data: { session } } = await client.auth.getSession();
+    if (!session || !(await isAdmin())) { $('lock').style.display = ''; return; }
+    
+    $('who').textContent = session.user.email;
+    $('panel').style.display = '';
+    refreshAll();
+  } catch (e) {
+    console.error('Boot error:', e);
+    $('lock').style.display = '';
+  }
 }
 
 async function refreshAll() {
-  const n = await supabase.from('news').select('*').order('created_at', { ascending: false });
-  $('list-news').innerHTML = (n.data||[]).map(x => `<div class="row"><span><b>${x.code}</b> · ${x.region} — ${x.title}</span><button class="btn del" onclick="del('news',${x.id})">Удалить</button></div>`).join('') || '<p style="color:var(--mut)">Пока нет новостей</p>';
+  const client = window.rv_supabase;
+  if (!client) return;
   
-  const p = await supabase.from('participants').select('*').order('sort');
-  $('list-part').innerHTML = (p.data||[]).map(x => `<div class="row"><span><b>${x.code}</b> · ${x.artist} — ${x.region}</span><button class="btn del" onclick="del('participants',${x.id})">Удалить</button></div>`).join('') || '<p style="color:var(--mut)">Пока нет участников</p>';
-  
-  const s = await supabase.from('site_settings').select('*').eq('id',1).single();
-  if (s.data) { $('s_name').value = s.data.site_name||''; $('s_tag').value = s.data.tagline||''; $('s_note').value = s.data.footer_note||''; $('s_email').value = s.data.contact_email||''; }
-  
-  const so = await supabase.from('social_links').select('*').order('sort');
-  $('list-soc').innerHTML = (so.data||[]).map(x => `<div class="row"><span>${x.icon} ${x.title} — ${x.url}</span><button class="btn del" onclick="del('social_links',${x.id})">Удалить</button></div>`).join('') || '<p style="color:var(--mut)">Пока нет ссылок</p>';
+  try {
+    // Новости
+    const n = await client.from('news').select('*').order('created_at', { ascending: false });
+    $('list-news').innerHTML = (n.data||[]).map(x => `<div class="row"><span><b>${x.code}</b> · ${x.region} — ${x.title}</span><button class="btn del" onclick="del('news',${x.id})">Удалить</button></div>`).join('') || '<p style="color:var(--mut)">Пока нет новостей</p>';
+    
+    // Участники
+    const p = await client.from('participants').select('*').order('sort');
+    $('list-part').innerHTML = (p.data||[]).map(x => `<div class="row"><span><b>${x.code}</b> · ${x.artist} — ${x.region}</span><button class="btn del" onclick="del('participants',${x.id})">Удалить</button></div>`).join('') || '<p style="color:var(--mut)">Пока нет участников</p>';
+    
+    // Реквизиты
+    const s = await client.from('site_settings').select('*').eq('id',1).single();
+    if (s.data) { $('s_name').value = s.data.site_name||''; $('s_tag').value = s.data.tagline||''; $('s_note').value = s.data.footer_note||''; $('s_email').value = s.data.contact_email||''; }
+    
+    // Соцсети
+    const so = await client.from('social_links').select('*').order('sort');
+    $('list-soc').innerHTML = (so.data||[]).map(x => `<div class="row"><span>${x.icon} ${x.title} — ${x.url}</span><button class="btn del" onclick="del('social_links',${x.id})">Удалить</button></div>`).join('') || '<p style="color:var(--mut)">Пока нет ссылок</p>';
+  } catch (e) {
+    console.error('Refresh error:', e);
+  }
 }
 
 async function del(table, id) {
-  await supabase.from(table).delete().eq('id', id);
+  const client = window.rv_supabase;
+  if (!client) return;
+  await client.from(table).delete().eq('id', id);
   refreshAll();
 }
 
 async function addNews() {
-  const { error } = await supabase.from('news').insert({
+  const client = window.rv_supabase;
+  if (!client) return;
+  const { error } = await client.from('news').insert({
     region: $('n_region').value, code: $('n_code').value,
     title: $('n_title').value, excerpt: $('n_excerpt').value,
     accent: +$('n_accent').value
@@ -146,7 +169,9 @@ async function addNews() {
 }
 
 async function addPart() {
-  const { error } = await supabase.from('participants').insert({
+  const client = window.rv_supabase;
+  if (!client) return;
+  const { error } = await client.from('participants').insert({
     artist: $('p_artist').value, region: $('p_region').value,
     code: $('p_code').value, sort: Date.now() % 100000
   });
@@ -155,7 +180,9 @@ async function addPart() {
 }
 
 async function addSoc() {
-  const { error } = await supabase.from('social_links').insert({
+  const client = window.rv_supabase;
+  if (!client) return;
+  const { error } = await client.from('social_links').insert({
     title: $('so_title').value, url: $('so_url').value,
     icon: $('so_icon').value || '🔗', sort: Date.now() % 100000
   });
@@ -164,7 +191,9 @@ async function addSoc() {
 }
 
 async function saveSet() {
-  const { error } = await supabase.from('site_settings').update({
+  const client = window.rv_supabase;
+  if (!client) return;
+  const { error } = await client.from('site_settings').update({
     site_name: $('s_name').value, tagline: $('s_tag').value,
     footer_note: $('s_note').value, contact_email: $('s_email').value
   }).eq('id', 1);
