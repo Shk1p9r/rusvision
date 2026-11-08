@@ -169,6 +169,7 @@ async function boot() {
 }
 
 async function refreshAll() {
+
   const client = window.rv_supabase;
   if (!client) return;
   try {
@@ -186,7 +187,15 @@ async function refreshAll() {
 
     const a = await client.from('admins').select('email');
     $('list-admins').innerHTML = (a.data||[]).map(x => `<div class="row"><span>👤 ${x.email}</span><button class="btn del" onclick="removeAdmin('${x.email}')">Удалить</button></div>`).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет администраторов</p>';
+    
+    const a = await client.from('admins').select('email');
+    $('list-admins').innerHTML = (a.data||[]).map(x => {
+    const isMain = x.email === 'shkiphunt@gmail.com';
+    return `<div class="row"><span>👤 ${x.email} ${isMain ? '<span style="color:var(--acc);font-size:.75rem">(главный)</span>' : ''}</span>
+    ${isMain ? '<span style="color:var(--mut);font-size:.8rem">защищён</span>' : `<button class="btn del" onclick="removeAdmin('${x.email}')">Удалить</button>`}</div>`;
+    }).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет администраторов</p>';
   } catch (e) { console.error(e); }
+  
 }
 
 async function del(table, id) {
@@ -239,6 +248,11 @@ async function addAdmin() {
 }
 
 async function removeAdmin(email) {
+  // Защита главного админа на уровне JS
+  if (email === 'shkiphunt@gmail.com') {
+    alert('❌ Нельзя удалить Шкипера из списка админов!');
+    return;
+  }
   if (!confirm('Удалить администратора ' + email + '?')) return;
   const { error } = await window.rv_supabase.rpc('remove_admin', { email });
   if (error) alert('❌ ' + error.message);
