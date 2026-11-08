@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROSVISION · Админ</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="sb.js"></script>
+<style>
+:root{--bg:#221b2a;--line:rgba(244,242,247,.14);--paper:#f4f2f7;--mut:rgba(244,242,247,.55);--acc:#e81179}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Rubik,sans-serif;background:var(--bg);color:var(--paper);font-weight:300;padding:40px 20px}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-weight:900;letter-spacing:.05em;margin-bottom:6px}
+.sub{color:var(--mut);font-size:.85rem;margin-bottom:30px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.tabs button{border:1px solid var(--line);background:none;color:var(--mut);border-radius:999px;padding:10px 20px;cursor:pointer;font:600 .82rem Rubik}
+.tabs button.on{color:var(--paper);border-color:var(--paper)}
+.card{border:1px solid var(--line);border-radius:18px;padding:26px;margin-bottom:22px}
+.card h3{font-weight:700;margin-bottom:16px;font-size:1rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+input,select{width:100%;background:#191420;border:1px solid var(--line);border-radius:12px;color:var(--paper);padding:12px 14px;font:400 .9rem Rubik;margin-bottom:12px}
+input:focus{outline:1px solid var(--acc)}
+.btn{border-radius:999px;padding:12px 26px;font:700 .85rem Rubik;cursor:pointer;border:1px solid var(--paper);background:var(--paper);color:var(--bg)}
+.btn.del{background:none;border-color:var(--line);color:var(--mut);padding:6px 14px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:12px 4px;font-size:.9rem}
+.row:last-child{border:0}
+.msg{color:var(--acc);font-size:.82rem;margin-top:10px;min-height:18px}
+a.back{color:var(--mut);font-size:.8rem}
+#lock{text-align:center;padding:80px 20px}
+</style>
+</head>
+<body>
+<div class="wrap" id="lock" style="display:none">
+  <h1>Доступ закрыт</h1>
+  <p class="sub">Админ-панель доступна только подтверждённым администраторам.<br><a class="back" href="index.html">← На сайт</a> · <button class="btn" style="margin-top:16px" onclick="location.reload()">Проверить снова</button></p>
+</div>
+<div class="wrap" id="panel" style="display:none">
+  <h1>ROSVISION · АДМИН</h1>
+  <div class="sub"><span id="who"></span> · <a class="back" href="index.html">← На сайт</a> · <a class="back" href="#" id="logout">Выйти</a></div>
+  <div class="tabs">
+    <button data-t="news" class="on">Новости</button>
+    <button data-t="part">Исполнители / участники</button>
+    <button data-t="set">Реквизиты сайта</button>
+    <button data-t="soc">Соцсети</button>
+  </div>
+
+  <div id="t-news">
+    <div class="card"><h3>Добавить новость (единый шаблон)</h3>
+      <div class="grid">
+        <input id="n_region" placeholder="Регион (напр. Республика Татарстан)">
+        <input id="n_code" placeholder="Код (ТАТ)">
+      </div>
+      <input id="n_title" placeholder="Заголовок">
+      <input id="n_excerpt" placeholder="Краткое описание">
+      <select id="n_accent"><option value="1">Акцент 1</option><option value="2">Акцент 2</option><option value="3">Акцент 3</option><option value="4">Акцент 4</option><option value="5">Акцент 5</option><option value="0">Акцент 6</option></select>
+      <button class="btn" onclick="addNews()">Опубликовать</button><div class="msg" id="m-news"></div>
+    </div>
+    <div class="card"><h3>Опубликованные</h3><div id="list-news"></div></div>
+  </div>
+
+  <div id="t-part" style="display:none">
+    <div class="card"><h3>Добавить исполнителя / участника</h3>
+      <div class="grid">
+        <input id="p_artist" placeholder="Исполнитель (напр. Йолдыз)">
+        <input id="p_region" placeholder="Регион">
+      </div>
+      <input id="p_code" placeholder="Код (ТАТ)">
+      <button class="btn" onclick="addPart()">Добавить</button><div class="msg" id="m-part"></div>
+    </div>
+    <div class="card"><h3>Список</h3><div id="list-part"></div></div>
+  </div>
+
+  <div id="t-set" style="display:none">
+    <div class="card"><h3>Реквизиты / данные сайта (футер)</h3>
+      <input id="s_name" placeholder="Название сайта">
+      <input id="s_tag" placeholder="Слоган">
+      <input id="s_note" placeholder="Строка копирайта">
+      <input id="s_email" placeholder="Контактный e-mail">
+      <button class="btn" onclick="saveSet()">Сохранить</button><div class="msg" id="m-set"></div>
+    </div>
+  </div>
+
+  <div id="t-soc" style="display:none">
+    <div class="card"><h3>Добавить ссылку на соцсеть</h3>
+      <div class="grid">
+        <input id="so_title" placeholder="Название (Telegram)">
+        <input id="so_icon" placeholder="Иконка-эмодзи (✈️)">
+      </div>
+      <input id="so_url" placeholder="https://...">
+      <button class="btn" onclick="addSoc()">Добавить</button><div class="msg" id="m-soc"></div>
+    </div>
+    <div class="card"><h3>Текущие ссылки</h3><div id="list-soc"></div></div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+ ['news','part','set','soc'].forEach(t=>$('t-'+t).style.display=t===b.dataset.t?'':'none')});
+$('logout').onclick=async e=>{e.preventDefault();await supabase.auth.signOut();location.href='index.html'};
+
+async function boot(){
+ if(!supabase){$('lock').style.display='';return}
+ const {data:{session}}=await supabase.auth.getSession();
+ if(!session||!(await isAdmin())){$('lock').style.display='';return}
+ $('who').textContent=session.user.email;
+ $('panel').style.display='';refreshAll();
+}
+async function refreshAll(){
+ const n=await supabase.from('news').select('*').order('created_at',{ascending:false});
+ $('list-news').innerHTML=n.data.map(x=>`<div class="row"><span><b>${x.code}</b> · ${x.region} — ${x.title}</span><button class="btn del" onclick="del('news',${x.id})">Удалить</button></div>`).join('');
+ const p=await supabase.from('participants').select('*').order('sort');
+ $('list-part').innerHTML=p.data.map(x=>`<div class="row"><span><b>${x.code}</b> · ${x.artist} — ${x.region}</span><button class="btn del" onclick="del('participants',${x.id})">Удалить</button></div>`).join('');
+ const s=await supabase.from('site_settings').select('*').eq('id',1).single();
+ if(s.data){$('s_name').value=s.data.site_name;$('s_tag').value=s.data.tagline;$('s_note').value=s.data.footer_note;$('s_email').value=s.data.contact_email}
+ const so=await supabase.from('social_links').select('*').order('sort');
+ $('list-soc').innerHTML=so.data.map(x=>`<div class="row"><span>${x.icon} ${x.title} — ${x.url}</span><button class="btn del" onclick="del('social_links',${x.id})">Удалить</button></div>`).join('');
+}
+async function del(table,id){await supabase.from(table).delete().eq('id',id);refreshAll()}
+async function addNews(){const {error}=await supabase.from('news').insert({region:$('n_region').value,code:$('n_code').value,title:$('n_title').value,excerpt:$('n_excerpt').value,accent:+$('n_accent').value});
+ $('m-news').textContent=error?error.message:'Готово ✓';if(!error){['n_region','n_code','n_title','n_excerpt'].forEach(i=>$(i).value='');refreshAll()}}
+async function addPart(){const {error}=await supabase.from('participants').insert({artist:$('p_artist').value,region:$('p_region').value,code:$('p_code').value,sort:Date.now()%100000});
+ $('m-part').textContent=error?error.message:'Готово ✓';if(!error){['p_artist','p_region','p_code'].forEach(i=>$(i).value='');refreshAll()}}
+async function addSoc(){const {error}=await supabase.from('social_links').insert({title:$('so_title').value,url:$('so_url').value,icon:$('so_icon').value||'🔗',sort:Date.now()%100000});
+ $('m-soc').textContent=error?error.message:'Готово ✓';if(!error){['so_title','so_url','so_icon'].forEach(i=>$(i).value='');refreshAll()}}
+async function saveSet(){const {error}=await supabase.from('site_settings').update({site_name:$('s_name').value,tagline:$('s_tag').value,footer_note:$('s_note').value,contact_email:$('s_email').value}).eq('id',1);
+ $('m-set').textContent=error?error.message:'Сохранено ✓'}
+boot();
+</script>
+</body>
+</html>
