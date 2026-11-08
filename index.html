@@ -1,766 +1,954 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SHELF — Premium Store</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-color: #07090e;
-      --card-bg: rgba(18, 24, 38, 0.75);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent: #6366f1;
-      --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      --success: #10b981;
-      --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      --danger: #ef4444;
-      --radius-lg: 20px;
-      --radius-md: 14px;
-      --radius-sm: 10px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      padding-bottom: 120px;
-      overflow-x: hidden;
-      min-height: 100vh;
-      background-image:
-        radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
-      background-attachment: fixed;
-    }
-    .header {
-      position: sticky; top: 0; z-index: 90;
-      padding: 12px 16px;
-      background: rgba(7, 9, 14, 0.85);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--card-border);
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .brand-title {
-      font-size: 20px; font-weight: 800; letter-spacing: 3px;
-      background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      text-transform: uppercase;
-    }
-    .user-pill {
-      display: flex; align-items: center; gap: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
-      padding: 4px 10px; border-radius: 20px;
-      font-size: 12px; color: var(--text-muted);
-    }
-    .user-avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
-    .container { padding: 16px; max-width: 500px; margin: 0 auto; animation: fadeIn 0.35s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .product-grid { display: flex; flex-direction: column; gap: 16px; }
-    .product-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-lg);
-      padding: 14px;
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-    }
-    .product-img {
-      width: 100%; height: 240px; object-fit: cover;
-      border-radius: var(--radius-md); margin-bottom: 12px;
-      background: rgba(255, 255, 255, 0.03);
-    }
-    .product-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 10px; }
-    .product-title { font-size: 18px; font-weight: 700; color: #fff; }
-    .product-price {
-      font-size: 17px; font-weight: 800; color: #34d399;
-      background: rgba(16, 185, 129, 0.12);
-      padding: 4px 12px; border-radius: 20px;
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      white-space: nowrap;
-    }
-    .product-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; }
-    .options-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
-    .option-group-label { font-size: 12px; color: var(--text-muted); width: 100%; margin-bottom: -4px; }
-    .size-chip {
-      background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
-      padding: 6px 12px; border-radius: 8px; font-size: 12px; color: #fff; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .size-chip.selected { background: var(--accent); border-color: var(--accent); }
-    .color-dot {
-      width: 24px; height: 24px; border-radius: 50%;
-      border: 2px solid transparent; cursor: pointer;
-      display: inline-block; transition: transform 0.2s;
-    }
-    .color-dot.selected { border-color: #fff; transform: scale(1.15); }
-    .btn {
-      width: 100%; padding: 14px; border: none;
-      border-radius: var(--radius-md);
-      background: var(--accent-gradient); color: white;
-      font-weight: 700; font-size: 14px; font-family: inherit;
-      cursor: pointer; transition: all 0.2s ease;
-      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
-      display: flex; justify-content: center; align-items: center;
-      gap: 8px; text-decoration: none;
-    }
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.08); color: var(--text-main);
-      box-shadow: none; border: 1px solid var(--card-border); margin-top: 10px;
-    }
-    .btn-success { background: var(--success-gradient); box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35); }
-    .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3); }
-    .btn:disabled { opacity: .5; cursor: default; }
-    .bottom-nav-wrapper {
-      position: fixed; bottom: 20px; left: 0; right: 0;
-      display: flex; justify-content: center; z-index: 100; padding: 0 16px;
-    }
-    .bottom-nav {
-      background: rgba(15, 21, 36, 0.85);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 28px; display: flex;
-      padding: 6px; width: 100%; max-width: 420px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5); gap: 4px;
-    }
-    .nav-btn {
-      flex: 1; background: none; border: none;
-      color: var(--text-muted); font-size: 12px; font-weight: 600;
-      font-family: inherit; padding: 10px 8px; border-radius: 20px;
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .nav-btn.active { color: #fff; background: rgba(99, 102, 241, 0.25); border: 1px solid rgba(99, 102, 241, 0.4); }
-    .cart-badge {
-      background: var(--accent); color: white; font-size: 10px; font-weight: 800;
-      padding: 2px 7px; border-radius: 10px;
-    }
-    .app-footer {
-      margin-top: 35px; padding: 20px 10px;
-      border-top: 1px solid var(--card-border);
-      text-align: center; font-size: 12px; color: var(--text-muted);
-      display: flex; flex-direction: column; gap: 10px;
-    }
-    .footer-links { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
-    .footer-link { color: #a5b4fc; text-decoration: none; font-weight: 600; transition: color 0.2s; }
-    .footer-link:hover { color: #fff; }
-    .footer-legal-links { display: flex; justify-content: center; gap: 12px; font-size: 11px; opacity: 0.7; }
-    .footer-credits { font-size: 11px; color: #64748b; margin-top: 4px; }
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
-      z-index: 200; display: flex; justify-content: center; align-items: center; padding: 20px;
-    }
-    .modal-body {
-      background: #0f172a; border: 1px solid var(--card-border);
-      border-radius: var(--radius-lg); padding: 20px;
-      max-width: 450px; max-height: 80vh; overflow-y: auto;
-      color: var(--text-main); font-size: 13px; line-height: 1.6;
-    }
-    .modal-title { font-size: 16px; font-weight: 800; margin-bottom: 12px; color: #fff; }
-    input, select, textarea {
-      width: 100%; padding: 14px; margin-bottom: 12px;
-      background: rgba(10, 15, 26, 0.7);
-      border: 1px solid var(--card-border); color: white;
-      border-radius: var(--radius-sm); font-family: inherit; font-size: 14px;
-      transition: all 0.2s ease; box-sizing: border-box;
-    }
-    input[type="file"] { padding: 10px; cursor: pointer; }
-    input:focus, select:focus, textarea:focus {
-      outline: none; border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
-    }
-    .section-card {
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: var(--radius-lg); padding: 18px;
-      margin-bottom: 16px; backdrop-filter: blur(12px);
-    }
-    .section-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #fff; }
-    .empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
-    .empty-icon { font-size: 48px; margin-bottom: 12px; }
-    .admin-list-item {
-      display: flex; justify-content: space-between; align-items: center;
-      background: rgba(10, 15, 26, 0.6); padding: 10px 14px;
-      margin-bottom: 8px; border-radius: 10px; border: 1px solid var(--card-border);
-    }
-  </style>
-  <base target="_blank">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>РоссияФест - Музыкальный фестиваль городов России</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a1a2e;
+            --secondary-color: #16213e;
+            --accent-color: #e94560;
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --gradient-1: #ff6b6b;
+            --gradient-2: #4ecdc4;
+            --gradient-3: #45b7d1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-color), var(--gradient-1));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        .mobile-menu {
+            display: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 80px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            color: var(--text-light);
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></svg>');
+            background-size: 100px 100px;
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .hero-date {
+            font-size: 1.3rem;
+            background: rgba(255,255,255,0.2);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease 0.6s both;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: var(--text-light);
+        }
+
+        .btn-primary:hover {
+            background: #ff6b6b;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(233, 69, 96, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-light);
+            color: var(--primary-color);
+        }
+
+        /* Cities Section */
+        .cities-section {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--primary-color);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-color), var(--gradient-2));
+            margin: 1rem auto;
+            border-radius: 2px;
+        }
+
+        .cities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .city-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .city-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .city-image {
+            height: 200px;
+            background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+        }
+
+        .city-info {
+            padding: 1.5rem;
+        }
+
+        .city-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .city-region {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .city-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        /* News Section */
+        .news-section {
+            background: white;
+            padding: 4rem 2rem;
+        }
+
+        .news-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .news-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--accent-color);
+            transition: all 0.3s;
+        }
+
+        .news-card:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .news-category {
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .news-title {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .news-date {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-light);
+        }
+
+        .features-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent-color), var(--gradient-1));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-text {
+            opacity: 0.9;
+            line-height: 1.8;
+        }
+
+        /* App Section */
+        .app-section {
+            padding: 4rem 2rem;
+            background: white;
+            text-align: center;
+        }
+
+        .app-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .app-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .app-download {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+
+        .app-download:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary-color);
+            color: var(--text-light);
+            padding: 3rem 2rem 1rem;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: var(--text-light);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .footer-section a:hover {
+            opacity: 1;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            opacity: 0.7;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--accent-color);
+            transform: translateY(-3px);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .cities-grid,
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cookie Banner */
+        .cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            z-index: 9999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .cookie-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .cookie-btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .cookie-accept {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .cookie-decline {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="header">
-    <div class="brand-title">SHELF</div>
-    <div id="user-header-status"></div>
-  </div>
-
-  <div class="container" id="app-content">
-    <div class="empty-state"><p>Загрузка приложения...</p></div>
-  </div>
-
-  <div class="bottom-nav-wrapper">
-    <div class="bottom-nav">
-      <button class="nav-btn active" id="nav-catalog" onclick="switchTab('catalog')">
-        <span>🛒</span><span>Каталог</span>
-      </button>
-      <button class="nav-btn" id="nav-cart" onclick="switchTab('cart')">
-        <span>🛍</span>
-        <span>Корзина <span id="cart-count" class="cart-badge">0</span></span>
-      </button>
-      <button class="nav-btn" id="nav-admin" style="display:none;" onclick="switchTab('admin')">
-        <span>🔑</span><span>Продавец</span>
-      </button>
-    </div>
-  </div>
-
-  <div id="legal-modal" class="modal-overlay" style="display:none;">
-    <div class="modal-body">
-      <div class="modal-title" id="modal-legal-title">Документ</div>
-      <div id="modal-legal-content"></div>
-      <button class="btn btn-secondary" style="margin-top:16px;" onclick="closeLegalModal()">Закрыть</button>
-    </div>
-  </div>
-
-  <script>
-    const SUPABASE_URL = "https://whqicbrivhiaegtzelci.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_FfYb_P8kESdDW8I488cYtA_UPFlPSi8";
-    const API_URL = SUPABASE_URL + "/functions/v1/shelf-api";
-    const ALL_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
-    const STATUS = { pending: '⏳ Ожидает проверки', cash_reserved: '💵 Бронь (наличные)', confirmed: '✅ Подтверждён', cancelled: '❌ Отменён' };
-
-    // 🔴 ВПИШИ СВОЙ ID И ID КЕНТА ЗДЕСЬ (числа, через запятую)
-    const OWNER_IDS = [5134404754, 5889214841];
-
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
-    const tg = window.Telegram?.WebApp;
-    tg?.ready(); tg?.expand();
-    const initData = tg?.initData || '';
-    const tgUser = tg?.initDataUnsafe?.user || null;
-
-    let isAdmin = false, isSuper = false, loadFailed = false, busy = false, currentTab = 'catalog', adminCheckError = '';
-    let cart = [], products = [], orders = [], admins = [];
-    let settings = { card_number: '', phone_number: '' };
-    let selectedProductOptions = {};
-    let checkout = { name: tgUser?.first_name || '', phone: '' };
-
-    const $ = id => document.getElementById(id);
-    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    const safeColor = c => /^#[0-9a-f]{3,8}$/i.test(c || '') ? c : 'transparent';
-    const safeUrl = u => /^https:\/\//i.test(u || '') ? u : '';
-    const moneyFmt = new Intl.NumberFormat('ru-RU');
-    const money = n => moneyFmt.format(Number(n) || 0);
-    const notify = m => (tg && tg.isVersionAtLeast?.('6.2')) ? tg.showAlert(m) : alert(m);
-
-    // 🔴 Мгновенный фолбэк: владельцы видят панель сразу, даже до ответа сервера
-    if (tgUser && OWNER_IDS.includes(Number(tgUser.id))) {
-      isAdmin = true;
-      isSuper = true;
-    }
-
-    async function api(action, payload = {}) {
-      if (!initData) throw new Error('Откройте магазин через Telegram.');
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY },
-        body: JSON.stringify({ initData, action, payload })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || `Ошибка сервера (${res.status})`);
-      return data;
-    }
-
-    async function loadPublic() {
-      const [p, s] = await Promise.all([
-        db.from('products').select('*').order('created_at', { ascending: false }),
-        db.from('settings').select('value').eq('key', 'payment_info').maybeSingle()
-      ]);
-      if (p.error) throw p.error;
-      products = p.data || [];
-      if (s.data?.value) settings = s.data.value;
-    }
-
-    async function loadAdminDataSafe() {
-      try {
-        const [o, a] = await Promise.all([
-          api('admin_list_orders'),
-          api('admin_list_admins').catch((e) => {
-            console.warn('admin_list_admins:', e.message);
-            return { admins: [] };
-          })
-        ]);
-        orders = o.orders || [];
-        admins = a.admins || [];
-        return { ok: true };
-      } catch (e) {
-        console.warn('Не удалось загрузить данные админа:', e);
-        return { ok: false, error: (e && e.message) || 'Не удалось загрузить данные.' };
-      }
-    }
-
-    function loadCart() {
-      try {
-        const saved = JSON.parse(localStorage.getItem('shelf_cart') || '[]');
-        if (Array.isArray(saved)) cart = saved.filter(i => i && Number(i.product_id) > 0).slice(0, 30);
-      } catch (e) {}
-      updateCartBadge();
-    }
-    function saveCart() {
-      try { localStorage.setItem('shelf_cart', JSON.stringify(cart)); } catch (e) {}
-      updateCartBadge();
-    }
-    function updateCartBadge() { $('cart-count').innerText = cart.length; }
-    function syncCart() {
-      cart = cart.map(i => {
-        const p = products.find(x => Number(x.id) === Number(i.product_id));
-        return p ? { ...i, title: p.title, price: Number(p.price) } : null;
-      }).filter(Boolean);
-      saveCart();
-    }
-
-    function renderHeader() {
-      const name = tgUser ? (tgUser.username ? '@' + tgUser.username : tgUser.first_name || 'Пользователь') : null;
-      $('user-header-status').innerHTML = name
-        ? `<div class="user-pill">${safeUrl(tgUser.photo_url) ? `<img src="${esc(tgUser.photo_url)}" class="user-avatar" alt="">` : ''}<span>${esc(name)}</span></div>`
-        : `<div class="user-pill"><span>👀 Гость</span></div>`;
-    }
-
-    async function init() {
-      renderHeader();
-      loadCart();
-
-      // 🔴 Сразу показываем панель владельцам, не дожидаясь сервера
-      if (isAdmin) $('nav-admin').style.display = 'flex';
-
-      try { await loadPublic(); syncCart(); } catch (e) { console.error(e); loadFailed = true; }
-
-      if (initData) {
-        try {
-          const res = await api('admin_check');
-          isAdmin = !!res.isAdmin;
-          isSuper = !!res.isSuper;
-        } catch (e) {
-          adminCheckError = (e && e.message) || 'Ошибка проверки прав.';
-          console.warn(e);
-        }
-      } else {
-        adminCheckError = 'Откройте магазин через Telegram — в браузере авторизация недоступна.';
-      }
-
-      // 🔴 Ещё раз: владельцы всегда админы
-      if (tgUser && OWNER_IDS.includes(Number(tgUser.id))) {
-        isAdmin = true;
-        isSuper = true;
-      }
-
-      if (isAdmin) $('nav-admin').style.display = 'flex';
-      switchTab('catalog');
-    }
-
-    function getFooterHTML() {
-      return `
-        <div class="app-footer">
-          <div class="footer-links">
-            <a href="https://t.me/SHELFstore1" target="_blank" class="footer-link">📢 Канал SHELF</a>
-            <a href="https://t.me/SHELFotz" target="_blank" class="footer-link">💬 Отзывы</a>
-            <a href="https://www.avito.ru/brands/82408a3b639091b8eb0dabc4d797b316?src=sharing" target="_blank" class="footer-link">🛍 Авито</a>
-          </div>
-          <div class="footer-legal-links">
-            <span style="cursor:pointer; text-decoration:underline;" onclick="openLegalModal('terms')">Пользовательское соглашение</span> •
-            <span style="cursor:pointer; text-decoration:underline;" onclick="openLegalModal('privacy')">Конфиденциальность</span>
-          </div>
-          <div class="footer-credits">
-            Разработано студией <b>ELEVEN_PROJECT</b> | Кодер: <b>shk1p9r</b>
-          </div>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon"></div>
+                <span>РоссияФест</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#cities">Города</a></li>
+                <li><a href="#news">Новости</a></li>
+                <li><a href="#about">О фестивале</a></li>
+                <li><a href="#app">Приложение</a></li>
+                <li><a href="#shop">Магазин</a></li>
+            </ul>
+            <div class="mobile-menu">☰</div>
         </div>
-      `;
-    }
+    </nav>
 
-    function openLegalModal(type) {
-      const modal = document.getElementById('legal-modal');
-      const title = document.getElementById('modal-legal-title');
-      const content = document.getElementById('modal-legal-content');
-      if (type === 'terms') {
-        title.innerText = 'Пользовательское соглашение';
-        content.innerHTML = `
-          <p><b>1. Общие положения</b><br>Используя магазин SHELF, вы соглашаетесь с условиями покупки товара и правилами оформления заказов.</p>
-          <p style="margin-top:8px;"><b>2. Заказы и Оплата</b><br>Все заказы подтверждаются продавцом. Продавец имеет право отменить бронь при некорректных данных.</p>
-          <p style="margin-top:8px;"><b>3. Права</b><br>Все права на дизайн и товарные марки принадлежат магазину SHELF и разработчикам ELEVEN_PROJECT.</p>
-        `;
-      } else {
-        title.innerText = 'Политика конфиденциальности';
-        content.innerHTML = `
-          <p><b>1. Сбор данных</b><br>Мы обрабатываем необходимые данные вашего аккаунта исключительно для авторизации и доставки заказов.</p>
-          <p style="margin-top:8px;"><b>2. Защита данных</b><br>Персональные данные не передаются третьим лицам и надежно защищены.</p>
-        `;
-      }
-      modal.style.display = 'flex';
-    }
-    function closeLegalModal() {
-      document.getElementById('legal-modal').style.display = 'none';
-    }
-
-    function addColorPickerField(hex = '#6366f1', name = '') {
-      const container = document.getElementById('colors-container');
-      if (!container) return;
-      const item = document.createElement('div');
-      item.className = 'color-item';
-      item.style.display = 'flex';
-      item.style.gap = '8px';
-      item.style.marginBottom = '8px';
-      item.innerHTML = `
-        <input type="color" value="${hex}" style="width: 50px; padding: 4px; height: 46px; cursor: pointer;" class="color-picker-input">
-        <input type="text" placeholder="Название цвета (например, Черный)" value="${name}" class="color-name-input" style="margin-bottom: 0;">
-        <button type="button" class="btn btn-danger" style="width: auto; padding: 0 14px;" onclick="this.parentElement.remove()">✕</button>
-      `;
-      container.appendChild(item);
-    }
-
-    function pickOption(id, type, el) {
-      selectedProductOptions[id][type] = el.dataset.v;
-      el.parentElement.querySelectorAll('[data-v]').forEach(n => n.classList.toggle('selected', n === el));
-    }
-
-    function addToCart(id, btn) {
-      const p = products.find(x => Number(x.id) === id);
-      if (!p) return;
-      if (cart.length >= 30) return notify('В корзине не может быть больше 30 товаров.');
-      const o = selectedProductOptions[id] || {};
-      cart.push({ product_id: id, title: p.title, price: Number(p.price), size: o.size || null, color: o.color || null });
-      saveCart();
-      tg?.HapticFeedback?.impactOccurred('light');
-      btn.textContent = '✓ Добавлено';
-      setTimeout(() => { btn.textContent = 'В корзину'; }, 1200);
-    }
-
-    function removeFromCart(index) {
-      cart.splice(index, 1);
-      saveCart();
-      switchTab('cart');
-    }
-
-    function renderCatalog(c) {
-      if (loadFailed) {
-        c.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Не удалось загрузить каталог.</p><button class="btn btn-secondary" onclick="location.reload()">Повторить</button></div>${getFooterHTML()}`;
-        return;
-      }
-      if (!products.length) {
-        c.innerHTML = `<div class="empty-state"><div class="empty-icon">✨</div><p>Каталог пока пуст</p></div>${getFooterHTML()}`;
-        return;
-      }
-      c.innerHTML = `<div class="product-grid">${products.map(p => {
-        const id = Number(p.id);
-        const sizes = Array.isArray(p.sizes) ? p.sizes : [];
-        const colors = Array.isArray(p.colors) ? p.colors : [];
-        const avail = p.is_available !== false || p.unlimited_stock === true;
-        if (!selectedProductOptions[id]) selectedProductOptions[id] = { size: sizes[0] || '', color: colors[0]?.hex || '' };
-        const cur = selectedProductOptions[id];
-        return `
-          <div class="product-card">
-            ${safeUrl(p.image) ? `<img src="${esc(p.image)}" class="product-img" alt="${esc(p.title)}" loading="lazy">` : ''}
-            <div class="product-header-row">
-              <div class="product-title">${esc(p.title)}</div>
-              <div class="product-price">${money(p.price)} ₽</div>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>РоссияФест 2026</h1>
+            <p class="hero-subtitle">Музыкальный фестиваль городов России</p>
+            <div class="hero-date">📅 15-20 Декабря 2026 • Москва</div>
+            <div class="hero-buttons">
+                <a href="#" class="btn btn-primary">Купить билеты</a>
+                <a href="#" class="btn btn-secondary">Смотреть трансляцию</a>
             </div>
-            <div class="product-desc">${esc(p.description || '')}</div>
-            ${sizes.length ? `<div class="options-row"><div class="option-group-label">Размер:</div>${sizes.map(s =>
-              `<div class="size-chip ${cur.size === s ? 'selected' : ''}" data-v="${esc(s)}" onclick="pickOption(${id}, 'size', this)">${esc(s)}</div>`).join('')}</div>` : ''}
-            ${colors.length ? `<div class="options-row"><div class="option-group-label">Цвет:</div>${colors.map(cl =>
-              `<div class="color-dot ${cur.color === cl.hex ? 'selected' : ''}" data-v="${esc(cl.hex)}" style="background-color:${safeColor(cl.hex)};" title="${esc(cl.name || cl.hex)}" onclick="pickOption(${id}, 'color', this)"></div>`).join('')}</div>` : ''}
-            <button class="btn" ${avail ? '' : 'disabled'} onclick="addToCart(${id}, this)">${avail ? 'В корзину' : 'Нет в наличии'}</button>
-          </div>`;
-      }).join('')}</div>${getFooterHTML()}`;
-    }
-
-    function renderCart(c) {
-      if (!cart.length) {
-        c.innerHTML = `<div class="empty-state"><div class="empty-icon">🛍</div><p>Ваша корзина пуста</p></div>${getFooterHTML()}`;
-        return;
-      }
-      const total = cart.reduce((s, i) => s + i.price, 0);
-      c.innerHTML = `
-        <div class="section-card">
-          <div class="section-title">Ваш заказ</div>
-          ${cart.map((item, index) => `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--card-border); padding-bottom:10px;">
-              <div>
-                <div style="font-weight:600; color:#fff;">${esc(item.title)}</div>
-                <div style="font-size:12px; color:var(--text-muted);">Размер: ${esc(item.size || '—')}${item.color ? ` | Цвет: <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${safeColor(item.color)};"></span>` : ''}</div>
-                <div style="color:#34d399; font-weight:700; font-size:14px; margin-top:2px;">${money(item.price)} ₽</div>
-              </div>
-              <button onclick="removeFromCart(${index})" style="color:var(--danger); background:none; border:none; font-size:20px; cursor:pointer; padding:5px;">✕</button>
-            </div>`).join('')}
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; font-size:18px; font-weight:800; color:#fff;">
-            <span>Итого:</span><span style="color:#34d399;">${money(total)} ₽</span>
-          </div>
         </div>
-        <button class="btn btn-success" onclick="openCheckout()">Оформить заказ</button>
-        ${getFooterHTML()}`;
-    }
+    </section>
 
-    function openCheckout() {
-      if (!initData) return notify('Откройте магазин через Telegram, чтобы оформить заказ.');
-      $('app-content').innerHTML = `
-        <div class="section-card">
-          <div class="section-title">Оформление заказа</div>
-          <input id="u-name" placeholder="Ваше имя" maxlength="120" value="${esc(checkout.name)}">
-          <input id="u-phone" type="tel" placeholder="Телефон для связи" maxlength="40" value="${esc(checkout.phone)}">
-          <div style="font-size:14px; font-weight:700; margin:15px 0 10px 0; color:#fff;">Способ оплаты:</div>
-          <button class="btn" onclick="submitOrder('cash', this)">💵 Наличными при получении</button>
-          <button class="btn btn-secondary" onclick="showOnlinePayment()">💳 Онлайн перевод по реквизитам</button>
-          <button class="btn btn-secondary" onclick="switchTab('cart')">Назад в корзину</button>
-        </div>`;
-    }
+    <!-- Cities Section -->
+    <section class="cities-section" id="cities">
+        <h2 class="section-title">Города-участники</h2>
+        <div class="cities-grid">
+            <div class="city-card">
+                <div class="city-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">️</div>
+                <div class="city-info">
+                    <h3 class="city-name">Москва</h3>
+                    <p class="city-region">Центральный федеральный округ</p>
+                    <div class="city-stats">
+                        <span>👥 12.5 млн</span>
+                        <span> 8 участников</span>
+                    </div>
+                </div>
+            </div>
 
-    function readCheckout() {
-      const nameEl = $('u-name'), phoneEl = $('u-phone');
-      if (nameEl && phoneEl) {
-        checkout.name = nameEl.value.trim();
-        checkout.phone = phoneEl.value.trim();
-      }
-      if (!checkout.name) { notify('Укажите имя.'); return false; }
-      if (checkout.phone.replace(/\D/g, '').length < 5) { notify('Укажите телефон для связи.'); return false; }
-      return true;
-    }
+            <div class="city-card">
+                <div class="city-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🌉</div>
+                <div class="city-info">
+                    <h3 class="city-name">Санкт-Петербург</h3>
+                    <p class="city-region">Северо-Западный федеральный округ</p>
+                    <div class="city-stats">
+                        <span>👥 5.4 млн</span>
+                        <span>🎵 6 участников</span>
+                    </div>
+                </div>
+            </div>
 
-    function showOnlinePayment() {
-      if (!readCheckout()) return;
-      const total = cart.reduce((s, i) => s + i.price, 0);
-      const hasInfo = settings.card_number || settings.phone_number;
-      $('app-content').innerHTML = `
-        <div class="section-card">
-          <div class="section-title">Перевод по реквизитам</div>
-          <p style="font-size:14px; color:var(--text-muted); margin-bottom:15px;">Переведите <b style="color:#34d399;">${money(total)} ₽</b> на указанные реквизиты:</p>
-          <div style="background:rgba(10,15,26,0.8); padding:14px; border-radius:12px; margin-bottom:15px; border:1px solid var(--card-border);">
-            ${hasInfo ? `
-              ${settings.card_number ? `<div style="margin-bottom:8px;">💳 Номер карты: <b style="font-size:15px; color:#fff; display:block; margin-top:4px;">${esc(settings.card_number)}</b></div>` : ''}
-              ${settings.phone_number ? `<div>📱 Телефон: <b style="font-size:15px; color:#fff; display:block; margin-top:4px;">${esc(settings.phone_number)}</b></div>` : ''}`
-              : `<div style="color:var(--text-muted);">Реквизиты пока не указаны. Выберите оплату наличными или напишите продавцу.</div>`}
-          </div>
-          <button class="btn btn-success" ${hasInfo ? '' : 'disabled'} onclick="submitOrder('online', this)">Я оплатил</button>
-          <button class="btn btn-secondary" onclick="openCheckout()">Назад</button>
-        </div>`;
-    }
+            <div class="city-card">
+                <div class="city-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">🏔️</div>
+                <div class="city-info">
+                    <h3 class="city-name">Казань</h3>
+                    <p class="city-region">Республика Татарстан</p>
+                    <div class="city-stats">
+                        <span> 1.3 млн</span>
+                        <span>🎵 5 участников</span>
+                    </div>
+                </div>
+            </div>
 
-    async function submitOrder(method, btn) {
-      if (busy || !readCheckout()) return;
-      busy = true; btn.disabled = true;
-      try {
-        const items = cart.map(i => ({ product_id: i.product_id, size: i.size || null, color: i.color || null }));
-        const { order } = await api('create_order', { user_name: checkout.name, user_phone: checkout.phone, method, items });
-        if (method === 'online') await api('customer_mark_paid', { order_id: order.id });
-        cart = []; saveCart();
-        $('app-content').innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon">${method === 'online' ? '⏳' : '✅'}</div>
-            <h2 style="color:#fff; margin-bottom:8px;">${method === 'online' ? 'Оплата проверяется' : 'Заказ забронирован!'}</h2>
-            <p>Заказ #${Number(order.id)}. ${method === 'online' ? 'Продавец проверяет поступивший перевод.' : 'Продавец свяжется с вами по указанному номеру.'}</p>
-          </div>${getFooterHTML()}`;
-      } catch (e) {
-        notify(e.message || 'Не удалось оформить заказ.');
-        btn.disabled = false;
-      } finally { busy = false; }
-    }
+            <div class="city-card">
+                <div class="city-image" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">🌆</div>
+                <div class="city-info">
+                    <h3 class="city-name">Новосибирск</h3>
+                    <p class="city-region">Сибирский федеральный округ</p>
+                    <div class="city-stats">
+                        <span>👥 1.6 млн</span>
+                        <span>🎵 4 участника</span>
+                    </div>
+                </div>
+            </div>
 
-    function switchTab(tab) {
-      currentTab = tab;
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.id === `nav-${tab}`));
-      const c = $('app-content');
-      if (tab === 'catalog') renderCatalog(c);
-      else if (tab === 'cart') renderCart(c);
-      else if (tab === 'admin') openAdmin(c);
-    }
+            <div class="city-card">
+                <div class="city-image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">️</div>
+                <div class="city-info">
+                    <h3 class="city-name">Сочи</h3>
+                    <p class="city-region">Краснодарский край</p>
+                    <div class="city-stats">
+                        <span>👥 430 тыс</span>
+                        <span>🎵 3 участника</span>
+                    </div>
+                </div>
+            </div>
 
-    async function openAdmin(c) {
-      if (!isAdmin) {
-        c.innerHTML = `<div class="section-card" style="text-align:center; padding:30px 20px;"><div class="empty-icon">🔒</div><h3 style="color:#fff; margin-bottom:8px;">Доступ ограничен</h3><p style="font-size:13px; color:var(--text-muted);">${esc(adminCheckError || 'Ваш Telegram ID не найден в списке администраторов.')}</p></div>${getFooterHTML()}`;
-        return;
-      }
-      c.innerHTML = '<div class="empty-state"><p>Загрузка панели...</p></div>';
-      const result = await loadAdminDataSafe();
-      if (!result.ok) {
-        c.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>${esc(result.error)}</p><button class="btn btn-secondary" onclick="switchTab('admin')">Повторить</button></div>${getFooterHTML()}`;
-        return;
-      }
-      if (currentTab === 'admin') renderAdmin(c);
-    }
+            <div class="city-card">
+                <div class="city-image" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">🏛️</div>
+                <div class="city-info">
+                    <h3 class="city-name">Екатеринбург</h3>
+                    <p class="city-region">Уральский федеральный округ</p>
+                    <div class="city-stats">
+                        <span>👥 1.5 млн</span>
+                        <span>🎵 5 участников</span>
+                    </div>
+                </div>
+            </div>
 
-    function renderAdmin(c) {
-      const payLabel = o => (o.payment_method || (o.status === 'cash_reserved' ? 'cash' : 'online')) === 'cash' ? '💵 Наличные' : '💳 Перевод';
-      const cardStyle = 'background:rgba(10,15,26,0.6); border:1px solid var(--card-border); padding:12px; margin-bottom:10px; border-radius:12px;';
-      c.innerHTML = `
-        <div class="section-card">
-          <div class="section-title">🔑 Реквизиты оплаты</div>
-          <input id="set-card" value="${esc(settings.card_number)}" placeholder="Номер карты">
-          <input id="set-phone" value="${esc(settings.phone_number)}" placeholder="Номер телефона">
-          <button class="btn" onclick="saveSettings()">Сохранить реквизиты</button>
+            <div class="city-card">
+                <div class="city-image" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">🌊</div>
+                <div class="city-info">
+                    <h3 class="city-name">Владивосток</h3>
+                    <p class="city-region">Дальневосточный федеральный округ</p>
+                    <div class="city-stats">
+                        <span> 600 тыс</span>
+                        <span>🎵 4 участника</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="city-card">
+                <div class="city-image" style="background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);">🏔️</div>
+                <div class="city-info">
+                    <h3 class="city-name">Краснодар</h3>
+                    <p class="city-region">Южный федеральный округ</p>
+                    <div class="city-stats">
+                        <span>👥 950 тыс</span>
+                        <span>🎵 4 участника</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="city-card">
+                <div class="city-image" style="background: linear-gradient(135deg, #5ee7df 0%, #b490ca 100%);">🏛️</div>
+                <div class="city-info">
+                    <h3 class="city-name">Нижний Новгород</h3>
+                    <p class="city-region">Приволжский федеральный округ</p>
+                    <div class="city-stats">
+                        <span>👥 1.2 млн</span>
+                        <span>🎵 4 участника</span>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div class="section-card">
-          <div class="section-title">👥 Администраторы</div>
-          ${isSuper ? `<input id="new-admin-id" type="number" inputmode="numeric" placeholder="Telegram ID сотрудника">
-            <button class="btn btn-secondary" style="margin-top:0; margin-bottom:15px;" onclick="addAdmin()">+ Добавить администратора</button>` : ''}
-          ${admins.length ? admins.map(a => {
-            const id = Number(a.telegram_user_id);
-            return `<div class="admin-list-item">
-              <span style="font-size:13px; font-weight:600;">ID: ${id}${a.is_super_admin ? ' 👑 (Владелец)' : ''}</span>
-              ${isSuper && !a.is_super_admin ? `<button class="btn btn-danger" style="width:auto; padding:4px 10px; font-size:11px;" onclick="removeAdmin(${id})">Удалить</button>` : ''}
-            </div>`;
-          }).join('') : '<p style="color:var(--text-muted); font-size:13px;">Нет данных</p>'}
+    <!-- News Section -->
+    <section class="news-section" id="news">
+        <div class="news-container">
+            <h2 class="section-title">Последние новости</h2>
+            <div class="news-grid">
+                <article class="news-card">
+                    <div class="news-category">Москва</div>
+                    <h3 class="news-title">Москва объявила состав участников на РоссияФест 2026</h3>
+                    <div class="news-date">8 ноября 2026</div>
+                </article>
+
+                <article class="news-card">
+                    <div class="news-category">Санкт-Петербург</div>
+                    <h3 class="news-title">Петербург выбрал представителя через национальный отбор</h3>
+                    <div class="news-date">7 ноября 2026</div>
+                </article>
+
+                <article class="news-card">
+                    <div class="news-category">Казань</div>
+                    <h3 class="news-title">Татарстан представит уникальное шоу с национальным колоритом</h3>
+                    <div class="news-date">6 ноября 2026</div>
+                </article>
+
+                <article class="news-card">
+                    <div class="news-category">Новосибирск</div>
+                    <h3 class="news-title">Сибирь готовит масштабное выступление с элементами фольклора</h3>
+                    <div class="news-date">5 ноября 2026</div>
+                </article>
+
+                <article class="news-card">
+                    <div class="news-category">Екатеринбург</div>
+                    <h3 class="news-title">Урал представит рок-композицию собственного сочинения</h3>
+                    <div class="news-date">4 ноября 2026</div>
+                </article>
+
+                <article class="news-card">
+                    <div class="news-category">Владивосток</div>
+                    <h3 class="news-title">Дальний Восток удивит современным звучанием</h3>
+                    <div class="news-date">3 ноября 2026</div>
+                </article>
+
+                <article class="news-card">
+                    <div class="news-category">Сочи</div>
+                    <h3 class="news-title">Курорт представит летнюю атмосферу на зимнем фестивале</h3>
+                    <div class="news-date">2 ноября 2026</div>
+                </article>
+
+                <article class="news-card">
+                    <div class="news-category">Краснодар</div>
+                    <h3 class="news-title">Юг России готовит зажигательное выступление</h3>
+                    <div class="news-date">1 ноября 2026</div>
+                </article>
+
+                <article class="news-card">
+                    <div class="news-category">Нижний Новгород</div>
+                    <h3 class="news-title">Волга принесет мелодичность и глубину</h3>
+                    <div class="news-date">31 октября 2026</div>
+                </article>
+            </div>
         </div>
+    </section>
 
-        <div class="section-card">
-          <div class="section-title">📦 Заказы</div>
-          ${orders.map(o => `
-            <div style="${cardStyle}">
-              <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                <b>Заказ #${Number(o.id)}</b>
-                <span style="font-size:12px; color:var(--text-muted);">${payLabel(o)}</span>
-              </div>
-              <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">${esc(new Date(o.created_at).toLocaleString('ru-RU'))}</div>
-              <div style="font-size:13px; color:var(--text-muted); margin-bottom:4px;">Покупатель: <b style="color:#fff;">${esc(o.user_name)}</b> (${esc(o.user_phone)})</div>
-              <div style="font-size:13px; color:var(--text-muted); margin-bottom:4px;">${(o.items || []).map(i => `${esc(i.title)} (${esc(i.size || '—')}${i.color ? ', ' + esc(i.color) : ''})`).join('; ')}</div>
-              <div style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">Сумма: <b style="color:#34d399;">${money(o.total_price)} ₽</b></div>
-              <div style="font-size:12px; margin-bottom:8px;">Статус: <b>${esc(STATUS[o.status] || o.status)}</b></div>
-              ${o.status === 'pending' || o.status === 'cash_reserved' ? `
-                <button class="btn btn-success" style="padding:10px;" onclick="setOrderStatus(${Number(o.id)}, 'confirmed')">Подтвердить</button>
-                <button class="btn btn-danger" style="padding:10px; margin-top:8px;" onclick="setOrderStatus(${Number(o.id)}, 'cancelled')">Отменить</button>` : ''}
-            </div>`).join('') || '<p style="color:var(--text-muted); font-size:13px;">Заказов пока нет</p>'}
+    <!-- Features Section -->
+    <section class="features" id="about">
+        <div class="features-container">
+            <h2 class="section-title" style="color: white;">Почему РоссияФест?</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🎭</div>
+                    <h3 class="feature-title">Разнообразие культур</h3>
+                    <p class="feature-text">Уникальная возможность познакомиться с культурой и традициями разных регионов России через музыку</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">🎵</div>
+                    <h3 class="feature-title">Современная музыка</h3>
+                    <p class="feature-text">Актуальные музыкальные направления от поп-музыки до рока, электроники и фолка</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon"></div>
+                    <h3 class="feature-title">Честное голосование</h3>
+                    <p class="feature-text">Прозрачная система голосования: 50% жюри и 50% зрительское голосование</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <h3 class="feature-title">Онлайн трансляция</h3>
+                    <p class="feature-text">Смотрите фестиваль из любой точки мира в прямом эфире на всех платформах</p>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div class="section-card">
-          <div class="section-title">➕ Добавить товар</div>
-          <input id="p-title" placeholder="Название товара" maxlength="180">
-          <input id="p-price" type="number" inputmode="decimal" placeholder="Цена (руб)">
-          <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px;">Доступные размеры:</label>
-          <div style="display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
-            ${ALL_SIZES.map(s => `<label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="checkbox" name="product-size" value="${s}" checked style="width:auto; margin:0;"> ${s}</label>`).join('')}
-          </div>
-          <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:6px;">Расцветки:</label>
-          <div id="colors-container" style="margin-bottom:8px;"></div>
-          <button type="button" class="btn btn-secondary" style="margin-top:0; margin-bottom:12px;" onclick="addColorPickerField()">+ Добавить расцветку</button>
-          <label style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px;">Фото товара:</label>
-          <input id="p-img-file" type="file" accept="image/jpeg,image/png,image/webp">
-          <textarea id="p-desc" placeholder="Описание товара" maxlength="5000"></textarea>
-          <button class="btn" onclick="addProduct(this)">Добавить в каталог</button>
+    <!-- App Section -->
+    <section class="app-section" id="app">
+        <div class="app-container">
+            <h2 class="section-title">Приложение РоссияФест</h2>
+            <p style="font-size: 1.2rem; color: #666; margin-bottom: 2rem;">
+                Все новости фестиваля в вашем смартфоне. Голосуйте, следите за новостями и получайте эксклюзивный контент
+            </p>
+            <div class="app-buttons">
+                <a href="#" class="app-download">
+                    <span style="font-size: 2rem;">📱</span>
+                    <div style="text-align: left;">
+                        <div style="font-size: 0.8rem;">Загрузите в</div>
+                        <div style="font-size: 1.2rem; font-weight: bold;">App Store</div>
+                    </div>
+                </a>
+                <a href="#" class="app-download">
+                    <span style="font-size: 2rem;"></span>
+                    <div style="text-align: left;">
+                        <div style="font-size: 0.8rem;">Доступно в</div>
+                        <div style="font-size: 1.2rem; font-weight: bold;">Google Play</div>
+                    </div>
+                </a>
+            </div>
         </div>
+    </section>
 
-        <div class="section-card">
-          <div class="section-title">🏷 Текущие товары</div>
-          ${products.map(p => `
-            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(10,15,26,0.6); padding:10px 14px; margin-bottom:8px; border-radius:10px; border:1px solid var(--card-border);">
-              <div>
-                <div style="font-weight:700; color:#fff;">${esc(p.title)}</div>
-                <div style="color:#34d399; font-size:13px; font-weight:700;">${money(p.price)} ₽</div>
-              </div>
-              <button class="btn btn-danger" style="width:auto; padding:8px 14px; font-size:12px;" onclick="deleteProduct(${Number(p.id)})">Удалить</button>
-            </div>`).join('') || '<p style="color:var(--text-muted); font-size:13px;">Товаров нет</p>'}
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>О фестивале</h3>
+                    <ul>
+                        <li><a href="#">История</a></li>
+                        <li><a href="#">Правила</a></li>
+                        <li><a href="#">Организаторы</a></li>
+                        <li><a href="#">Партнёры</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Участие</h3>
+                    <ul>
+                        <li><a href="#">Как принять участие</a></li>
+                        <li><a href="#">Региональные отборы</a></li>
+                        <li><a href="#">Билеты</a></li>
+                        <li><a href="#">Аккредитация</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Медиа</h3>
+                    <ul>
+                        <li><a href="#">Пресс-центр</a></li>
+                        <li><a href="#">Фотогалерея</a></li>
+                        <li><a href="#">Видео</a></li>
+                        <li><a href="#">Трансляции</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <ul>
+                        <li><a href="#">Связаться с нами</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Политика конфиденциальности</a></li>
+                    </ul>
+                    <div class="social-links">
+                        <a href="#">📘</a>
+                        <a href="#">📸</a>
+                        <a href="#">🐦</a>
+                        <a href="#">▶️</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 РоссияФест. Все права защищены.</p>
+            </div>
         </div>
-        ${getFooterHTML()}`;
-      addColorPickerField('#000000', 'Черный');
-    }
+    </footer>
 
-    async function adminAction(fn) {
-      if (busy) return;
-      busy = true;
-      try { await fn(); switchTab('admin'); } catch (e) { notify(e.message || 'Ошибка.'); } finally { busy = false; }
-    }
+    <!-- Cookie Banner -->
+    <div class="cookie-banner" id="cookieBanner">
+        <div>
+            <strong> Нам нужны cookies!</strong>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.9;">
+                Мы используем cookies для улучшения работы сайта. Продолжая использовать сайт, вы соглашаетесь с нашей политикой конфиденциальности.
+            </p>
+        </div>
+        <div class="cookie-buttons">
+            <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Принять</button>
+            <button class="cookie-btn cookie-decline" onclick="declineCookies()">Отклонить</button>
+        </div>
+    </div>
 
-    function saveSettings() {
-      return adminAction(async () => {
-        const card_number = $('set-card').value.trim(), phone_number = $('set-phone').value.trim();
-        await api('admin_save_settings', { card_number, phone_number });
-        settings = { card_number, phone_number };
-        notify('Реквизиты сохранены!');
-      });
-    }
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu').addEventListener('click', function() {
+            alert('Мобильное меню открыто');
+        });
 
-    function addAdmin() {
-      const id = Number($('new-admin-id').value.trim());
-      if (!Number.isSafeInteger(id) || id <= 0) return notify('Введите корректный числовой Telegram ID!');
-      return adminAction(async () => { await api('admin_add_admin', { telegram_user_id: id }); });
-    }
+        // Cookie banner
+        function acceptCookies() {
+            document.getElementById('cookieBanner').style.display = 'none';
+            localStorage.setItem('cookiesAccepted', 'true');
+        }
 
-    function removeAdmin(id) {
-      if (!confirm(`Удалить администратора ${id}?`)) return;
-      return adminAction(async () => { await api('admin_remove_admin', { telegram_user_id: id }); });
-    }
+        function declineCookies() {
+            document.getElementById('cookieBanner').style.display = 'none';
+            localStorage.setItem('cookiesAccepted', 'false');
+        }
 
-    function setOrderStatus(id, status) {
-      if (!confirm(status === 'confirmed' ? 'Подтвердить заказ?' : 'Отменить заказ?')) return;
-      return adminAction(async () => { await api('admin_update_order', { order_id: id, status }); });
-    }
+        // Check if cookies already accepted
+        if (localStorage.getItem('cookiesAccepted') === 'true') {
+            document.getElementById('cookieBanner').style.display = 'none';
+        }
 
-    function deleteProduct(id) {
-      if (!confirm('Удалить этот товар?')) return;
-      return adminAction(async () => { await api('admin_delete_product', { product_id: id }); await loadPublic(); });
-    }
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
 
-    function compressImage(file) {
-      return new Promise((resolve, reject) => {
-        const img = new Image(), url = URL.createObjectURL(file);
-        img.onload = () => {
-          const k = Math.min(1, 1000 / img.width, 1000 / img.height);
-          const cv = document.createElement('canvas');
-          cv.width = Math.round(img.width * k);
-          cv.height = Math.round(img.height * k);
-          cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-          URL.revokeObjectURL(url);
-          cv.toBlob(b => {
-            if (!b) return reject(new Error('Не удалось сжать фото.'));
-            if (b.size > 5 * 1024 * 1024) return reject(new Error('Фото слишком большое даже после сжатия.'));
-            resolve(b);
-          }, 'image/jpeg', 0.8);
+        // City cards animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
         };
-        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Не удалось прочитать фото.')); };
-        img.src = url;
-      });
-    }
 
-    async function uploadImage(file) {
-      const blob = await compressImage(file);
-      const { upload } = await api('admin_create_image_upload', { file_name: file.name || 'photo.jpg', content_type: 'image/jpeg' });
-      const { error } = await db.storage.from('products').uploadToSignedUrl(upload.path, upload.token, blob, { contentType: 'image/jpeg' });
-      if (error) throw new Error(error.message);
-      try {
-        await api('admin_verify_image_upload', { path: upload.path });
-      } catch (e) {
-        throw new Error(e.message || 'Загруженный файл не является изображением.');
-      }
-      return upload.publicUrl;
-    }
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
 
-    async function addProduct(btn) {
-      if (busy) return;
-      const title = $('p-title').value.trim(), price = Number($('p-price').value);
-      if (!title || !(price > 0)) return notify('Заполните название и цену!');
-      const sizes = [...document.querySelectorAll('input[name="product-size"]:checked')].map(e => e.value);
-      const colors = [...document.querySelectorAll('.color-item')].map(i => ({
-        hex: i.querySelector('.color-picker-input').value,
-        name: i.querySelector('.color-name-input').value.trim()
-      }));
-      busy = true; btn.disabled = true; btn.textContent = 'Загрузка...';
-      try {
-        const file = $('p-img-file').files[0];
-        const image = file ? await uploadImage(file) : null;
-        await api('admin_add_product', { title, price, sizes, colors, image, description: $('p-desc').value });
-        await loadPublic();
-        busy = false;
-        notify('Товар добавлен!');
-        switchTab('admin');
-      } catch (e) {
-        busy = false; btn.disabled = false; btn.textContent = 'Добавить в каталог';
-        notify(e.message || 'Не удалось добавить товар.');
-      }
-    }
-
-    init();
-  </script>
+        document.querySelectorAll('.city-card, .news-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
 </body>
 </html>
