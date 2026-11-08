@@ -214,7 +214,7 @@ if (savedLang) {
   if (btn) langBtn.textContent = btn.textContent.trim();
 }
 
-// ===== АВТОРИЗАЦИЯ (ИСПРАВЛЕНО) =====
+// ===== АВТОРИЗАЦИЯ =====
 let mode = 'login';
 const modal = document.getElementById('modal');
 const msgBox = document.getElementById('authMsg');
@@ -238,12 +238,10 @@ document.getElementById('authForm').onsubmit = async e => {
   const email = document.getElementById('email').value;
   const pass = document.getElementById('pass').value;
   
-  // Проверяем наличие клиента Supabase из sb.js
   const client = window.rv_supabase;
   if (!client) {
     msgBox.style.color = '#ffaa00';
     msgBox.textContent = '⚠️ База данных недоступна (проверь консоль F12)';
-    console.error('Supabase client not initialized');
     return;
   }
 
@@ -313,12 +311,11 @@ async function refreshAuth() {
   }
 }
 
-// Слушаем изменения состояния авторизации
 if (window.rv_supabase) {
   window.rv_supabase.auth.onAuthStateChange((event, session) => {
     refreshAuth();
   });
-  refreshAuth(); // Первый запуск
+  refreshAuth();
 }
 
 // ===== COOKIES =====
@@ -328,37 +325,55 @@ function okCookies() {
 }
 if (localStorage.getItem('rv_ck')) document.getElementById('cookies').style.display = 'none';
 
-// ===== ЗАГРУЗКА ДАННЫХ ИЗ SUPABASE =====
+// ===== ЗАГРУЗКА ДАННЫХ ИЗ SUPABASE (ИСПРАВЛЕНО) =====
 async function loadFromSupabase() {
   const client = window.rv_supabase;
   if (!client) return;
+  
   try {
+    // Запрашиваем данные
     const { data: news } = await client.from('news').select('*').eq('published', true).order('created_at', { ascending: false });
     const { data: parts } = await client.from('participants').select('*').order('sort');
     const { data: soc } = await client.from('social_links').select('*').order('sort');
     const { data: settings } = await client.from('site_settings').select('*').eq('id', 1).single();
 
-    if (news && news.length > 0) {
-       const ACC = ['#e81179','#00b3c4','#f7b733','#6a2bd9','#0e9f6e','#ff7a59'];
-       document.getElementById('newsGrid').innerHTML = news.map(n => `
+    // 1. НОВОСТИ: Всегда обновляем DOM, даже если массив пустой []
+    const ACC = ['#e81179','#00b3c4','#f7b733','#6a2bd9','#0e9f6e','#ff7a59'];
+    const newsHtml = news && news.length > 0 
+      ? news.map(n => `
         <article class="news-card"><div class="nc-top"><span class="nc-code">${n.code||'···'}</span><span class="nc-dot" style="background:${ACC[(n.accent||1)%6]}"></span></div>
-        <div class="nc-region">${n.region}</div><div class="nc-title">${n.title}</div><div class="nc-ex">${n.excerpt||''}</div></article>`).join('');
-    }
-    if (parts && parts.length > 0) {
-      document.getElementById('partList').innerHTML = parts.map(p => `
-        <div class="part-row"><span class="pr-code">${p.code||'—'}</span><span class="pr-artist">${p.artist}</span><span class="pr-region">${p.region}</span></div>`).join('');
-    }
+        <div class="nc-region">${n.region}</div><div class="nc-title">${n.title}</div><div class="nc-ex">${n.excerpt||''}</div></article>`).join('')
+      : '<p style="grid-column:1/-1;text-align:center;color:var(--mut);padding:40px">Новостей пока нет</p>';
+    
+    document.getElementById('newsGrid').innerHTML = newsHtml;
+
+    // 2. УЧАСТНИКИ: То же самое
+    const partHtml = parts && parts.length > 0
+      ? parts.map(p => `
+        <div class="part-row"><span class="pr-code">${p.code||'—'}</span><span class="pr-artist">${p.artist}</span><span class="pr-region">${p.region}</span></div>`).join('')
+      : '<p style="text-align:center;color:var(--mut);padding:20px">Участников пока нет</p>';
+      
+    document.getElementById('partList').innerHTML = partHtml;
+
+    // 3. СОЦСЕТИ
     if (soc && soc.length > 0) {
       document.getElementById('fSocials').innerHTML = soc.map(x => `<a href="${x.url}" title="${x.title}" target="_blank">${x.icon}</a>`).join('');
+    } else {
+      document.getElementById('fSocials').innerHTML = '<span style="color:var(--mut)">Нет ссылок</span>';
     }
+
+    // 4. НАСТРОЙКИ САЙТА
     if (settings) {
-      document.querySelector('.f-brand b').textContent = settings.site_name;
-      document.querySelector('.f-brand span').textContent = settings.tagline;
-      document.querySelector('.f-bottom span:first-child').textContent = settings.footer_note;
-      document.getElementById('fEmail').textContent = settings.contact_email;
+      document.querySelector('.f-brand b').textContent = settings.site_name || 'RUSVISION';
+      document.querySelector('.f-brand span').textContent = settings.tagline || '';
+      document.querySelector('.f-bottom span:first-child').textContent = settings.footer_note || '';
+      document.getElementById('fEmail').textContent = settings.contact_email || '';
     }
-    console.log('✅ Данные из Supabase загружены');
-  } catch (e) { console.warn('Load data error:', e); }
+    
+    console.log('✅ Данные синхронизированы с базой');
+  } catch (e) { 
+    console.warn('Ошибка загрузки данных:', e); 
+  }
 }
 loadFromSupabase();
 </script>
