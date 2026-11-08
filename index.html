@@ -3,346 +3,309 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Россиявидение — конкурс городов и регионов</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<title>ROSVISION — Song Contest of the Regions</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="sb.js"></script>
 <style>
-:root{
-  --ink:#101018;
-  --bg:#f7f8fa;
-  --pink:#e81179;
-  --pink-dark:#c40d66;
-  --blue:#1b4fd8;
-  --teal:#00b3c4;
-  --violet:#6a2bd9;
-  --radius:24px;
-}
+:root{--bg:#221b2a;--ink:#0d0a12;--paper:#f4f2f7;--mut:rgba(244,242,247,.55);--line:rgba(244,242,247,.14);--acc:#e81179}
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:'Rubik',sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
-img{max-width:100%}
+body{font-family:Rubik,sans-serif;background:var(--bg);color:var(--paper);font-weight:300;line-height:1.55}
 a{color:inherit;text-decoration:none}
-.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
-
-/* ---------- HEADER (как на eurovision.com: белая липкая шапка) ---------- */
-header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #e8e8ee}
-.nav{display:flex;align-items:center;justify-content:space-between;height:76px;gap:24px}
-.logo{display:flex;align-items:center;gap:12px}
-.logo svg{height:44px;width:auto;color:var(--ink)}
-.logo-text b{display:block;font-weight:900;font-size:1.25rem;letter-spacing:-.02em;line-height:1}
-.logo-text span{display:block;font-size:.6rem;font-weight:700;letter-spacing:.28em;color:var(--pink);margin-top:3px}
-.menu{display:flex;gap:28px;list-style:none}
-.menu a{font-weight:700;font-size:.95rem;position:relative;padding:6px 0}
-.menu a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:3px;border-radius:2px;background:var(--pink);transition:.25s}
-.menu a:hover::after{width:100%}
-.btn{display:inline-block;border-radius:999px;font-weight:800;font-size:.95rem;padding:14px 28px;border:2px solid transparent;cursor:pointer;transition:.25s}
-.btn-pink{background:var(--pink);color:#fff}
-.btn-pink:hover{background:var(--pink-dark);transform:translateY(-2px)}
-.btn-white{background:#fff;color:var(--ink)}
-.btn-white:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.25)}
-.btn-ghost{border-color:#fff;color:#fff;background:transparent}
-.btn-ghost:hover{background:#fff;color:var(--blue)}
-.btn-outline{border-color:var(--ink);color:var(--ink);background:transparent}
-.btn-outline:hover{background:var(--ink);color:#fff}
-.burger{display:none;background:none;border:0;font-size:1.8rem;cursor:pointer;color:var(--ink)}
-
-/* ---------- HERO (градиентный блок как брендинг ESC) ---------- */
-.hero{position:relative;overflow:hidden;color:#fff;
-  background:linear-gradient(115deg,var(--teal) 0%,var(--blue) 45%,var(--violet) 75%,var(--pink) 100%)}
-.hero::before,.hero::after{content:'';position:absolute;border-radius:50%;filter:blur(2px)}
-.hero::before{width:640px;height:640px;right:-160px;top:-220px;background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.28),transparent 60%)}
-.hero::after{width:420px;height:420px;left:-140px;bottom:-180px;background:radial-gradient(circle at 60% 40%,rgba(255,255,255,.18),transparent 65%)}
-.hero .wrap{position:relative;z-index:2;padding:96px 24px 110px;display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:center}
-.kicker{display:inline-block;font-weight:800;font-size:.8rem;letter-spacing:.22em;text-transform:uppercase;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);padding:8px 18px;border-radius:999px;margin-bottom:24px}
-.hero h1{font-size:clamp(2.4rem,5.4vw,4.4rem);font-weight:900;letter-spacing:-.03em;line-height:1.02;margin-bottom:20px}
-.hero p{font-size:1.15rem;max-width:560px;opacity:.92;margin-bottom:16px}
-.hero-dates{font-weight:800;font-size:1.3rem;letter-spacing:.06em;margin-bottom:32px}
-.hero-dates i{font-style:normal;opacity:.55;padding:0 10px}
-.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
-.hero-trophy{display:flex;justify-content:center}
-.hero-trophy svg{height:340px;color:#fff;opacity:.9;filter:drop-shadow(0 20px 40px rgba(0,0,0,.3));animation:float 6s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
-
-/* ---------- БЕГУЩАЯ СТРОКА РЕГИОНОВ ---------- */
-.ticker{background:var(--ink);color:#fff;overflow:hidden;padding:14px 0}
-.ticker-track{display:flex;gap:48px;width:max-content;animation:scroll 30s linear infinite;font-weight:800;font-size:.9rem;letter-spacing:.18em;text-transform:uppercase}
-.ticker-track span{display:flex;align-items:center;gap:48px}
-.ticker-track em{font-style:normal;color:var(--pink)}
-@keyframes scroll{to{transform:translateX(-50%)}}
-
-/* ---------- СЕКЦИИ / КАРТОЧКИ НОВОСТЕЙ (сетка как на eurovision.com) ---------- */
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+.lg-ink{stroke:var(--ink)} .lg-ring{stroke:var(--paper)} .lg-text{fill:var(--paper)}
+/* HEADER */
+header{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:50}
+.nav{display:flex;align-items:center;justify-content:space-between;height:70px;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.06em}
+.brand svg{height:34px}
+.menu{display:flex;gap:26px;list-style:none;font-size:.85rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase}
+.menu a{color:var(--mut)} .menu a:hover{color:var(--paper)}
+.right{display:flex;align-items:center;gap:14px}
+/* LANG */
+.lang{position:relative}
+.lang-btn{display:flex;align-items:center;gap:8px;background:none;border:1px solid var(--line);border-radius:999px;color:var(--paper);padding:7px 14px;cursor:pointer;font:500 .8rem Rubik}
+.lang-menu{position:absolute;right:0;top:calc(100% + 8px);background:#2c2436;border:1px solid var(--line);border-radius:14px;min-width:190px;display:none;overflow:hidden;z-index:60}
+.lang-menu.open{display:block}
+.lang-menu button{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:var(--paper);padding:10px 16px;cursor:pointer;font:400 .85rem Rubik;text-align:left}
+.lang-menu button:hover{background:rgba(255,255,255,.06)}
+.lang-menu svg{border-radius:3px}
+/* BUTTONS / AUTH */
+.btn{border-radius:999px;padding:11px 24px;font:700 .85rem Rubik;cursor:pointer;border:1px solid var(--paper);background:none;color:var(--paper);transition:.2s}
+.btn:hover{background:var(--paper);color:var(--bg)}
+.btn-solid{background:var(--paper);color:var(--bg)}
+.btn-solid:hover{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn-acc{background:var(--acc);border-color:var(--acc);color:#fff}
+.user-chip{font-size:.8rem;color:var(--mut)}
+/* HERO */
+.hero{padding:90px 0 70px;text-align:center}
+.hero-logo svg{height:min(46vw,330px);margin:0 auto}
+.hero h1{font-size:clamp(1.7rem,4vw,3.2rem);font-weight:800;letter-spacing:-.02em;margin:34px auto 14px;max-width:800px}
+.hero p{color:var(--mut);max-width:560px;margin:0 auto 26px}
+.hero-dates{font-weight:700;letter-spacing:.3em;font-size:.9rem;color:var(--acc);margin-bottom:30px}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+/* TICKER */
+.ticker{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:12px 0}
+.ticker-track{display:flex;gap:44px;width:max-content;animation:scr 32s linear infinite;font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);font-weight:500}
+.ticker-track em{font-style:normal;color:var(--acc)}
+@keyframes scr{to{transform:translateX(-50%)}}
+/* SECTIONS */
 section{padding:80px 0}
-.sec-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:40px}
-.sec-label{font-size:.8rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--pink);margin-bottom:10px}
-.sec-head h2{font-size:clamp(1.8rem,3.4vw,2.8rem);font-weight:900;letter-spacing:-.02em;line-height:1.05}
-.link-all{font-weight:800;color:var(--pink);white-space:nowrap;border-bottom:3px solid var(--pink);padding-bottom:2px}
-.news-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
-.news-card{background:#fff;border-radius:var(--radius);overflow:hidden;transition:.3s;display:flex;flex-direction:column}
-.news-card:hover{transform:translateY(-8px);box-shadow:0 24px 50px rgba(16,16,24,.14)}
-.news-thumb{height:170px;display:flex;align-items:center;justify-content:center;position:relative;color:#fff}
-.news-thumb svg{height:90px;opacity:.85}
-.news-thumb .code{position:absolute;right:14px;bottom:10px;font-weight:900;font-size:1.6rem;letter-spacing:.05em;opacity:.5}
-.news-body{padding:20px 22px 26px}
-.news-region{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--pink);margin-bottom:8px}
-.news-title{font-weight:800;font-size:1.05rem;line-height:1.3;letter-spacing:-.01em}
-.news-card:hover .news-title{color:var(--pink)}
-.g1{background:linear-gradient(135deg,#00b3c4,#1b4fd8)}
-.g2{background:linear-gradient(135deg,#e81179,#6a2bd9)}
-.g3{background:linear-gradient(135deg,#ff7a59,#e81179)}
-.g4{background:linear-gradient(135deg,#1b4fd8,#0e1e5e)}
-.g5{background:linear-gradient(135deg,#6a2bd9,#00b3c4)}
-.g6{background:linear-gradient(135deg,#101018,#44445c)}
-.g7{background:linear-gradient(135deg,#f7b733,#e81179)}
-.g8{background:linear-gradient(135deg,#0e9f6e,#00b3c4)}
-
-/* ---------- ЦВЕТНЫЕ ПРОМО-БЛОКИ (Shop / Junior / Eurofan / App) ---------- */
-.promo-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
-.promo{border-radius:var(--radius);padding:48px;color:#fff;display:flex;flex-direction:column;justify-content:space-between;min-height:340px;position:relative;overflow:hidden}
-.promo .sec-label{color:rgba(255,255,255,.75)}
-.promo h3{font-size:clamp(1.6rem,2.6vw,2.3rem);font-weight:900;letter-spacing:-.02em;line-height:1.08;margin-bottom:14px}
-.promo p{opacity:.9;max-width:440px;margin-bottom:28px}
-.promo-shop{background:linear-gradient(135deg,var(--pink),#ff5ca8)}
-.promo-junior{background:linear-gradient(135deg,#101018,#33334d)}
-.promo-fan{background:linear-gradient(135deg,var(--blue),var(--violet))}
-.promo-app{background:#fff;color:var(--ink);border:1px solid #e8e8ee}
-.promo-app .sec-label{color:var(--pink)}
-.promo-app p{opacity:.75}
-.promo svg.watermark{position:absolute;right:-40px;bottom:-30px;height:240px;opacity:.16;color:#fff;transform:rotate(12deg)}
-.stores{display:flex;gap:12px;flex-wrap:wrap}
-.store-btn{display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:14px;padding:10px 18px;font-weight:700;font-size:.9rem}
-.store-btn small{display:block;font-size:.65rem;font-weight:500;opacity:.7}
-.promo-app .store-btn{background:var(--ink)}
-.winner-chip{display:inline-flex;align-items:center;gap:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:10px 22px 10px 12px;font-weight:800}
-.winner-chip svg{height:34px;color:#ffd54d}
-
-/* ---------- РЕГИОНЫ-УЧАСТНИКИ ---------- */
-.regions{background:#fff}
-.region-pills{display:flex;flex-wrap:wrap;gap:12px}
-.pill{border:2px solid #e2e2ea;border-radius:999px;padding:12px 22px;font-weight:700;font-size:.92rem;transition:.25s;cursor:default}
-.pill:hover{border-color:var(--pink);color:var(--pink);transform:translateY(-3px)}
-.pill.host{background:var(--ink);color:#fff;border-color:var(--ink)}
-.pill.host:hover{color:#ffd54d;border-color:var(--ink)}
-
-/* ---------- FOOTER ---------- */
-footer{background:var(--ink);color:#fff;padding:70px 0 30px}
-.f-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;margin-bottom:50px}
-.f-logo svg{height:56px;color:#fff}
-.f-logo b{display:block;font-size:1.4rem;font-weight:900;margin-top:10px}
-.f-logo span{font-size:.62rem;letter-spacing:.28em;color:var(--pink);font-weight:700}
-.f-col h4{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--pink);margin-bottom:18px}
-.f-col ul{list-style:none;display:grid;gap:10px}
-.f-col a{opacity:.8;font-size:.95rem}
-.f-col a:hover{opacity:1;color:var(--pink)}
-.socials{display:flex;gap:12px;margin-top:20px}
-.socials a{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.05rem;transition:.25s}
-.socials a:hover{background:var(--pink);transform:translateY(-3px)}
-.f-bottom{border-top:1px solid rgba(255,255,255,.12);padding-top:26px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;opacity:.65;font-size:.85rem}
-
-/* ---------- COOKIES (как на eurovision.com) ---------- */
-.cookies{position:fixed;left:0;right:0;bottom:0;z-index:200;background:var(--ink);color:#fff;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
-.cookies b{color:var(--pink)}
-.cookies p{font-size:.9rem;opacity:.85;max-width:720px;margin-top:4px}
-.cookie-btns{display:flex;gap:10px;flex-wrap:wrap}
-.cookie-btns .btn{padding:12px 22px;font-size:.85rem}
-.hidden{display:none}
-
-/* ---------- REVEAL ---------- */
-.reveal{opacity:0;transform:translateY(26px);transition:.7s ease}
-.reveal.on{opacity:1;transform:none}
-
-/* ---------- RESPONSIVE ---------- */
-@media(max-width:1024px){
-  .news-grid{grid-template-columns:repeat(2,1fr)}
-  .hero .wrap{grid-template-columns:1fr;text-align:center;padding-top:70px}
-  .hero p{margin:0 auto 16px}
-  .hero-actions{justify-content:center}
-  .hero-trophy svg{height:240px}
-}
-@media(max-width:760px){
-  .menu,.nav .btn-pink{display:none}
-  .burger{display:block}
-  .menu.open{display:flex;position:absolute;top:76px;left:0;right:0;background:#fff;flex-direction:column;padding:24px;gap:18px;border-bottom:1px solid #e8e8ee}
-  .news-grid,.promo-grid{grid-template-columns:1fr}
-  .f-grid{grid-template-columns:1fr 1fr}
-  section{padding:56px 0}
-}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:20px;border-top:1px solid var(--paper);padding-top:18px;margin-bottom:44px}
+.sec-head h2{font-size:clamp(1.4rem,2.6vw,2.1rem);font-weight:800;letter-spacing:-.01em}
+.sec-head a{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);font-weight:700}
+/* NEWS (единый шаблон карточки) */
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.news-card{background:var(--bg);padding:28px;display:flex;flex-direction:column;gap:12px;transition:.25s}
+.news-card:hover{background:#2c2436}
+.nc-top{display:flex;justify-content:space-between;align-items:center}
+.nc-code{font-size:1.7rem;font-weight:900;color:var(--line)}
+.nc-dot{width:8px;height:8px;border-radius:50%}
+.nc-region{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);font-weight:700}
+.nc-title{font-weight:700;font-size:1.05rem;line-height:1.35}
+.nc-ex{color:var(--mut);font-size:.88rem}
+/* PARTICIPANTS */
+.part-list{border-top:1px solid var(--line)}
+.part-row{display:grid;grid-template-columns:70px 1fr auto;padding:18px 6px;border-bottom:1px solid var(--line);align-items:center;transition:.2s}
+.part-row:hover{padding-left:16px;background:rgba(255,255,255,.03)}
+.pr-code{font-weight:900;color:var(--mut)}
+.pr-artist{font-weight:700}
+.pr-region{color:var(--mut);font-size:.85rem}
+/* ABOUT */
+.about p{max-width:680px;color:var(--mut);font-size:1.05rem}
+/* FOOTER */
+footer{border-top:1px solid var(--line);padding:56px 0 30px}
+.f-top{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;margin-bottom:36px}
+.f-brand svg{height:70px}
+.f-brand b{display:block;font-weight:900;letter-spacing:.05em;margin-top:8px}
+.f-brand span{color:var(--mut);font-size:.8rem}
+.f-col h4{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);margin-bottom:14px}
+.f-col a,.f-col p{display:block;color:var(--paper);font-size:.9rem;margin-bottom:8px}
+.f-col a:hover{color:var(--acc)}
+.socials{display:flex;gap:10px}
+.socials a{width:40px;height:40px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.socials a:hover{border-color:var(--acc)}
+.f-bottom{border-top:1px solid var(--line);padding-top:20px;color:var(--mut);font-size:.78rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+/* MODAL / COOKIES */
+.modal{position:fixed;inset:0;background:rgba(10,8,14,.7);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal.open{display:flex}
+.modal-box{background:#2c2436;border:1px solid var(--line);border-radius:20px;padding:34px;width:100%;max-width:400px}
+.modal-box h3{font-weight:800;margin-bottom:20px}
+.modal-box input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;color:var(--paper);padding:13px 16px;margin-bottom:12px;font:400 .9rem Rubik}
+.modal-box input:focus{outline:1px solid var(--acc)}
+.modal-tabs{display:flex;gap:8px;margin-bottom:20px}
+.modal-tabs button{flex:1;border:1px solid var(--line);background:none;color:var(--mut);border-radius:999px;padding:9px;cursor:pointer;font:600 .8rem Rubik}
+.modal-tabs button.on{color:var(--paper);border-color:var(--paper)}
+.modal-msg{font-size:.8rem;color:var(--acc);min-height:18px;margin-top:8px}
+.cookies{position:fixed;left:20px;right:20px;bottom:20px;border:1px solid var(--line);background:#2c2436;border-radius:18px;padding:18px 22px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;z-index:90}
+.cookies p{font-size:.8rem;color:var(--mut);max-width:640px}
+@media(max-width:860px){.news-grid{grid-template-columns:1fr}.menu{display:none}.part-row{grid-template-columns:54px 1fr;gap:4px}.pr-region{grid-column:2}}
 </style>
 </head>
 <body>
 
-<!-- ЛОГОТИП (ваш трофей) -->
 <svg style="display:none" xmlns="http://www.w3.org/2000/svg">
-  <symbol id="trophy" viewBox="0 0 120 200">
-    <g fill="none" stroke="currentColor" stroke-width="8">
-      <path d="M41 19.2 A45 45 0 0 0 41 100.8"/>
-      <path d="M79 19.2 A45 45 0 0 1 79 100.8"/>
-      <path d="M56.5 104 C56.5 126 51.5 140 47 149"/>
-      <path d="M63.5 104 C63.5 126 68.5 140 73.5 149"/>
-      <path d="M43.5 157 C41 162 38 166 34.5 170"/>
-      <path d="M76.5 157 C79 162 82 166 85.5 170"/>
-      <rect x="18" y="176" width="84" height="18" rx="9" stroke-width="7"/>
+  <symbol id="logo" viewBox="0 0 760 520">
+    <g class="lg-ink" fill="none" stroke-linecap="butt">
+      <path d="M325 52 A130 130 0 0 0 325 288" stroke-width="26"/>
+      <path d="M435 52 A130 130 0 0 1 435 288" stroke-width="26"/>
+      <path d="M372 296 C372 350 356 400 348 436" stroke-width="18"/>
+      <path d="M388 296 C388 350 404 400 412 436" stroke-width="18"/>
+      <rect x="272" y="440" width="236" height="46" rx="23" stroke-width="20"/>
     </g>
+    <circle class="lg-ring" cx="380" cy="170" r="102" fill="none" stroke-width="26"/>
+    <g class="lg-text" font-family="Rubik,sans-serif" font-weight="800">
+      <text x="150" y="245" font-size="210" text-anchor="middle">R</text>
+      <text x="610" y="245" font-size="210" text-anchor="middle">S</text>
+      <text x="380" y="430" font-size="132" text-anchor="middle" letter-spacing="6">VISION</text>
+      <text x="140" y="478" font-size="46" text-anchor="middle" letter-spacing="5">SONG</text>
+      <text x="640" y="478" font-size="46" text-anchor="middle" letter-spacing="5">CONTEST</text>
+    </g>
+  </symbol>
+  <symbol id="mark" viewBox="240 30 280 270">
+    <path class="lg-ink" d="M325 52 A130 130 0 0 0 325 288" fill="none" stroke-width="26"/>
+    <path class="lg-ink" d="M435 52 A130 130 0 0 1 435 288" fill="none" stroke-width="26"/>
+    <circle class="lg-ring" cx="380" cy="170" r="102" fill="none" stroke-width="26"/>
   </symbol>
 </svg>
 
-<!-- ШАПКА -->
-<header>
-  <div class="wrap nav">
-    <a class="logo" href="#">
-      <svg><use href="#trophy"/></svg>
-      <span class="logo-text"><b>РОССИЯВИДЕНИЕ</b><span>КОНКУРС ГОРОДОВ И РЕГИОНОВ</span></span>
-    </a>
-    <ul class="menu" id="menu">
-      <li><a href="#news">Новости</a></li>
-      <li><a href="#regions">Города и регионы</a></li>
-      <li><a href="#junior">Детское</a></li>
-      <li><a href="#shop">Магазин</a></li>
-      <li><a href="#about">О конкурсе</a></li>
-    </ul>
-    <a href="#fan" class="btn btn-pink">Стать фанатом</a>
-    <button class="burger" onclick="document.getElementById('menu').classList.toggle('open')">☰</button>
+<header><div class="wrap nav">
+  <a class="brand" href="#"><svg><use href="#mark"/></svg>ROSVISION</a>
+  <ul class="menu">
+    <li><a href="#news" data-i18n="nav_news"></a></li>
+    <li><a href="#part" data-i18n="nav_part"></a></li>
+    <li><a href="#about" data-i18n="nav_about"></a></li>
+  </ul>
+  <div class="right">
+    <div class="lang">
+      <button class="lang-btn" id="langBtn"></button>
+      <div class="lang-menu" id="langMenu"></div>
+    </div>
+    <span class="user-chip" id="userChip"></span>
+    <a href="admin.html" class="btn btn-acc" id="adminBtn" style="display:none" data-i18n="auth_admin"></a>
+    <button class="btn" id="authBtn" data-i18n="auth_login"></button>
   </div>
-</header>
+</div></header>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="wrap">
-    <div>
-      <span class="kicker">Россиявидение 2026</span>
-      <h1>Казань принимает большой праздник уже на следующей неделе!</h1>
-      <p>Города и регионы России сойдутся на одной сцене, чтобы побороться за главный трофей конкурса. Узнайте, кто представит ваш регион в этом году.</p>
-      <div class="hero-dates">12 <i>|</i> 14 <i>|</i> 16 МАЯ</div>
-      <div class="hero-actions">
-        <a href="#news" class="btn btn-white">Подробнее</a>
-        <a href="#" class="btn btn-ghost">Смотреть трансляцию</a>
-      </div>
-    </div>
-    <div class="hero-trophy"><svg><use href="#trophy"/></svg></div>
+<div class="hero"><div class="wrap">
+  <div class="hero-logo"><svg><use href="#logo"/></svg></div>
+  <div class="hero-dates">12 · 14 · 16 DEC 2026 — TATARSTAN</div>
+  <h1 data-i18n="hero_title"></h1>
+  <p data-i18n="hero_sub"></p>
+  <div class="hero-actions">
+    <a href="#news" class="btn btn-solid" data-i18n="btn_more"></a>
+    <a href="#" class="btn" data-i18n="btn_watch"></a>
   </div>
-</div>
+</div></div>
 
-<!-- БЕГУЩАЯ СТРОКА -->
-<div class="ticker">
-  <div class="ticker-track">
-    <span>Москва <em>★</em> Санкт-Петербург <em>★</em> Татарстан <em>★</em> Свердловская область <em>★</em> Новосибирская область <em>★</em> Краснодарский край <em>★</em> Приморский край <em>★</em> Нижегородская область <em>★</em> Башкортостан <em>★</em> Якутия <em>★</em> Калининградская область <em>★</em> Ростовская область <em>★</em></span>
-    <span>Москва <em>★</em> Санкт-Петербург <em>★</em> Татарстан <em>★</em> Свердловская область <em>★</em> Новосибирская область <em>★</em> Краснодарский край <em>★</em> Приморский край <em>★</em> Нижегородская область <em>★</em> Башкортостан <em>★</em> Якутия <em>★</em> Калининградская область <em>★</em> Ростовская область <em>★</em></span>
+<div class="ticker"><div class="ticker-track" id="ticker"></div></div>
+
+<section id="news"><div class="wrap">
+  <div class="sec-head"><h2 data-i18n="sec_news"></h2><a href="#" data-i18n="sec_all"></a></div>
+  <div class="news-grid" id="newsGrid"></div>
+</div></section>
+
+<section id="part" style="padding-top:0"><div class="wrap">
+  <div class="sec-head"><h2 data-i18n="sec_part"></h2><a href="#" data-i18n="sec_all2"></a></div>
+  <div class="part-list" id="partList"></div>
+</div></section>
+
+<section id="about" class="about" style="padding-top:0"><div class="wrap">
+  <div class="sec-head"><h2 data-i18n="about_title"></h2></div>
+  <p data-i18n="about_text"></p>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="f-top">
+    <div class="f-brand"><svg><use href="#mark"/></svg><b id="fName">ROSVISION</b><span id="fTag"></span></div>
+    <div class="f-col"><h4 data-i18n="foot_social"></h4><div class="socials" id="fSocials"></div></div>
+    <div class="f-col"><h4 data-i18n="foot_contacts"></h4><p id="fEmail"></p></div>
   </div>
-</div>
+  <div class="f-bottom"><span id="fNote"></span><span>ROSVISION · github.io/rusvision</span></div>
+</div></footer>
 
-<!-- НОВОСТИ -->
-<section id="news">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div><div class="sec-label">Новости</div><h2>Последние объявления регионов</h2></div>
-      <a class="link-all" href="#">Все новости</a>
-    </div>
-    <div class="news-grid">
-      <a class="news-card reveal"><div class="news-thumb g1"><svg><use href="#trophy"/></svg><span class="code">ТАТ</span></div>
-        <div class="news-body"><div class="news-region">Татарстан</div><div class="news-title">Казань готова принять Россиявидение 2026: арена прошла финальную проверку</div></div></a>
-      <a class="news-card reveal"><div class="news-thumb g2"><svg><use href="#trophy"/></svg><span class="code">СВР</span></div>
-        <div class="news-body"><div class="news-region">Свердловская область</div><div class="news-title">Екатеринбург подтвердил участие в конкурсе 2027 года</div></div></a>
-      <a class="news-card reveal"><div class="news-thumb g3"><svg><use href="#trophy"/></svg><span class="code">КРД</span></div>
-        <div class="news-body"><div class="news-region">Краснодарский край</div><div class="news-title">Сочи подал заявку на проведение Россиявидения 2028</div></div></a>
-      <a class="news-card reveal"><div class="news-thumb g4"><svg><use href="#trophy"/></svg><span class="code">НВС</span></div>
-        <div class="news-body"><div class="news-region">Новосибирская область</div><div class="news-title">Сибирь дебютирует на конкурсе: регион представит свою делегацию</div></div></a>
-      <a class="news-card reveal"><div class="news-thumb g5"><svg><use href="#trophy"/></svg><span class="code">ПРМ</span></div>
-        <div class="news-body"><div class="news-region">Приморский край</div><div class="news-title">Владивосток объявил состав делегации и концепцию оформления</div></div></a>
-      <a class="news-card reveal"><div class="news-thumb g6"><svg><use href="#trophy"/></svg><span class="code">СПБ</span></div>
-        <div class="news-body"><div class="news-region">Санкт-Петербург</div><div class="news-title">Петербург назвал дату регионального отбора 2027</div></div></a>
-      <a class="news-card reveal"><div class="news-thumb g7"><svg><use href="#trophy"/></svg><span class="code">МСК</span></div>
-        <div class="news-body"><div class="news-region">Москва</div><div class="news-title">Москва раскрыла детали спецпроекта к юбилею конкурса</div></div></a>
-      <a class="news-card reveal"><div class="news-thumb g8"><svg><use href="#trophy"/></svg><span class="code">НЖН</span></div>
-        <div class="news-body"><div class="news-region">Нижегородская область</div><div class="news-title">Нижний Новгород представил эмблему участия 2026</div></div></a>
-    </div>
+<div class="modal" id="modal"><div class="modal-box">
+  <div class="modal-tabs">
+    <button id="tabLogin" class="on" data-i18n="auth_login"></button>
+    <button id="tabReg" data-i18n="auth_register"></button>
   </div>
-</section>
+  <form id="authForm">
+    <input type="email" id="email" placeholder="E-mail" required>
+    <input type="password" id="pass" placeholder="Password" minlength="6" required>
+    <button class="btn btn-solid" style="width:100%" id="authSubmit" data-i18n="auth_login"></button>
+    <div class="modal-msg" id="authMsg"></div>
+  </form>
+  <button class="btn" style="width:100%;margin-top:10px;border-color:var(--line);color:var(--mut)" onclick="closeModal()">✕</button>
+</div></div>
 
-<!-- ПРОМО-БЛОКИ -->
-<section style="padding-top:0">
-  <div class="wrap promo-grid">
-    <div class="promo promo-shop reveal" id="shop">
-      <svg class="watermark"><use href="#trophy"/></svg>
-      <div><div class="sec-label">Магазин</div><h3>Коллекция мерча Россиявидения 2026</h3>
-      <p>Футболки, худи и коллекционные значки с символикой городов-участников — уже в официальном магазине.</p></div>
-      <div><a href="#" class="btn btn-white">В магазин</a></div>
-    </div>
-    <div class="promo promo-junior reveal" id="junior">
-      <svg class="watermark"><use href="#trophy"/></svg>
-      <div><div class="sec-label">Детское Россиявидение</div><h3>Итоги детского конкурса в Сочи</h3>
-      <p>Кубок детского Россиявидения остаётся на побережье: итоги голосования регионов и лучшие моменты шоу.</p></div>
-      <div class="winner-chip"><svg><use href="#trophy"/></svg> Город-победитель 2025 — Сочи</div>
-    </div>
-    <div class="promo promo-fan reveal" id="fan">
-      <svg class="watermark"><use href="#trophy"/></svg>
-      <div><div class="sec-label">Аккаунт фаната</div><h3>Не просто смотри. Будь частью шоу.</h3>
-      <p>Ранний доступ к билетам, эксклюзивный мерч и голосование за приз зрительских симпатий — всё в одном аккаунте.</p></div>
-      <div><a href="#" class="btn btn-white">Присоединиться</a></div>
-    </div>
-    <div class="promo promo-app reveal" id="about">
-      <svg class="watermark" style="color:#101018"><use href="#trophy"/></svg>
-      <div><div class="sec-label">Приложение</div><h3>Всё нужное — в дороге</h3>
-      <p>Расписание, новости регионов, история конкурса и моя таблица баллов — в официальном приложении Россиявидения.</p></div>
-      <div class="stores">
-        <a class="store-btn" href="#">📱<span><small>Загрузите в</small>App Store</span></a>
-        <a class="store-btn" href="#">🤖<span><small>Доступно в</small>Google Play</span></a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- РЕГИОНЫ -->
-<section class="regions" id="regions">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div><div class="sec-label">Участники</div><h2>Города и регионы Казань 2026</h2></div>
-      <a class="link-all" href="#">Все 42 региона</a>
-    </div>
-    <div class="region-pills reveal">
-      <span class="pill host">🏆 Казань — хозяин</span>
-      <span class="pill">Москва</span><span class="pill">Санкт-Петербург</span><span class="pill">Татарстан</span>
-      <span class="pill">Башкортостан</span><span class="pill">Свердловская обл.</span><span class="pill">Новосибирская обл.</span>
-      <span class="pill">Нижегородская обл.</span><span class="pill">Краснодарский край</span><span class="pill">Приморский край</span>
-      <span class="pill">Калининградская обл.</span><span class="pill">Ростовская обл.</span><span class="pill">Самарская обл.</span>
-      <span class="pill">Якутия</span><span class="pill">Мурманская обл.</span><span class="pill">Тульская обл.</span>
-      <span class="pill">+ ещё 26 регионов</span>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="wrap">
-    <div class="f-grid">
-      <div class="f-logo">
-        <svg><use href="#trophy"/></svg>
-        <b>РОССИЯВИДЕНИЕ</b><span>КОНКУРС ГОРОДОВ И РЕГИОНОВ</span>
-        <div class="socials"><a href="#">📺</a><a href="#">💬</a><a href="#">📸</a><a href="#">🎵</a></div>
-      </div>
-      <div class="f-col"><h4>Конкурс</h4><ul><li><a href="#">О Россиявидении</a></li><li><a href="#">Правила</a></li><li><a href="#">Города-хозяева</a></li><li><a href="#">История</a></li></ul></div>
-      <div class="f-col"><h4>Участие</h4><ul><li><a href="#">Региональные отборы</a></li><li><a href="#">Билеты</a></li><li><a href="#">Аккредитация</a></li><li><a href="#">Стать фанатом</a></li></ul></div>
-      <div class="f-col"><h4>Медиа</h4><ul><li><a href="#">Пресс-центр</a></li><li><a href="#">Трансляции</a></li><li><a href="#">Фотогалерея</a></li><li><a href="#">Контакты</a></li></ul></div>
-    </div>
-    <div class="f-bottom"><span>© 2026 Россиявидение. Все права защищены.</span><span>Политика конфиденциальности · Условия использования</span></div>
-  </div>
-</footer>
-
-<!-- COOKIES -->
 <div class="cookies" id="cookies">
-  <div><b>Фанатам нужны cookies! 🍪</b>
-  <p>Хотите полный опыт «двенадцати баллов»? Нам нужно ваше разрешение, чтобы запомнить настройки и понять, как вы взаимодействуете с сайтом. Мы не передаём данные третьим лицам.</p></div>
-  <div class="cookie-btns">
-    <button class="btn btn-pink" onclick="closeCookies()">Принять все</button>
-    <button class="btn btn-ghost" onclick="closeCookies()">Отклонить</button>
+  <p><b data-i18n="cookie_title"></b> <span data-i18n="cookie_text"></span></p>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-solid" onclick="okCookies()" data-i18n="cookie_ok"></button>
+    <button class="btn" onclick="okCookies()" data-i18n="cookie_no"></button>
   </div>
 </div>
 
 <script>
-function closeCookies(){document.getElementById('cookies').classList.add('hidden')}
-// плавное появление карточек
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}}),{threshold:.12});
-document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
-// закрытие мобильного меню по клику
-document.querySelectorAll('#menu a').forEach(a=>a.addEventListener('click',()=>document.getElementById('menu').classList.remove('open')));
+/* ========== i18n ========== */
+const FLAGS={
+en:'<svg width="20" height="14" viewBox="0 0 20 14"><rect width="20" height="14" fill="#012169"/><path d="M0 0 20 14M20 0 0 14" stroke="#fff" stroke-width="3"/><path d="M0 0 20 14M20 0 0 14" stroke="#C8102E" stroke-width="1.2"/><path d="M10 0V14M0 7H20" stroke="#fff" stroke-width="4.5"/><path d="M10 0V14M0 7H20" stroke="#C8102E" stroke-width="2.6"/></svg>',
+ru:'<svg width="20" height="14"><rect width="20" height="4.67" fill="#fff"/><rect y="4.67" width="20" height="4.67" fill="#0039A6"/><rect y="9.33" width="20" height="4.67" fill="#D52B1E"/></svg>',
+fr:'<svg width="20" height="14"><rect width="6.67" height="14" fill="#0055A4"/><rect x="6.67" width="6.67" height="14" fill="#fff"/><rect x="13.33" width="6.67" height="14" fill="#EF4135"/></svg>',
+es:'<svg width="20" height="14"><rect width="20" height="14" fill="#AA151B"/><rect y="3.5" width="20" height="7" fill="#F1BF00"/></svg>',
+de:'<svg width="20" height="14"><rect width="20" height="4.67" fill="#000"/><rect y="4.67" width="20" height="4.67" fill="#DD0000"/><rect y="9.33" width="20" height="4.67" fill="#FFCE00"/></svg>',
+tt:'<svg width="20" height="14"><rect width="20" height="7" fill="#009B4B"/><rect y="7" width="20" height="2.5" fill="#fff"/><rect y="9.5" width="20" height="4.5" fill="#E30613"/></svg>',
+be:'<svg width="20" height="14"><rect width="20" height="9.33" fill="#CE1720"/><rect y="9.33" width="20" height="4.67" fill="#007C30"/><rect width="2.6" height="14" fill="#fff"/></svg>',
+kh:'<svg width="20" height="14"><rect width="20" height="14" fill="#00A0DE"/><rect y="5.5" width="20" height="3" fill="#fff"/></svg>',
+ba:'<svg width="20" height="14"><rect width="20" height="4.67" fill="#0067AC"/><rect y="4.67" width="20" height="4.67" fill="#fff"/><rect y="9.33" width="20" height="4.67" fill="#009B4B"/></svg>'};
+const LANGS=[['en','English'],['ru','Русский'],['fr','Français'],['es','Español'],['de','Deutsch'],['tt','Татарча'],['be','Беларуская'],['kh','Хӑнты'],['ba','Башҡортса']];
+const I18N={
+ru:{nav_news:'Новости',nav_part:'Участники',nav_about:'О конкурсе',hero_title:'Конкурс регионов приходит в Татарстан',hero_sub:'Регионы России встречаются на одной сцене, чтобы побороться за трофей ROSVISION.',btn_more:'Подробнее',btn_watch:'Смотреть трансляцию',sec_news:'Последние новости',sec_all:'Все новости',sec_part:'Участники 2026',sec_all2:'Все участники',about_title:'О конкурсе',about_text:'ROSVISION — открытый музыкальный конкурс регионов России. Каждый субъект федерации представляет своего исполнителя, а победителя выбирают совместным голосованием регионов. Конкурс принимает регион-победитель прошлого года.',auth_login:'Войти',auth_register:'Регистрация',auth_admin:'Админ',auth_logout:'Выйти',cookie_title:'Cookies.',cookie_text:'Мы используем cookies для работы сайта и голосования.',cookie_ok:'Принять',cookie_no:'Отклонить',foot_social:'Соцсети',foot_contacts:'Контакты',auth_confirm:'Проверьте почту и подтвердите аккаунт.',auth_wrong:'Неверный e-mail или пароль',auth_done:'Вы вошли'},
+en:{nav_news:'News',nav_part:'Participants',nav_about:'About',hero_title:'The contest of the regions comes to Tatarstan',hero_sub:'The regions of Russia meet on one stage to compete for the ROSVISION trophy.',btn_more:'Learn more',btn_watch:'Watch live',sec_news:'Latest news',sec_all:'All news',sec_part:'Participants 2026',sec_all2:'All participants',about_title:'About the contest',about_text:'ROSVISION is an open song contest of the regions of Russia. Every federal subject presents a performer, and the winner is chosen by joint voting of the regions. The contest is hosted by last year\u2019s winning region.',auth_login:'Sign in',auth_register:'Register',auth_admin:'Admin',auth_logout:'Log out',cookie_title:'Cookies.',cookie_text:'We use cookies for the site and voting.',cookie_ok:'Accept',cookie_no:'Decline',foot_social:'Social',foot_contacts:'Contacts',auth_confirm:'Check your email to confirm the account.',auth_wrong:'Wrong email or password',auth_done:'Signed in'},
+fr:{nav_news:'Actualités',nav_part:'Participants',nav_about:'À propos',hero_title:'Le concours des régions arrive au Tatarstan',hero_sub:'Les régions de Russie se réunissent sur une même scène pour décrocher le trophée ROSVISION.',btn_more:'En savoir plus',btn_watch:'Regarder',sec_news:'Dernières actualités',sec_all:'Toutes',sec_part:'Participants 2026',sec_all2:'Tous',about_title:'À propos',about_text:'ROSVISION est un concours musical ouvert des régions de Russie. Chaque sujet fédéral présente un interprète, et le vainqueur est désigné par le vote commun des régions.',auth_login:'Connexion',auth_register:'Inscription',auth_admin:'Admin',auth_logout:'Déconnexion',cookie_title:'Cookies.',cookie_text:'Nous utilisons des cookies pour le site et le vote.',cookie_ok:'Accepter',cookie_no:'Refuser',foot_social:'Réseaux',foot_contacts:'Contacts',auth_confirm:'Vérifiez votre e-mail.',auth_wrong:'E-mail ou mot de passe incorrect',auth_done:'Connecté'},
+es:{nav_news:'Noticias',nav_part:'Participantes',nav_about:'Acerca de',hero_title:'El concurso de las regiones llega a Tartaristán',hero_sub:'Las regiones de Rusia se reúnen en un mismo escenario por el trofeo ROSVISION.',btn_more:'Saber más',btn_watch:'Ver en directo',sec_news:'Últimas noticias',sec_all:'Todas',sec_part:'Participantes 2026',sec_all2:'Todos',about_title:'Sobre el concurso',about_text:'ROSVISION es un concurso musical abierto de las regiones de Rusia. Cada sujeto federal presenta a un intérprete y el ganador se elige por votación conjunta de las regiones.',auth_login:'Entrar',auth_register:'Registro',auth_admin:'Admin',auth_logout:'Salir',cookie_title:'Cookies.',cookie_text:'Usamos cookies para el sitio y la votación.',cookie_ok:'Aceptar',cookie_no:'Rechazar',foot_social:'Redes',foot_contacts:'Contactos',auth_confirm:'Revisa tu correo.',auth_wrong:'Correo o contraseña incorrectos',auth_done:'Conectado'},
+de:{nav_news:'Nachrichten',nav_part:'Teilnehmer',nav_about:'Über uns',hero_title:'Der Wettbewerb der Regionen kommt nach Tatarstan',hero_sub:'Die Regionen Russlands treffen auf einer Bühne aufeinander, um die ROSVISION-Trophäe zu gewinnen.',btn_more:'Mehr erfahren',btn_watch:'Live ansehen',sec_news:'Aktuelle Nachrichten',sec_all:'Alle',sec_part:'Teilnehmer 2026',sec_all2:'Alle',about_title:'Über den Wettbewerb',about_text:'ROSVISION ist ein offener Musikwettbewerb der Regionen Russlands. Jedes Föderationssubjekt stellt einen Interpreten, der Sieger wird durch gemeinsame Abstimmung der Regionen bestimmt.',auth_login:'Anmelden',auth_register:'Registrieren',auth_admin:'Admin',auth_logout:'Abmelden',cookie_title:'Cookies.',cookie_text:'Wir nutzen Cookies für die Seite und die Abstimmung.',cookie_ok:'Akzeptieren',cookie_no:'Ablehnen',foot_social:'Social',foot_contacts:'Kontakt',auth_confirm:'E-Mail bestätigen.',auth_wrong:'Falsche Zugangsdaten',auth_done:'Angemeldet'},
+tt:{nav_news:'Яңалыклар',nav_part:'Катнашучылар',nav_about:'Конкурс турында',hero_title:'Регионнар конкурсы Татарстанга килә',hero_sub:'Россия регионнары ROSVISION трофее өчен бер сәхнәдә очраша.',btn_more:'Тулырак',btn_watch:'Трансляцияне карарга',sec_news:'Соңгы яңалыклар',sec_all:'Барысы',sec_part:'Катнашучылар 2026',sec_all2:'Барысы',about_title:'Конкурс турында',about_text:'ROSVISION — Россия регионнарының ачык музыка конкурсы. Һәр субъект үз башкаручысын тәкъдим итә, җиңүчене регионнар уртак тавыш бирү белән сайлый.',auth_login:'Керергә',auth_register:'Теркәлү',auth_admin:'Админ',auth_logout:'Чыгу',cookie_title:'Cookies.',cookie_text:'Сайт һәм тавыш бирү өчен cookies кулланабыз.',cookie_ok:'Кабул итү',cookie_no:'Баш тарту',foot_social:'Челтәрләр',foot_contacts:'Контактлар',auth_confirm:'Почтагызны раслагыз.',auth_wrong:'Хаталы e-mail яки серсүз',auth_done:'Кердегез'},
+be:{nav_news:'Навіны',nav_part:'Удзельнікі',nav_about:'Пра конкурс',hero_title:'Конкурс рэгіёнаў прыходзіць у Татарстан',hero_sub:'Рэгіёны Расіі сустракаюцца на адной сцэне, каб змагацца за трафей ROSVISION.',btn_more:'Падрабязней',btn_watch:'Глядзець',sec_news:'Апошнія навіны',sec_all:'Усе',sec_part:'Удзельнікі 2026',sec_all2:'Усе',about_title:'Пра конкурс',about_text:'ROSVISION — адкрыты музычны конкурс рэгіёнаў Расіі. Кожны суб\u2019ект федэрацыі прадстаўляе выканаўцу, пераможцу выбіраюць сумесным галасаваннем рэгіёнаў.',auth_login:'Увайсці',auth_register:'Рэгістрацыя',auth_admin:'Адмін',auth_logout:'Выйсці',cookie_title:'Cookies.',cookie_text:'Мы выкарыстоўваем cookies для сайта і галасавання.',cookie_ok:'Прыняць',cookie_no:'Адхіліць',foot_social:'Сеткі',foot_contacts:'Кантакты',auth_confirm:'Праверце пошту.',auth_wrong:'Хібны e-mail ці пароль',auth_done:'Увайшлі'},
+kh:{nav_news:'Йӓңгылты',nav_part:'Пӑлты',nav_about:'Конкурс хӑтты',hero_title:'Регионты конкурс Татарстан хуща йӓмпы',hero_sub:'Россия регионты ROSVISION трофей пӑлты йӓмпы.',btn_more:'Пӑлнты',btn_watch:'Кӓты',sec_news:'Йӓңг йӓңгылты',sec_all:'Пумы',sec_part:'Пӑлты 2026',sec_all2:'Пумы',about_title:'Конкурс хӑтты',about_text:'ROSVISION — Россия регионты мусыка конкурсы. (уточните перевод у носителей)',auth_login:'Йӓмпы',auth_register:'Регистрация',auth_admin:'Админ',auth_logout:'Лӓкты',cookie_title:'Cookies.',cookie_text:'Cookies йӓмпы.',cookie_ok:'Йӓмпы',cookie_no:'Юк',foot_social:'Сеткы',foot_contacts:'Контакты',auth_confirm:'Почта кӓты.',auth_wrong:'Хата',auth_done:'Йӓмпы'},
+ba:{nav_news:'Яңылыҡтар',nav_part:'Ҡатнашыусылар',nav_about:'Конкурс тураһында',hero_title:'Региондар конкурсы Татарстанға килә',hero_sub:'Рәсәй региондары ROSVISION трофейы өсөн бер сәхнәлә осраша.',btn_more:'Тулыраҡ',btn_watch:'Трансляцияны ҡарарға',sec_news:'Һуңғы яңылыҡтар',sec_all:'Барыһы',sec_part:'Ҡатнашыусылар 2026',sec_all2:'Барыһы',about_title:'Конкурс тураһында',about_text:'ROSVISION — Рәсәй региондарының асыҡ музыка конкурсы. Һәр субъект үз башҡарыусыһын тәҡдим итә, еңеүсене региондар уртак тауыш биреү менән һайлай.',auth_login:'Инергә',auth_register:'Теркәлеү',auth_admin:'Админ',auth_logout:'Сығыу',cookie_title:'Cookies.',cookie_text:'Сайт һәм тауыш биреү өсөн cookies ҡулланабыҙ.',cookie_ok:'Ҡабул итеү',cookie_no:'Баш тартыу',foot_social:'Селтәрҙәр',foot_contacts:'Контакттар',auth_confirm:'Почтағыҙҙы раҫлағыҙ.',auth_wrong:'Хаталы e-mail йәки серһүҙ',auth_done:'Индегез'}};
+let lang=localStorage.getItem('rv_lang')||'ru';
+const t=k=>(I18N[lang]&&I18N[lang][k])||I18N.ru[k]||k;
+function applyLang(){document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=t(e.dataset.i18n));
+ document.getElementById('langBtn').innerHTML=FLAGS[lang]+' '+lang.toUpperCase();
+ document.documentElement.lang=lang;}
+const langMenu=document.getElementById('langMenu');
+langMenu.innerHTML=LANGS.map(([c,n])=>`<button data-l="${c}">${FLAGS[c]} ${n}</button>`).join('');
+document.getElementById('langBtn').onclick=e=>{e.stopPropagation();langMenu.classList.toggle('open')};
+langMenu.onclick=e=>{const b=e.target.closest('button');if(!b)return;lang=b.dataset.l;localStorage.setItem('rv_lang',lang);applyLang();langMenu.classList.remove('open')};
+document.addEventListener('click',()=>langMenu.classList.remove('open'));
+
+/* ========== ДАННЫЕ (fallback если Supabase не подключён) ========== */
+const ACC=['#e81179','#00b3c4','#f7b733','#6a2bd9','#0e9f6e','#ff7a59'];
+const FB={news:[
+ {region:'Республика Татарстан',code:'ТАТ',title:'Татарстан готов принять ROSVISION 2026',excerpt:'Площадка прошла финальную проверку и готовится встретить делегации регионов.',accent:1},
+ {region:'Свердловская область',code:'СВР',title:'Свердловская область подтвердила участие 2027',excerpt:'Регион официально подал заявку в оргкомитет конкурса.',accent:2},
+ {region:'Краснодарский край',code:'КРД',title:'Краснодарский край подал заявку на проведение 2028',excerpt:'Заявка подана по итогам внутреннего отбора региона.',accent:3}],
+ part:[{artist:'Йолдыз',region:'Республика Татарстан',code:'ТАТ'},{artist:'Северный Ветер',region:'Ханты-Мансийский АО',code:'ЮGR'},{artist:'Курай',region:'Башкортостан',code:'БШК'},{artist:'Белые Ночи',region:'Ленинградская область',code:'ЛЕН'}],
+ set:{site_name:'ROSVISION',tagline:'Song Contest of the Regions of Russia',footer_note:'© 2026 ROSVISION. Все права защищены.',contact_email:'info@rusvision.ru'},
+ soc:[{title:'Telegram',url:'https://t.me/',icon:'✈️'},{title:'VK',url:'https://vk.com/',icon:'🔵'}]};
+
+function renderNews(list){document.getElementById('newsGrid').innerHTML=list.map(n=>`
+ <article class="news-card"><div class="nc-top"><span class="nc-code">${n.code||'···'}</span><span class="nc-dot" style="background:${ACC[(n.accent||1)%6]}"></span></div>
+ <div class="nc-region">${n.region}</div><div class="nc-title">${n.title}</div><div class="nc-ex">${n.excerpt||''}</div></article>`).join('')}
+function renderPart(list){document.getElementById('partList').innerHTML=list.map(p=>`
+ <div class="part-row"><span class="pr-code">${p.code||'—'}</span><span class="pr-artist">${p.artist}</span><span class="pr-region">${p.region}</span></div>`).join('');
+ document.getElementById('ticker').innerHTML=(list.map(p=>`${p.region} <em>★</em>`).join(' ')+' ').repeat(2)}
+function renderFoot(s,soc){document.getElementById('fName').textContent=s.site_name;document.getElementById('fTag').textContent=s.tagline;
+ document.getElementById('fNote').textContent=s.footer_note;document.getElementById('fEmail').textContent=s.contact_email;
+ document.getElementById('fSocials').innerHTML=soc.map(x=>`<a href="${x.url}" title="${x.title}" target="_blank">${x.icon}</a>`).join('')}
+
+async function load(){
+ if(!supabase){renderNews(FB.news);renderPart(FB.part);renderFoot(FB.set,FB.soc);return}
+ try{
+  const [n,p,s,so]=await Promise.all([
+   supabase.from('news').select('*').eq('published',true).order('created_at',{ascending:false}),
+   supabase.from('participants').select('*').order('sort'),
+   supabase.from('site_settings').select('*').eq('id',1).single(),
+   supabase.from('social_links').select('*').order('sort')]);
+  renderNews(n.data?.length?n.data:FB.news);renderPart(p.data?.length?p.data:FB.part);renderFoot(s.data||FB.set,so.data||FB.soc);
+ }catch(e){renderNews(FB.news);renderPart(FB.part);renderFoot(FB.set,FB.soc)}}
+
+/* ========== AUTH ========== */
+let mode='login';
+const modal=document.getElementById('modal');
+function openModal(m){mode=m;modal.classList.add('open');
+ document.getElementById('tabLogin').classList.toggle('on',m==='login');
+ document.getElementById('tabReg').classList.toggle('on',m==='reg');
+ document.getElementById('authSubmit').textContent=m==='login'?t('auth_login'):t('auth_register');
+ document.getElementById('authMsg').textContent=''}
+function closeModal(){modal.classList.remove('open')}
+document.getElementById('authBtn').onclick=()=>openModal('login');
+document.getElementById('tabLogin').onclick=()=>openModal('login');
+document.getElementById('tabReg').onclick=()=>openModal('reg');
+document.getElementById('authForm').onsubmit=async e=>{e.preventDefault();
+ const email=document.getElementById('email').value,pass=document.getElementById('pass').value,msg=document.getElementById('authMsg');
+ if(!supabase){msg.textContent='Supabase не настроен (sb.js)';return}
+ if(mode==='reg'){const {error}=await supabase.auth.signUp({email,password:pass});
+  msg.textContent=error?error.message:t('auth_confirm');if(!error)setTimeout(closeModal,2500);}
+ else{const {error}=await supabase.auth.signInWithPassword({email,password:pass});
+  msg.textContent=error?t('auth_wrong'):t('auth_done');if(!error)setTimeout(closeModal,800);}}
+async function refreshAuth(){
+ const chip=document.getElementById('userChip'),ab=document.getElementById('adminBtn'),btn=document.getElementById('authBtn');
+ if(!supabase){btn.style.display='';btn.textContent=t('auth_login');btn.onclick=()=>openModal('login');return}
+ const {data:{session}}=await supabase.auth.getSession();
+ if(session){const adm=await isAdmin();
+  chip.textContent=session.user.email+' ';
+  btn.textContent=t('auth_logout');btn.onclick=async()=>{await supabase.auth.signOut();refreshAuth()};
+  ab.style.display=adm?'':'none';
+ }else{chip.textContent='';ab.style.display='none';btn.textContent=t('auth_login');btn.onclick=()=>openModal('login')}}
+if(supabase)supabase.auth.onAuthStateChange(()=>refreshAuth());
+
+function okCookies(){document.getElementById('cookies').style.display='none'}
+if(localStorage.getItem('rv_ck'))document.getElementById('cookies').style.display='none';
+else document.getElementById('cookies').querySelector('.btn').onclick=()=>{localStorage.setItem('rv_ck',1);okCookies()};
+
+applyLang();load();refreshAuth();
 </script>
 </body>
 </html>
