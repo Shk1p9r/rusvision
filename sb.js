@@ -1,43 +1,31 @@
-// Данные из Supabase Dashboard → Settings → API
 const SUPABASE_URL = 'https://whqicbrivhiaegtzelci.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_FfYb_P8kESdDW8I488cYtA_UPFlPSi8';
+// ⬇️ ВОТ СЮДА ВСТАВЬ НОВЫЙ КЛЮЧ ⬇️
+const SUPABASE_ANON_KEY = 'sb_publishable_m3r0FApgU8kcZrMuQDwh0Q_mX-Juf0C'; 
 
-// ВАЖНО: Используем window.supabase для создания клиента
-window.rv_supabase = null; 
-
+let supabase = null;
 try {
   if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-    // Создаем клиент только если библиотека загружена
-    if (typeof supabase !== 'undefined') {
-      window.rv_supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      console.log('✅ Supabase подключён успешно');
-    } else {
-      console.error('❌ Библиотека supabase-js не найдена! Проверь <script> в index.html.');
-    }
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('✅ Supabase подключён успешно');
+    window.rv_supabase = supabase;
   } else {
-    console.warn('⚠️ Ключи Supabase пусты — сайт работает на демо-данных');
+    console.warn('⚠️ Ключи пустые');
   }
 } catch (e) {
-  console.error('❌ Ошибка инициализации Supabase:', e);
+  console.error('❌ Ошибка инициализации:', e);
 }
 
-// Функция проверки админа (использует rv_supabase)
 async function isAdmin() {
   const client = window.rv_supabase;
   if (!client) return false;
-  
   try {
     const { data: { session } } = await client.auth.getSession();
     if (!session) return false;
-    
     const { data, error } = await client.rpc('is_admin');
-    if (error) { 
-      console.error('Ошибка RPC is_admin:', error.message); 
-      return false; 
-    }
+    if (error) { console.error('RPC error:', error.message); return false; }
     return !!data;
   } catch (e) {
-    console.error('Исключение в isAdmin():', e);
+    console.error('Exception:', e);
     return false;
   }
 }
