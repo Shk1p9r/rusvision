@@ -1,0 +1,618 @@
+[
+  {
+    "region": "Республика Адыгея",
+    "code": "ADY",
+    "flag_key": "ady",
+    "file": "flags/ady.png",
+    "source": "Flag_of_Adygea.svg"
+  },
+  {
+    "region": "Республика Алтай",
+    "code": "ALT",
+    "flag_key": "alt",
+    "file": "flags/alt.png",
+    "source": "Flag_of_Altai_Republic.svg"
+  },
+  {
+    "region": "Республика Башкортостан",
+    "code": "BSH",
+    "flag_key": "bsh",
+    "file": "flags/bsh.png",
+    "source": "Flag_of_Bashkortostan.svg"
+  },
+  {
+    "region": "Республика Бурятия",
+    "code": "BUR",
+    "flag_key": "bur",
+    "file": "flags/bur.png",
+    "source": "Flag_of_Buryatia.svg"
+  },
+  {
+    "region": "Республика Дагестан",
+    "code": "DAG",
+    "flag_key": "dag",
+    "file": "flags/dag.png",
+    "source": "Flag_of_Dagestan.svg"
+  },
+  {
+    "region": "Донецкая Народная Республика",
+    "code": "DNR",
+    "flag_key": "dnr",
+    "file": "flags/dnr.png",
+    "source": "Flag_of_Donetsk_People's_Republic.svg"
+  },
+  {
+    "region": "Республика Ингушетия",
+    "code": "ING",
+    "flag_key": "ing",
+    "file": "flags/ing.png",
+    "source": "Flag_of_Ingushetia.svg"
+  },
+  {
+    "region": "Кабардино-Балкарская Республика",
+    "code": "KBR",
+    "flag_key": "kbr",
+    "file": "flags/kbr.png",
+    "source": "Flag_of_Kabardino-Balkaria.svg"
+  },
+  {
+    "region": "Республика Калмыкия",
+    "code": "KLM",
+    "flag_key": "klm",
+    "file": "flags/klm.png",
+    "source": "Flag_of_Kalmykia.svg"
+  },
+  {
+    "region": "Карачаево-Черкесская Республика",
+    "code": "KCH",
+    "flag_key": "kch",
+    "file": "flags/kch.png",
+    "source": "Flag_of_Karachay-Cherkessia.svg"
+  },
+  {
+    "region": "Республика Карелия",
+    "code": "KAR",
+    "flag_key": "kar",
+    "file": "flags/kar.png",
+    "source": "Flag_of_Karelia.svg"
+  },
+  {
+    "region": "Республика Коми",
+    "code": "KOM",
+    "flag_key": "kom",
+    "file": "flags/kom.png",
+    "source": "Flag_of_Komi.svg"
+  },
+  {
+    "region": "Республика Крым",
+    "code": "KRM",
+    "flag_key": "krm",
+    "file": "flags/krm.png",
+    "source": "Flag_of_Crimea.svg"
+  },
+  {
+    "region": "Луганская Народная Республика",
+    "code": "LNR",
+    "flag_key": "lnr",
+    "file": "flags/lnr.png",
+    "source": "Flag_of_the_Luhansk_People's_Republic.svg"
+  },
+  {
+    "region": "Республика Марий Эл",
+    "code": "MRL",
+    "flag_key": "mrl",
+    "file": "flags/mrl.png",
+    "source": "Flag_of_Mari_El.svg"
+  },
+  {
+    "region": "Республика Мордовия",
+    "code": "MRD",
+    "flag_key": "mrd",
+    "file": "flags/mrd.png",
+    "source": "Flag_of_Mordovia.svg"
+  },
+  {
+    "region": "Республика Саха (Якутия)",
+    "code": "YAK",
+    "flag_key": "yak",
+    "file": "flags/yak.png",
+    "source": "Wikimedia Commons — Flag of Sakha.svg (public domain; SVG source from file page)"
+  },
+  {
+    "region": "Республика Северная Осетия — Алания",
+    "code": "SOA",
+    "flag_key": "soa",
+    "file": "flags/soa.png",
+    "source": "Flag_of_North_Ossetia.svg"
+  },
+  {
+    "region": "Республика Татарстан",
+    "code": "TAT",
+    "flag_key": "tat",
+    "file": "flags/tat.png",
+    "source": "Flag_of_Tatarstan.svg"
+  },
+  {
+    "region": "Республика Тыва",
+    "code": "TUV",
+    "flag_key": "tuv",
+    "file": "flags/tuv.png",
+    "source": "Flag_of_Tuva.svg"
+  },
+  {
+    "region": "Удмуртская Республика",
+    "code": "UDM",
+    "flag_key": "udm",
+    "file": "flags/udm.png",
+    "source": "Flag_of_Udmurtia.svg"
+  },
+  {
+    "region": "Республика Хакасия",
+    "code": "KHK",
+    "flag_key": "khk",
+    "file": "flags/khk.png",
+    "source": "Flag_of_Khakassia.svg"
+  },
+  {
+    "region": "Чеченская Республика",
+    "code": "CHE",
+    "flag_key": "che",
+    "file": "flags/che.png",
+    "source": "Flag_of_the_Chechen_Republic.svg"
+  },
+  {
+    "region": "Чувашская Республика",
+    "code": "CHV",
+    "flag_key": "chv",
+    "file": "flags/chv.png",
+    "source": "Flag_of_Chuvashia.svg"
+  },
+  {
+    "region": "Алтайский край",
+    "code": "ALK",
+    "flag_key": "alk",
+    "file": "flags/alk.png",
+    "source": "Flag_of_Altai_Krai.svg"
+  },
+  {
+    "region": "Забайкальский край",
+    "code": "ZAB",
+    "flag_key": "zab",
+    "file": "flags/zab.png",
+    "source": "Flag_of_Zabaykalsky_Krai.svg"
+  },
+  {
+    "region": "Камчатский край",
+    "code": "KAM",
+    "flag_key": "kam",
+    "file": "flags/kam.png",
+    "source": "Flag_of_Kamchatka_Krai.svg"
+  },
+  {
+    "region": "Краснодарский край",
+    "code": "KRD",
+    "flag_key": "krd",
+    "file": "flags/krd.png",
+    "source": "Flag_of_Krasnodar_Krai.svg"
+  },
+  {
+    "region": "Красноярский край",
+    "code": "KRY",
+    "flag_key": "kry",
+    "file": "flags/kry.png",
+    "source": "Flag_of_Krasnoyarsk_Krai.svg"
+  },
+  {
+    "region": "Пермский край",
+    "code": "PRM",
+    "flag_key": "prm",
+    "file": "flags/prm.png",
+    "source": "Flag_of_Perm_Krai.svg"
+  },
+  {
+    "region": "Приморский край",
+    "code": "PRK",
+    "flag_key": "prk",
+    "file": "flags/prk.png",
+    "source": "Flag_of_Primorsky_Krai.svg"
+  },
+  {
+    "region": "Ставропольский край",
+    "code": "STA",
+    "flag_key": "sta",
+    "file": "flags/sta.png",
+    "source": "Flag_of_Stavropol_Krai.svg"
+  },
+  {
+    "region": "Хабаровский край",
+    "code": "KHB",
+    "flag_key": "khb",
+    "file": "flags/khb.png",
+    "source": "Flag_of_Khabarovsk_Krai.svg"
+  },
+  {
+    "region": "Амурская область",
+    "code": "AMU",
+    "flag_key": "amu",
+    "file": "flags/amu.png",
+    "source": "Flag_of_Amur_Oblast.svg"
+  },
+  {
+    "region": "Архангельская область",
+    "code": "ARK",
+    "flag_key": "ark",
+    "file": "flags/ark.png",
+    "source": "Flag_of_Arkhangelsk_Oblast.svg"
+  },
+  {
+    "region": "Астраханская область",
+    "code": "AST",
+    "flag_key": "ast",
+    "file": "flags/ast.png",
+    "source": "Flag_of_Astrakhan_Oblast.svg"
+  },
+  {
+    "region": "Белгородская область",
+    "code": "BEL",
+    "flag_key": "bel",
+    "file": "flags/bel.png",
+    "source": "Flag_of_Belgorod_Oblast.svg"
+  },
+  {
+    "region": "Брянская область",
+    "code": "BRY",
+    "flag_key": "bry",
+    "file": "flags/bry.png",
+    "source": "Flag_of_Bryansk_Oblast.svg"
+  },
+  {
+    "region": "Владимирская область",
+    "code": "VLA",
+    "flag_key": "vla",
+    "file": "flags/vla.png",
+    "source": "Flag_of_Vladimir_Oblast.svg"
+  },
+  {
+    "region": "Волгоградская область",
+    "code": "VGG",
+    "flag_key": "vgg",
+    "file": "flags/vgg.png",
+    "source": "Flag_of_Volgograd_Oblast.svg"
+  },
+  {
+    "region": "Вологодская область",
+    "code": "VLG",
+    "flag_key": "vlg",
+    "file": "flags/vlg.png",
+    "source": "Flag_of_Vologda_oblast.svg"
+  },
+  {
+    "region": "Воронежская область",
+    "code": "VOR",
+    "flag_key": "vor",
+    "file": "flags/vor.png",
+    "source": "Flag_of_Voronezh_Oblast.svg"
+  },
+  {
+    "region": "Запорожская область",
+    "code": "ZAP",
+    "flag_key": "zap",
+    "file": "flags/zap.png",
+    "source": "Flag_of_the_Russian_administered_Zaporizhzhia_Oblast.svg"
+  },
+  {
+    "region": "Ивановская область",
+    "code": "IVA",
+    "flag_key": "iva",
+    "file": "flags/iva.png",
+    "source": "Flag_of_Ivanovo_Oblast.svg"
+  },
+  {
+    "region": "Иркутская область",
+    "code": "IRK",
+    "flag_key": "irk",
+    "file": "flags/irk.png",
+    "source": "Flag_of_Irkutsk_Oblast.svg"
+  },
+  {
+    "region": "Калининградская область",
+    "code": "KGD",
+    "flag_key": "kgd",
+    "file": "flags/kgd.png",
+    "source": "Flag_of_Kaliningrad_Oblast.svg"
+  },
+  {
+    "region": "Калужская область",
+    "code": "KLU",
+    "flag_key": "klu",
+    "file": "flags/klu.png",
+    "source": "Flag_of_Kaluga_Oblast.svg"
+  },
+  {
+    "region": "Кемеровская область",
+    "code": "KEM",
+    "flag_key": "kem",
+    "file": "flags/kem.png",
+    "source": "Flag_of_Kemerovo_Oblast.svg"
+  },
+  {
+    "region": "Кировская область",
+    "code": "KIR",
+    "flag_key": "kir",
+    "file": "flags/kir.png",
+    "source": "Flag_of_Kirov_Oblast.svg"
+  },
+  {
+    "region": "Костромская область",
+    "code": "KOS",
+    "flag_key": "kos",
+    "file": "flags/kos.png",
+    "source": "Flag_of_Kostroma_Oblast.svg"
+  },
+  {
+    "region": "Курганская область",
+    "code": "KUR",
+    "flag_key": "kur",
+    "file": "flags/kur.png",
+    "source": "Flag_of_Kurgan_Oblast.svg"
+  },
+  {
+    "region": "Курская область",
+    "code": "KRS",
+    "flag_key": "krs",
+    "file": "flags/krs.png",
+    "source": "Flag_of_Kursk_Oblast.svg"
+  },
+  {
+    "region": "Ленинградская область",
+    "code": "LEN",
+    "flag_key": "len",
+    "file": "flags/len.png",
+    "source": "Flag_of_Leningrad_Oblast.svg"
+  },
+  {
+    "region": "Липецкая область",
+    "code": "LIP",
+    "flag_key": "lip",
+    "file": "flags/lip.png",
+    "source": "Flag_of_Lipetsk_Oblast.svg"
+  },
+  {
+    "region": "Магаданская область",
+    "code": "MAG",
+    "flag_key": "mag",
+    "file": "flags/mag.png",
+    "source": "Flag_of_Magadan_Oblast.svg"
+  },
+  {
+    "region": "Московская область",
+    "code": "MOS",
+    "flag_key": "mos",
+    "file": "flags/mos.png",
+    "source": "Flag_of_Moscow_oblast.svg"
+  },
+  {
+    "region": "Мурманская область",
+    "code": "MUR",
+    "flag_key": "mur",
+    "file": "flags/mur.png",
+    "source": "Flag_of_Murmansk_Oblast.svg"
+  },
+  {
+    "region": "Нижегородская область",
+    "code": "NIZ",
+    "flag_key": "niz",
+    "file": "flags/niz.png",
+    "source": "Flag_of_Nizhny_Novgorod_Region.svg"
+  },
+  {
+    "region": "Новгородская область",
+    "code": "NGR",
+    "flag_key": "ngr",
+    "file": "flags/ngr.png",
+    "source": "Flag_of_Novgorod_Oblast.svg"
+  },
+  {
+    "region": "Новосибирская область",
+    "code": "NVS",
+    "flag_key": "nvs",
+    "file": "flags/nvs.png",
+    "source": "Flag_of_Novosibirsk_Oblast.svg"
+  },
+  {
+    "region": "Омская область",
+    "code": "OMS",
+    "flag_key": "oms",
+    "file": "flags/oms.png",
+    "source": "Flag_of_Omsk_Oblast.svg"
+  },
+  {
+    "region": "Оренбургская область",
+    "code": "ORE",
+    "flag_key": "ore",
+    "file": "flags/ore.png",
+    "source": "Flag_of_Orenburg_Oblast.svg"
+  },
+  {
+    "region": "Орловская область",
+    "code": "ORL",
+    "flag_key": "orl",
+    "file": "flags/orl.png",
+    "source": "Flag_of_Oryol_Oblast.svg"
+  },
+  {
+    "region": "Пензенская область",
+    "code": "PEN",
+    "flag_key": "pen",
+    "file": "flags/pen.png",
+    "source": "Flag_of_Penza_Oblast.svg"
+  },
+  {
+    "region": "Псковская область",
+    "code": "PSK",
+    "flag_key": "psk",
+    "file": "flags/psk.png",
+    "source": "Flag_of_Pskov_Oblast.svg"
+  },
+  {
+    "region": "Ростовская область",
+    "code": "ROS",
+    "flag_key": "ros",
+    "file": "flags/ros.png",
+    "source": "Flag_of_Rostov_Oblast.svg"
+  },
+  {
+    "region": "Рязанская область",
+    "code": "RYA",
+    "flag_key": "rya",
+    "file": "flags/rya.png",
+    "source": "Flag_of_Ryazan_Oblast.svg"
+  },
+  {
+    "region": "Самарская область",
+    "code": "SAM",
+    "flag_key": "sam",
+    "file": "flags/sam.png",
+    "source": "Flag_of_Samara_Oblast.svg"
+  },
+  {
+    "region": "Саратовская область",
+    "code": "SAR",
+    "flag_key": "sar",
+    "file": "flags/sar.png",
+    "source": "Flag_of_Saratov_Oblast.svg"
+  },
+  {
+    "region": "Сахалинская область",
+    "code": "SAK",
+    "flag_key": "sak",
+    "file": "flags/sak.png",
+    "source": "Flag_of_Sakhalin_Oblast.svg"
+  },
+  {
+    "region": "Свердловская область",
+    "code": "SVE",
+    "flag_key": "sve",
+    "file": "flags/sve.png",
+    "source": "Flag_of_Sverdlovsk_Oblast.svg"
+  },
+  {
+    "region": "Смоленская область",
+    "code": "SMO",
+    "flag_key": "smo",
+    "file": "flags/smo.png",
+    "source": "Flag_of_Smolensk_Oblast.svg"
+  },
+  {
+    "region": "Тамбовская область",
+    "code": "TAM",
+    "flag_key": "tam",
+    "file": "flags/tam.png",
+    "source": "Flag_of_Tambov_Oblast.svg"
+  },
+  {
+    "region": "Тверская область",
+    "code": "TVE",
+    "flag_key": "tve",
+    "file": "flags/tve.png",
+    "source": "Flag_of_Tver_Oblast.svg"
+  },
+  {
+    "region": "Томская область",
+    "code": "TOM",
+    "flag_key": "tom",
+    "file": "flags/tom.png",
+    "source": "Flag_of_Tomsk_Oblast.svg"
+  },
+  {
+    "region": "Тульская область",
+    "code": "TUL",
+    "flag_key": "tul",
+    "file": "flags/tul.png",
+    "source": "Flag_of_Tula_Oblast.svg"
+  },
+  {
+    "region": "Тюменская область",
+    "code": "TYU",
+    "flag_key": "tyu",
+    "file": "flags/tyu.png",
+    "source": "Flag_of_Tyumen_Oblast.svg"
+  },
+  {
+    "region": "Ульяновская область",
+    "code": "ULY",
+    "flag_key": "uly",
+    "file": "flags/uly.png",
+    "source": "Flag_of_Ulyanovsk_Oblast.svg"
+  },
+  {
+    "region": "Херсонская область",
+    "code": "KHE",
+    "flag_key": "khe",
+    "file": "flags/khe.png",
+    "source": "Flag_of_Kherson_Oblast_(Russia).svg"
+  },
+  {
+    "region": "Челябинская область",
+    "code": "CHL",
+    "flag_key": "chl",
+    "file": "flags/chl.png",
+    "source": "Flag_of_Chelyabinsk_Oblast.svg"
+  },
+  {
+    "region": "Ярославская область",
+    "code": "YAR",
+    "flag_key": "yar",
+    "file": "flags/yar.png",
+    "source": "Flag_of_Yaroslavl_Oblast.svg"
+  },
+  {
+    "region": "Москва",
+    "code": "MSK",
+    "flag_key": "msk",
+    "file": "flags/msk.png",
+    "source": "Flag_of_Moscow,_Russia.svg"
+  },
+  {
+    "region": "Санкт-Петербург",
+    "code": "SPB",
+    "flag_key": "spb",
+    "file": "flags/spb.png",
+    "source": "Flag_of_Saint_Petersburg.svg"
+  },
+  {
+    "region": "Еврейская автономная область",
+    "code": "YEV",
+    "flag_key": "yev",
+    "file": "flags/yev.png",
+    "source": "Flag_of_the_Jewish_Autonomous_Oblast.svg"
+  },
+  {
+    "region": "Ненецкий автономный округ",
+    "code": "NEN",
+    "flag_key": "nen",
+    "file": "flags/nen.png",
+    "source": "Flag_of_Nenets_Autonomous_District.svg"
+  },
+  {
+    "region": "Ханты-Мансийский автономный округ — Югра",
+    "code": "KHM",
+    "flag_key": "khm",
+    "file": "flags/khm.png",
+    "source": "Flag_of_Yugra.svg"
+  },
+  {
+    "region": "Чукотский автономный округ",
+    "code": "CHU",
+    "flag_key": "chu",
+    "file": "flags/chu.png",
+    "source": "Flag_of_Chukotka.svg"
+  },
+  {
+    "region": "Ямало-Ненецкий автономный округ",
+    "code": "YAN",
+    "flag_key": "yan",
+    "file": "flags/yan.png",
+    "source": "Flag_of_Yamal-Nenets_Autonomous_District.svg"
+  }
+]

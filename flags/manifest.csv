@@ -1,0 +1,89 @@
+﻿region,code,flag_key,file,source
+Республика Адыгея,ADY,ady,flags/ady.png,Flag_of_Adygea.svg
+Республика Алтай,ALT,alt,flags/alt.png,Flag_of_Altai_Republic.svg
+Республика Башкортостан,BSH,bsh,flags/bsh.png,Flag_of_Bashkortostan.svg
+Республика Бурятия,BUR,bur,flags/bur.png,Flag_of_Buryatia.svg
+Республика Дагестан,DAG,dag,flags/dag.png,Flag_of_Dagestan.svg
+Донецкая Народная Республика,DNR,dnr,flags/dnr.png,Flag_of_Donetsk_People's_Republic.svg
+Республика Ингушетия,ING,ing,flags/ing.png,Flag_of_Ingushetia.svg
+Кабардино-Балкарская Республика,KBR,kbr,flags/kbr.png,Flag_of_Kabardino-Balkaria.svg
+Республика Калмыкия,KLM,klm,flags/klm.png,Flag_of_Kalmykia.svg
+Карачаево-Черкесская Республика,KCH,kch,flags/kch.png,Flag_of_Karachay-Cherkessia.svg
+Республика Карелия,KAR,kar,flags/kar.png,Flag_of_Karelia.svg
+Республика Коми,KOM,kom,flags/kom.png,Flag_of_Komi.svg
+Республика Крым,KRM,krm,flags/krm.png,Flag_of_Crimea.svg
+Луганская Народная Республика,LNR,lnr,flags/lnr.png,Flag_of_the_Luhansk_People's_Republic.svg
+Республика Марий Эл,MRL,mrl,flags/mrl.png,Flag_of_Mari_El.svg
+Республика Мордовия,MRD,mrd,flags/mrd.png,Flag_of_Mordovia.svg
+Республика Саха (Якутия),YAK,yak,flags/yak.png,Wikimedia Commons — Flag of Sakha.svg (public domain; SVG source from file page)
+Республика Северная Осетия — Алания,SOA,soa,flags/soa.png,Flag_of_North_Ossetia.svg
+Республика Татарстан,TAT,tat,flags/tat.png,Flag_of_Tatarstan.svg
+Республика Тыва,TUV,tuv,flags/tuv.png,Flag_of_Tuva.svg
+Удмуртская Республика,UDM,udm,flags/udm.png,Flag_of_Udmurtia.svg
+Республика Хакасия,KHK,khk,flags/khk.png,Flag_of_Khakassia.svg
+Чеченская Республика,CHE,che,flags/che.png,Flag_of_the_Chechen_Republic.svg
+Чувашская Республика,CHV,chv,flags/chv.png,Flag_of_Chuvashia.svg
+Алтайский край,ALK,alk,flags/alk.png,Flag_of_Altai_Krai.svg
+Забайкальский край,ZAB,zab,flags/zab.png,Flag_of_Zabaykalsky_Krai.svg
+Камчатский край,KAM,kam,flags/kam.png,Flag_of_Kamchatka_Krai.svg
+Краснодарский край,KRD,krd,flags/krd.png,Flag_of_Krasnodar_Krai.svg
+Красноярский край,KRY,kry,flags/kry.png,Flag_of_Krasnoyarsk_Krai.svg
+Пермский край,PRM,prm,flags/prm.png,Flag_of_Perm_Krai.svg
+Приморский край,PRK,prk,flags/prk.png,Flag_of_Primorsky_Krai.svg
+Ставропольский край,STA,sta,flags/sta.png,Flag_of_Stavropol_Krai.svg
+Хабаровский край,KHB,khb,flags/khb.png,Flag_of_Khabarovsk_Krai.svg
+Амурская область,AMU,amu,flags/amu.png,Flag_of_Amur_Oblast.svg
+Архангельская область,ARK,ark,flags/ark.png,Flag_of_Arkhangelsk_Oblast.svg
+Астраханская область,AST,ast,flags/ast.png,Flag_of_Astrakhan_Oblast.svg
+Белгородская область,BEL,bel,flags/bel.png,Flag_of_Belgorod_Oblast.svg
+Брянская область,BRY,bry,flags/bry.png,Flag_of_Bryansk_Oblast.svg
+Владимирская область,VLA,vla,flags/vla.png,Flag_of_Vladimir_Oblast.svg
+Волгоградская область,VGG,vgg,flags/vgg.png,Flag_of_Volgograd_Oblast.svg
+Вологодская область,VLG,vlg,flags/vlg.png,Flag_of_Vologda_oblast.svg
+Воронежская область,VOR,vor,flags/vor.png,Flag_of_Voronezh_Oblast.svg
+Запорожская область,ZAP,zap,flags/zap.png,Flag_of_the_Russian_administered_Zaporizhzhia_Oblast.svg
+Ивановская область,IVA,iva,flags/iva.png,Flag_of_Ivanovo_Oblast.svg
+Иркутская область,IRK,irk,flags/irk.png,Flag_of_Irkutsk_Oblast.svg
+Калининградская область,KGD,kgd,flags/kgd.png,Flag_of_Kaliningrad_Oblast.svg
+Калужская область,KLU,klu,flags/klu.png,Flag_of_Kaluga_Oblast.svg
+Кемеровская область,KEM,kem,flags/kem.png,Flag_of_Kemerovo_Oblast.svg
+Кировская область,KIR,kir,flags/kir.png,Flag_of_Kirov_Oblast.svg
+Костромская область,KOS,kos,flags/kos.png,Flag_of_Kostroma_Oblast.svg
+Курганская область,KUR,kur,flags/kur.png,Flag_of_Kurgan_Oblast.svg
+Курская область,KRS,krs,flags/krs.png,Flag_of_Kursk_Oblast.svg
+Ленинградская область,LEN,len,flags/len.png,Flag_of_Leningrad_Oblast.svg
+Липецкая область,LIP,lip,flags/lip.png,Flag_of_Lipetsk_Oblast.svg
+Магаданская область,MAG,mag,flags/mag.png,Flag_of_Magadan_Oblast.svg
+Московская область,MOS,mos,flags/mos.png,Flag_of_Moscow_oblast.svg
+Мурманская область,MUR,mur,flags/mur.png,Flag_of_Murmansk_Oblast.svg
+Нижегородская область,NIZ,niz,flags/niz.png,Flag_of_Nizhny_Novgorod_Region.svg
+Новгородская область,NGR,ngr,flags/ngr.png,Flag_of_Novgorod_Oblast.svg
+Новосибирская область,NVS,nvs,flags/nvs.png,Flag_of_Novosibirsk_Oblast.svg
+Омская область,OMS,oms,flags/oms.png,Flag_of_Omsk_Oblast.svg
+Оренбургская область,ORE,ore,flags/ore.png,Flag_of_Orenburg_Oblast.svg
+Орловская область,ORL,orl,flags/orl.png,Flag_of_Oryol_Oblast.svg
+Пензенская область,PEN,pen,flags/pen.png,Flag_of_Penza_Oblast.svg
+Псковская область,PSK,psk,flags/psk.png,Flag_of_Pskov_Oblast.svg
+Ростовская область,ROS,ros,flags/ros.png,Flag_of_Rostov_Oblast.svg
+Рязанская область,RYA,rya,flags/rya.png,Flag_of_Ryazan_Oblast.svg
+Самарская область,SAM,sam,flags/sam.png,Flag_of_Samara_Oblast.svg
+Саратовская область,SAR,sar,flags/sar.png,Flag_of_Saratov_Oblast.svg
+Сахалинская область,SAK,sak,flags/sak.png,Flag_of_Sakhalin_Oblast.svg
+Свердловская область,SVE,sve,flags/sve.png,Flag_of_Sverdlovsk_Oblast.svg
+Смоленская область,SMO,smo,flags/smo.png,Flag_of_Smolensk_Oblast.svg
+Тамбовская область,TAM,tam,flags/tam.png,Flag_of_Tambov_Oblast.svg
+Тверская область,TVE,tve,flags/tve.png,Flag_of_Tver_Oblast.svg
+Томская область,TOM,tom,flags/tom.png,Flag_of_Tomsk_Oblast.svg
+Тульская область,TUL,tul,flags/tul.png,Flag_of_Tula_Oblast.svg
+Тюменская область,TYU,tyu,flags/tyu.png,Flag_of_Tyumen_Oblast.svg
+Ульяновская область,ULY,uly,flags/uly.png,Flag_of_Ulyanovsk_Oblast.svg
+Херсонская область,KHE,khe,flags/khe.png,Flag_of_Kherson_Oblast_(Russia).svg
+Челябинская область,CHL,chl,flags/chl.png,Flag_of_Chelyabinsk_Oblast.svg
+Ярославская область,YAR,yar,flags/yar.png,Flag_of_Yaroslavl_Oblast.svg
+Москва,MSK,msk,flags/msk.png,"Flag_of_Moscow,_Russia.svg"
+Санкт-Петербург,SPB,spb,flags/spb.png,Flag_of_Saint_Petersburg.svg
+Еврейская автономная область,YEV,yev,flags/yev.png,Flag_of_the_Jewish_Autonomous_Oblast.svg
+Ненецкий автономный округ,NEN,nen,flags/nen.png,Flag_of_Nenets_Autonomous_District.svg
+Ханты-Мансийский автономный округ — Югра,KHM,khm,flags/khm.png,Flag_of_Yugra.svg
+Чукотский автономный округ,CHU,chu,flags/chu.png,Flag_of_Chukotka.svg
+Ямало-Ненецкий автономный округ,YAN,yan,flags/yan.png,Flag_of_Yamal-Nenets_Autonomous_District.svg
