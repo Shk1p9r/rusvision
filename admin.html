@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="sb.js"></script>
+<script src="regions.js"></script>
 <style>
 :root{--bg:#0a0a14;--glass:rgba(255,255,255,0.08);--glass-border:rgba(255,255,255,0.15);--paper:#f4f2f7;--mut:rgba(244,242,247,.6);--acc:#e81179}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -21,20 +22,23 @@ h1{font-weight:900;letter-spacing:.05em;margin-bottom:8px;font-size:2rem}
 .card{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:24px;padding:32px;margin-bottom:24px}
 .card h3{font-weight:700;margin-bottom:20px;font-size:1.1rem}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-input,select{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);border-radius:14px;color:var(--paper);padding:14px;margin-bottom:14px;font:400 .95rem Rubik}
-input:focus{outline:none;border-color:var(--acc)}
+input,select,textarea{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);border-radius:14px;color:var(--paper);padding:14px;margin-bottom:14px;font:400 .95rem Rubik}
+input:focus,textarea:focus{outline:none;border-color:var(--acc)}
+textarea{min-height:100px;resize:vertical}
 .file-label{display:flex;align-items:center;justify-content:center;gap:10px;border:1px dashed var(--glass-border);border-radius:14px;padding:16px 20px;cursor:pointer;color:var(--mut);font-size:.9rem;margin-bottom:14px;transition:all .3s}
 .file-label:hover{border-color:var(--acc);color:var(--paper)}
-.preview{width:120px;height:150px;object-fit:cover;border-radius:14px;border:1px solid var(--glass-border);margin:0 10px 14px 0;display:inline-block}
-.preview.sq{width:120px;height:120px;border-radius:50%}
+.preview{width:120px;height:90px;object-fit:cover;border-radius:14px;border:1px solid var(--glass-border);margin:0 10px 14px 0;display:inline-block}
+.preview.sq{width:90px;height:90px;border-radius:50%}
 .btn{border-radius:999px;padding:14px 32px;font:700 .9rem Rubik;cursor:pointer;border:1px solid var(--paper);background:var(--paper);color:var(--bg);transition:all .3s}
 .btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}
-.btn.del{background:none;border-color:var(--glass-border);color:var(--mut);padding:8px 18px;font-size:.85rem}
+.btn.del,.btn.edit{background:none;border-color:var(--glass-border);color:var(--mut);padding:8px 18px;font-size:.85rem}
 .btn.del:hover{border-color:#e81179;color:#e81179}
+.btn.edit:hover{border-color:#00b3c4;color:#00b3c4}
 .row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 8px;border-bottom:1px solid var(--glass-border);font-size:.95rem}
 .row:last-child{border:0}
-.row img{width:40px;height:50px;object-fit:cover;border-radius:8px;border:1px solid var(--glass-border)}
+.row img{width:60px;height:45px;object-fit:cover;border-radius:8px;border:1px solid var(--glass-border)}
 .row-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.row-actions{display:flex;gap:8px}
 .msg{color:var(--acc);font-size:.85rem;margin-top:12px;min-height:20px}
 a.back{color:var(--mut);font-size:.85rem}
 #lock{text-align:center;padding:100px 20px}
@@ -43,12 +47,25 @@ a.back{color:var(--mut);font-size:.85rem}
 /* КРОППЕР */
 .crop-wrap{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
 .crop-wrap.open{display:flex}
-.crop-box{background:#1e1e32;border:1px solid var(--glass-border);border-radius:24px;padding:30px;text-align:center}
+.crop-box{background:#1e1e32;border:1px solid var(--glass-border);border-radius:24px;padding:30px;text-align:center;max-width:500px}
 .crop-box h3{margin-bottom:16px}
 .crop-view{position:relative;overflow:hidden;border-radius:16px;margin:0 auto 14px;background:#000;cursor:grab;touch-action:none;border:1px solid var(--glass-border)}
 .crop-view img{position:absolute;left:50%;top:50%;max-width:none;pointer-events:none;user-select:none}
 .crop-zoom{width:260px;margin-bottom:16px}
 .crop-actions{display:flex;gap:10px;justify-content:center}
+/* АВТОКОМПЛИТ */
+.region-input-wrap{position:relative}
+.region-suggestions{position:absolute;top:100%;left:0;right:0;background:#1e1e32;border:1px solid var(--glass-border);border-radius:14px;max-height:200px;overflow-y:auto;z-index:10;display:none}
+.region-suggestions.open{display:block}
+.region-suggestions div{padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.region-suggestions div:hover{background:rgba(255,255,255,.08)}
+.region-suggestions img{width:24px;height:16px;border-radius:3px}
+.region-preview{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.3);padding:8px 14px;border-radius:14px;margin-bottom:14px;font-size:.85rem}
+.region-preview img{width:32px;height:21px;border-radius:4px}
+/* МОДАЛКА РЕДАКТИРОВАНИЯ */
+.edit-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:400;padding:20px}
+.edit-modal.open{display:flex}
+.edit-box{background:#1e1e32;border:1px solid var(--glass-border);border-radius:24px;padding:32px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
 </style>
 </head>
 <body>
@@ -66,6 +83,7 @@ a.back{color:var(--mut);font-size:.85rem}
   <div class="tabs">
     <button data-t="news" class="on">Новости</button>
     <button data-t="part">Исполнители</button>
+    <button data-t="vote">Голосование</button>
     <button data-t="set">Реквизиты</button>
     <button data-t="soc">Соцсети</button>
     <button data-t="admins">Администраторы</button>
@@ -74,16 +92,17 @@ a.back{color:var(--mut);font-size:.85rem}
   <!-- НОВОСТИ -->
   <div id="t-news">
     <div class="card"><h3>Добавить новость</h3>
-      <div class="grid">
-        <input id="n_region" placeholder="Регион">
-        <input id="n_code" placeholder="Код (ТАТ)">
+      <div class="region-input-wrap">
+        <input id="n_region" placeholder="Регион (начните вводить...)">
+        <div class="region-suggestions" id="n_suggestions"></div>
       </div>
+      <div id="n_region_preview" class="region-preview" style="display:none"></div>
       <input id="n_title" placeholder="Заголовок">
       <input id="n_excerpt" placeholder="Краткое описание">
-      <label class="file-label" for="n_file">📷 Обложка новости (4:5) — с устройства</label>
+      <label class="file-label" for="n_file">📷 Обложка новости (4:3) — с устройства</label>
       <input type="file" id="n_file" accept="image/*" hidden>
       <div><img id="n_file_preview" class="preview" alt="" style="display:none"></div>
-      <input id="n_image" placeholder="...или URL обложки (если не загружаешь файл)">
+      <input id="n_image" placeholder="...или URL обложки">
       <select id="n_accent">
         <option value="1">Акцент 1</option><option value="2">Акцент 2</option><option value="3">Акцент 3</option>
         <option value="4">Акцент 4</option><option value="5">Акцент 5</option><option value="0">Акцент 6</option>
@@ -97,24 +116,45 @@ a.back{color:var(--mut);font-size:.85rem}
   <!-- ИСПОЛНИТЕЛИ -->
   <div id="t-part" style="display:none">
     <div class="card"><h3>Добавить исполнителя</h3>
-      <div class="grid">
-        <input id="p_artist" placeholder="Исполнитель">
-        <input id="p_region" placeholder="Регион">
+      <input id="p_artist" placeholder="Исполнитель">
+      <div class="region-input-wrap">
+        <input id="p_region" placeholder="Регион (начните вводить...)">
+        <div class="region-suggestions" id="p_suggestions"></div>
       </div>
-      <input id="p_code" placeholder="Код">
+      <div id="p_region_preview" class="region-preview" style="display:none"></div>
       <label class="file-label" for="p_avatar">👤 Аватар (1:1) — для таблицы голосования</label>
       <input type="file" id="p_avatar" accept="image/*" hidden>
       <div><img id="p_avatar_preview" class="preview sq" alt="" style="display:none"></div>
-      <label class="file-label" for="p_cover">🖼 Обложка (4:5) — список участников и новости</label>
+      <label class="file-label" for="p_cover">🖼 Обложка (4:3) — список участников</label>
       <input type="file" id="p_cover" accept="image/*" hidden>
       <div><img id="p_cover_preview" class="preview" alt="" style="display:none"></div>
       <label class="file-label" for="p_photo">📷 Фотография (3:4) — карточка участника</label>
       <input type="file" id="p_photo" accept="image/*" hidden>
       <div><img id="p_photo_preview" class="preview" alt="" style="display:none"></div>
+      <label class="file-label" for="p_audio">🎵 Аудио трек (mp3/wav)</label>
+      <input type="file" id="p_audio" accept="audio/*" hidden>
+      <input id="p_audio_url" placeholder="...или URL аудио">
+      <input id="p_audio_start" type="number" placeholder="Старт (секунды, по умолчанию 0)" min="0">
+      <textarea id="p_lyrics" placeholder="Текст выступления"></textarea>
       <button class="btn" onclick="addPart()">Добавить</button>
       <div class="msg" id="m-part"></div>
     </div>
     <div class="card"><h3>Список</h3><div id="list-part"></div></div>
+  </div>
+
+  <!-- ГОЛОСОВАНИЕ -->
+  <div id="t-vote" style="display:none">
+    <div class="card"><h3>Статус голосования</h3>
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:20px">
+        <input type="checkbox" id="v_status" style="width:auto;margin:0">
+        <span>Голосование открыто</span>
+      </label>
+      <button class="btn" onclick="saveVoting()">Сохранить</button>
+      <div class="msg" id="m-vote"></div>
+      <p style="color:var(--mut);font-size:.85rem;margin-top:20px">
+        Голосование проходит через Telegram-бот: <a href="https://t.me/RusVisionVoteBot" target="_blank" style="color:var(--acc)">@RusVisionVoteBot</a>
+      </p>
+    </div>
   </div>
 
   <!-- РЕКВИЗИТЫ -->
@@ -133,10 +173,10 @@ a.back{color:var(--mut);font-size:.85rem}
   <div id="t-soc" style="display:none">
     <div class="card"><h3>Добавить соцсеть</h3>
       <div class="grid">
-        <input id="so_title" placeholder="Название (Telegram)">
-        <input id="so_icon" placeholder="Эмодзи-запаска (✈️)">
+        <input id="so_title" placeholder="Название">
+        <input id="so_icon" placeholder="Эмодзи">
       </div>
-      <input id="so_url" placeholder="https://... (иконка платформы подставится сама)">
+      <input id="so_url" placeholder="https://...">
       <button class="btn" onclick="addSoc()">Добавить</button>
       <div class="msg" id="m-soc"></div>
     </div>
@@ -146,7 +186,7 @@ a.back{color:var(--mut);font-size:.85rem}
   <!-- АДМИНЫ -->
   <div id="t-admins" style="display:none">
     <div class="card"><h3>Добавить администратора</h3>
-      <input id="a_email" placeholder="E-mail нового админа">
+      <input id="a_email" placeholder="E-mail">
       <button class="btn" onclick="addAdmin()">Добавить</button>
       <div class="msg" id="m-admins"></div>
     </div>
@@ -161,10 +201,15 @@ a.back{color:var(--mut);font-size:.85rem}
     <div class="crop-view" id="cropView"></div>
     <input type="range" class="crop-zoom" id="cropZoom" min="1" max="3" step="0.01" value="1">
     <div class="crop-actions">
-      <button class="btn" id="cropSave">Сохранить обрезку</button>
+      <button class="btn" id="cropSave">Сохранить</button>
       <button class="btn del" id="cropCancel">Отмена</button>
     </div>
   </div>
+</div>
+
+<!-- МОДАЛКА РЕДАКТИРОВАНИЯ -->
+<div class="edit-modal" id="editModal">
+  <div class="edit-box" id="editBox"></div>
 </div>
 
 <script>
@@ -177,30 +222,76 @@ document.querySelectorAll('.tabs button').forEach(function(b){
   b.onclick = function(){
     document.querySelectorAll('.tabs button').forEach(function(x){ x.classList.remove('on'); });
     b.classList.add('on');
-    ['news','part','set','soc','admins'].forEach(function(t){
+    ['news','part','vote','set','soc','admins'].forEach(function(t){
       $('t-' + t).style.display = (t === b.getAttribute('data-t')) ? '' : 'none';
     });
+    if (b.getAttribute('data-t') === 'vote') loadVoting();
   };
 });
 
 $('logout').onclick = function(e){
   e.preventDefault();
   if (window.rv_supabase) window.rv_supabase.auth.signOut().then(function(){ location.href = 'index.html'; });
-  else location.href = 'index.html';
 };
 
-/* ========== КРОППЕР (3 формата) ========== */
-var ASPECTS = { n_file: 0.8, p_avatar: 1, p_cover: 0.8, p_photo: 0.75 };
-var NAMES   = { n_file: 'Обложка новости (4:5)', p_avatar: 'Аватар (1:1)', p_cover: 'Обложка (4:5)', p_photo: 'Фотография (3:4)' };
-var pending = { n_file: '', p_avatar: '', p_cover: '', p_photo: '' };
-var crop = { img: null, base: 1, zoom: 1, x: 0, y: 0, w: 320, h: 320, slot: null };
+/* АВТОКОМПЛИТ РЕГИОНОВ */
+var selectedRegion = { n: null, p: null };
+
+function setupRegionAutocomplete(inputId, suggestionsId, previewId, key) {
+  var input = $(inputId), sug = $(suggestionsId), prev = $(previewId);
+  input.oninput = function(){
+    var q = input.value.trim();
+    if (q.length < 2) { sug.classList.remove('open'); return; }
+    var matches = REGIONS.filter(function(r){ return r.name.toLowerCase().indexOf(q.toLowerCase()) !== -1; }).slice(0, 8);
+    if (!matches.length) { sug.classList.remove('open'); return; }
+    sug.innerHTML = matches.map(function(r){
+      return '<div onclick="selectRegion(\'' + key + '\',' + REGIONS.indexOf(r) + ')"><img src="' + getFlagUrl(r.flag) + '" alt=""><span>' + r.name + ' (' + r.code + ')</span></div>';
+    }).join('');
+    sug.classList.add('open');
+  };
+  input.onblur = function(){ setTimeout(function(){ sug.classList.remove('open'); }, 200); };
+}
+
+window.selectRegion = function(key, idx) {
+  var r = REGIONS[idx];
+  selectedRegion[key] = r;
+  $(key + '_region').value = r.name;
+  $(key + '_region_preview').innerHTML = '<img src="' + getFlagUrl(r.flag) + '" alt=""><b>' + r.code + '</b> ' + r.name;
+  $(key + '_region_preview').style.display = 'inline-flex';
+  $(key + '_suggestions').classList.remove('open');
+};
+
+setupRegionAutocomplete('n_region', 'n_suggestions', 'n_region_preview', 'n');
+setupRegionAutocomplete('p_region', 'p_suggestions', 'p_region_preview', 'p');
+
+/* КРОППЕР (4:3) */
+var ASPECTS = { n_file: 1.33, p_avatar: 1, p_cover: 1.33, p_photo: 0.75 };
+var NAMES = { n_file: 'Обложка новости (4:3)', p_avatar: 'Аватар (1:1)', p_cover: 'Обложка (4:3)', p_photo: 'Фотография (3:4)' };
+var pending = { n_file: '', p_avatar: '', p_cover: '', p_photo: '', p_audio: '' };
+var crop = { img: null, base: 1, zoom: 1, x: 0, y: 0, w: 320, h: 240, slot: null };
 
 Object.keys(ASPECTS).forEach(function(slot){
+  if (!$(slot)) return;
   $(slot).onchange = function(){
     var f = this.files[0];
     if (f) openCropper(f, slot);
   };
 });
+
+// Аудио без кроппера
+if ($('p_audio')) {
+  $('p_audio').onchange = function(){
+    var f = this.files[0];
+    if (!f) return;
+    var path = Date.now() + '-audio.mp3';
+    window.rv_supabase.storage.from(BUCKET).upload(path, f).then(function(res){
+      if (res.error) { alert('❌ ' + res.error.message); return; }
+      var url = window.rv_supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+      pending.p_audio = url;
+      $('p_audio_url').value = url;
+    });
+  };
+}
 
 function openCropper(file, slot) {
   crop.slot = slot; crop.zoom = 1; crop.x = 0; crop.y = 0;
@@ -261,20 +352,19 @@ function applyCrop() {
   };
 })();
 
-/* ========== ДАННЫЕ ========== */
+/* ЗАГРУЗКА ДАННЫХ */
 function boot() {
   var client = window.rv_supabase;
   if (!client) { $('lock').style.display = ''; return; }
   client.auth.getSession().then(function(r){
-    var session = r.data.session;
-    if (!session) { $('lock').style.display = ''; return; }
+    if (!r.data.session) { $('lock').style.display = ''; return; }
     return isAdmin().then(function(adm){
       if (!adm) { $('lock').style.display = ''; return; }
-      $('who').textContent = session.user.email;
+      $('who').textContent = r.data.session.user.email;
       $('panel').style.display = '';
       refreshAll();
     });
-  }).catch(function(e){ console.error('Boot error:', e); $('lock').style.display = ''; });
+  });
 }
 
 function refreshAll() {
@@ -286,7 +376,8 @@ function refreshAll() {
       return '<div class="row"><span class="row-left">' +
         (x.image_url ? '<img src="' + x.image_url + '" alt="">' : '') +
         '<span><b>' + x.code + '</b> · ' + x.region + ' — ' + x.title + '</span></span>' +
-        '<button class="btn del" onclick="del(\'news\',' + x.id + ')">Удалить</button></div>';
+        '<div class="row-actions"><button class="btn edit" onclick="editNews(' + x.id + ')">Изменить</button>' +
+        '<button class="btn del" onclick="delNews(' + x.id + ')">Удалить</button></div></div>';
     }).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет новостей</p>';
   });
 
@@ -295,7 +386,8 @@ function refreshAll() {
       var thumbs = [x.avatar_url, x.cover_url, x.photo_url].filter(Boolean).map(function(u){ return '<img src="' + u + '" alt="">'; }).join('');
       return '<div class="row"><span class="row-left">' + thumbs +
         '<span><b>' + x.code + '</b> · ' + x.artist + ' — ' + x.region + '</span></span>' +
-        '<button class="btn del" onclick="del(\'participants\',' + x.id + ')">Удалить</button></div>';
+        '<div class="row-actions"><button class="btn edit" onclick="editPart(' + x.id + ')">Изменить</button>' +
+        '<button class="btn del" onclick="delPart(' + x.id + ')">Удалить</button></div></div>';
     }).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет участников</p>';
   });
 
@@ -311,7 +403,7 @@ function refreshAll() {
   client.from('social_links').select('*').order('sort').then(function(res){
     $('list-soc').innerHTML = (res.data || []).map(function(x){
       return '<div class="row"><span>' + x.icon + ' ' + x.title + ' — ' + x.url + '</span>' +
-        '<button class="btn del" onclick="del(\'social_links\',' + x.id + ')">Удалить</button></div>';
+        '<button class="btn del" onclick="delSoc(' + x.id + ')">Удалить</button></div>';
     }).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет ссылок</p>';
   });
 
@@ -325,41 +417,63 @@ function refreshAll() {
   });
 }
 
-function del(table, id) {
-  window.rv_supabase.from(table).delete().eq('id', id).then(refreshAll);
+/* УДАЛЕНИЕ С ПОДТВЕРЖДЕНИЕМ */
+function delNews(id) {
+  if (!confirm('Удалить эту новость?')) return;
+  window.rv_supabase.from('news').delete().eq('id', id).then(refreshAll);
+}
+function delPart(id) {
+  if (!confirm('Удалить этого исполнителя?')) return;
+  window.rv_supabase.from('participants').delete().eq('id', id).then(refreshAll);
+}
+function delSoc(id) {
+  if (!confirm('Удалить эту ссылку?')) return;
+  window.rv_supabase.from('social_links').delete().eq('id', id).then(refreshAll);
 }
 
-/* ========== ДОБАВЛЕНИЕ ========== */
+/* ДОБАВЛЕНИЕ */
 function addNews() {
+  var r = selectedRegion.n;
+  if (!r) { $('m-news').textContent = '❌ Выберите регион из списка'; return; }
   var client = window.rv_supabase;
   var imageUrl = pending.n_file || ($('n_image').value || '').trim();
   client.from('news').insert({
-    region: $('n_region').value, code: $('n_code').value,
+    region: r.name, code: r.code, flag_code: r.flag,
     title: $('n_title').value, excerpt: $('n_excerpt').value,
     image_url: imageUrl, accent: +$('n_accent').value
   }).then(function(r){
     $('m-news').textContent = r.error ? '❌ ' + r.error.message : '✅ Опубликовано';
     if (!r.error) {
-      ['n_region','n_code','n_title','n_excerpt','n_image'].forEach(function(i){ $(i).value = ''; });
-      pending.n_file = ''; $('n_file').value = ''; $('n_file_preview').style.display = 'none';
+      $('n_region').value = ''; $('n_title').value = ''; $('n_excerpt').value = ''; $('n_image').value = '';
+      pending.n_file = ''; selectedRegion.n = null;
+      $('n_file').value = ''; $('n_file_preview').style.display = 'none';
+      $('n_region_preview').style.display = 'none';
       refreshAll();
     }
   });
 }
 
 function addPart() {
+  var r = selectedRegion.p;
+  if (!r) { $('m-part').textContent = '❌ Выберите регион из списка'; return; }
   var client = window.rv_supabase;
   client.from('participants').insert({
-    artist: $('p_artist').value, region: $('p_region').value, code: $('p_code').value,
+    artist: $('p_artist').value, region: r.name, code: r.code, flag_code: r.flag,
     avatar_url: pending.p_avatar, cover_url: pending.p_cover, photo_url: pending.p_photo,
+    audio_url: pending.p_audio || $('p_audio_url').value,
+    audio_start: +$('p_audio_start').value || 0,
+    lyrics: $('p_lyrics').value,
     sort: Date.now() % 100000
   }).then(function(r){
     $('m-part').textContent = r.error ? '❌ ' + r.error.message : '✅ Добавлено';
     if (!r.error) {
-      ['p_artist','p_region','p_code'].forEach(function(i){ $(i).value = ''; });
+      $('p_artist').value = ''; $('p_region').value = ''; $('p_audio_url').value = '';
+      $('p_audio_start').value = ''; $('p_lyrics').value = '';
       ['p_avatar','p_cover','p_photo'].forEach(function(s){
         pending[s] = ''; $(s).value = ''; $(s + '_preview').style.display = 'none';
       });
+      pending.p_audio = ''; $('p_audio').value = '';
+      selectedRegion.p = null; $('p_region_preview').style.display = 'none';
       refreshAll();
     }
   });
@@ -371,7 +485,7 @@ function addSoc() {
     icon: $('so_icon').value || '🔗', sort: Date.now() % 100000
   }).then(function(r){
     $('m-soc').textContent = r.error ? '❌ ' + r.error.message : '✅ Готово';
-    if (!r.error) { ['so_title','so_url','so_icon'].forEach(function(i){ $(i).value = ''; }); refreshAll(); }
+    if (!r.error) { $('so_title').value = ''; $('so_url').value = ''; $('so_icon').value = ''; refreshAll(); }
   });
 }
 
@@ -399,6 +513,84 @@ function removeAdmin(email) {
   window.rv_supabase.rpc('remove_admin', { email: email }).then(function(r){
     if (r.error) alert('❌ ' + r.error.message);
     else refreshAll();
+  });
+}
+
+/* РЕДАКТИРОВАНИЕ */
+function editNews(id) {
+  window.rv_supabase.from('news').select('*').eq('id', id).single().then(function(res){
+    if (!res.data) return;
+    var n = res.data;
+    var html = '<h3 style="margin-bottom:20px">Редактировать новость</h3>' +
+      '<input id="e_region" value="' + n.region + '" placeholder="Регион">' +
+      '<input id="e_title" value="' + n.title + '" placeholder="Заголовок">' +
+      '<input id="e_excerpt" value="' + (n.excerpt || '') + '" placeholder="Описание">' +
+      '<input id="e_image" value="' + (n.image_url || '') + '" placeholder="URL обложки">' +
+      '<div style="display:flex;gap:10px;margin-top:20px">' +
+      '<button class="btn" onclick="saveNews(' + id + ')">Сохранить</button>' +
+      '<button class="btn del" onclick="closeEdit()">Отмена</button></div>';
+    $('editBox').innerHTML = html;
+    $('editModal').classList.add('open');
+  });
+}
+
+function saveNews(id) {
+  window.rv_supabase.from('news').update({
+    region: $('e_region').value,
+    title: $('e_title').value,
+    excerpt: $('e_excerpt').value,
+    image_url: $('e_image').value
+  }).eq('id', id).then(function(r){
+    if (r.error) alert('❌ ' + r.error.message);
+    else { closeEdit(); refreshAll(); }
+  });
+}
+
+function editPart(id) {
+  window.rv_supabase.from('participants').select('*').eq('id', id).single().then(function(res){
+    if (!res.data) return;
+    var p = res.data;
+    var html = '<h3 style="margin-bottom:20px">Редактировать исполнителя</h3>' +
+      '<input id="e_artist" value="' + p.artist + '" placeholder="Исполнитель">' +
+      '<input id="e_region" value="' + p.region + '" placeholder="Регион">' +
+      '<input id="e_audio" value="' + (p.audio_url || '') + '" placeholder="URL аудио">' +
+      '<input id="e_start" type="number" value="' + (p.audio_start || 0) + '" placeholder="Старт (сек)">' +
+      '<textarea id="e_lyrics" placeholder="Текст">' + (p.lyrics || '') + '</textarea>' +
+      '<div style="display:flex;gap:10px;margin-top:20px">' +
+      '<button class="btn" onclick="savePart(' + id + ')">Сохранить</button>' +
+      '<button class="btn del" onclick="closeEdit()">Отмена</button></div>';
+    $('editBox').innerHTML = html;
+    $('editModal').classList.add('open');
+  });
+}
+
+function savePart(id) {
+  window.rv_supabase.from('participants').update({
+    artist: $('e_artist').value,
+    region: $('e_region').value,
+    audio_url: $('e_audio').value,
+    audio_start: +$('e_start').value || 0,
+    lyrics: $('e_lyrics').value
+  }).eq('id', id).then(function(r){
+    if (r.error) alert('❌ ' + r.error.message);
+    else { closeEdit(); refreshAll(); }
+  });
+}
+
+function closeEdit() {
+  $('editModal').classList.remove('open');
+}
+
+/* ГОЛОСОВАНИЕ */
+function loadVoting() {
+  window.rv_supabase.from('voting_status').select('is_open').eq('id', 1).single().then(function(r){
+    if (r.data) $('v_status').checked = r.data.is_open;
+  });
+}
+
+function saveVoting() {
+  window.rv_supabase.from('voting_status').update({ is_open: $('v_status').checked, updated_at: new Date().toISOString() }).eq('id', 1).then(function(r){
+    $('m-vote').textContent = r.error ? '❌ ' + r.error.message : '✅ Сохранено';
   });
 }
 
