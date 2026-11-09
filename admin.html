@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="sb.js"></script>
-<script src="regions.js"></script>
 <style>
 :root{--bg:#0a0a14;--glass:rgba(255,255,255,0.08);--glass-border:rgba(255,255,255,0.15);--paper:#f4f2f7;--mut:rgba(244,242,247,.6);--acc:#e81179}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -44,7 +43,6 @@ a.back{color:var(--mut);font-size:.85rem}
 #lock{text-align:center;padding:100px 20px}
 .badge-main{color:var(--acc);font-size:.75rem;margin-left:8px}
 .badge-protected{color:var(--mut);font-size:.8rem}
-/* КРОППЕР */
 .crop-wrap{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
 .crop-wrap.open{display:flex}
 .crop-box{background:#1e1e32;border:1px solid var(--glass-border);border-radius:24px;padding:30px;text-align:center;max-width:500px}
@@ -53,16 +51,14 @@ a.back{color:var(--mut);font-size:.85rem}
 .crop-view img{position:absolute;left:50%;top:50%;max-width:none;pointer-events:none;user-select:none}
 .crop-zoom{width:260px;margin-bottom:16px}
 .crop-actions{display:flex;gap:10px;justify-content:center}
-/* АВТОКОМПЛИТ */
 .region-input-wrap{position:relative}
-.region-suggestions{position:absolute;top:100%;left:0;right:0;background:#1e1e32;border:1px solid var(--glass-border);border-radius:14px;max-height:200px;overflow-y:auto;z-index:10;display:none}
+.region-suggestions{position:absolute;top:100%;left:0;right:0;background:#1e1e32;border:1px solid var(--glass-border);border-radius:14px;max-height:220px;overflow-y:auto;z-index:50;display:none}
 .region-suggestions.open{display:block}
-.region-suggestions div{padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.region-suggestions div{padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:.9rem}
 .region-suggestions div:hover{background:rgba(255,255,255,.08)}
-.region-suggestions img{width:24px;height:16px;border-radius:3px}
-.region-preview{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.3);padding:8px 14px;border-radius:14px;margin-bottom:14px;font-size:.85rem}
+.region-suggestions img{width:24px;height:16px;border-radius:3px;flex:none}
+.region-preview{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.3);border:1px solid var(--glass-border);padding:8px 14px;border-radius:14px;margin-bottom:14px;font-size:.85rem}
 .region-preview img{width:32px;height:21px;border-radius:4px}
-/* МОДАЛКА РЕДАКТИРОВАНИЯ */
 .edit-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:400;padding:20px}
 .edit-modal.open{display:flex}
 .edit-box{background:#1e1e32;border:1px solid var(--glass-border);border-radius:24px;padding:32px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
@@ -89,11 +85,10 @@ a.back{color:var(--mut);font-size:.85rem}
     <button data-t="admins">Администраторы</button>
   </div>
 
-  <!-- НОВОСТИ -->
   <div id="t-news">
     <div class="card"><h3>Добавить новость</h3>
       <div class="region-input-wrap">
-        <input id="n_region" placeholder="Регион (начните вводить...)">
+        <input id="n_region" placeholder="Регион: начните вводить название..." autocomplete="off">
         <div class="region-suggestions" id="n_suggestions"></div>
       </div>
       <div id="n_region_preview" class="region-preview" style="display:none"></div>
@@ -113,12 +108,11 @@ a.back{color:var(--mut);font-size:.85rem}
     <div class="card"><h3>Опубликованные</h3><div id="list-news"></div></div>
   </div>
 
-  <!-- ИСПОЛНИТЕЛИ -->
   <div id="t-part" style="display:none">
     <div class="card"><h3>Добавить исполнителя</h3>
       <input id="p_artist" placeholder="Исполнитель">
       <div class="region-input-wrap">
-        <input id="p_region" placeholder="Регион (начните вводить...)">
+        <input id="p_region" placeholder="Регион: начните вводить название..." autocomplete="off">
         <div class="region-suggestions" id="p_suggestions"></div>
       </div>
       <div id="p_region_preview" class="region-preview" style="display:none"></div>
@@ -134,7 +128,7 @@ a.back{color:var(--mut);font-size:.85rem}
       <label class="file-label" for="p_audio">🎵 Аудио трек (mp3/wav)</label>
       <input type="file" id="p_audio" accept="audio/*" hidden>
       <input id="p_audio_url" placeholder="...или URL аудио">
-      <input id="p_audio_start" type="number" placeholder="Старт (секунды, по умолчанию 0)" min="0">
+      <input id="p_audio_start" type="number" placeholder="Старт отрезка (сек)" min="0">
       <textarea id="p_lyrics" placeholder="Текст выступления"></textarea>
       <button class="btn" onclick="addPart()">Добавить</button>
       <div class="msg" id="m-part"></div>
@@ -142,22 +136,18 @@ a.back{color:var(--mut);font-size:.85rem}
     <div class="card"><h3>Список</h3><div id="list-part"></div></div>
   </div>
 
-  <!-- ГОЛОСОВАНИЕ -->
   <div id="t-vote" style="display:none">
     <div class="card"><h3>Статус голосования</h3>
       <label style="display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:20px">
         <input type="checkbox" id="v_status" style="width:auto;margin:0">
-        <span>Голосование открыто</span>
+        <span>Голосование открыто (кнопка на сайте горит)</span>
       </label>
       <button class="btn" onclick="saveVoting()">Сохранить</button>
       <div class="msg" id="m-vote"></div>
-      <p style="color:var(--mut);font-size:.85rem;margin-top:20px">
-        Голосование проходит через Telegram-бот: <a href="https://t.me/RusVisionVoteBot" target="_blank" style="color:var(--acc)">@RusVisionVoteBot</a>
-      </p>
+      <p style="color:var(--mut);font-size:.85rem;margin-top:20px">Голосование проходит через Telegram-бот: <a href="https://t.me/RusVisionVoteBot" target="_blank" style="color:var(--acc)">@RusVisionVoteBot</a></p>
     </div>
   </div>
 
-  <!-- РЕКВИЗИТЫ -->
   <div id="t-set" style="display:none">
     <div class="card"><h3>Реквизиты сайта</h3>
       <input id="s_name" placeholder="Название">
@@ -169,21 +159,19 @@ a.back{color:var(--mut);font-size:.85rem}
     </div>
   </div>
 
-  <!-- СОЦСЕТИ -->
   <div id="t-soc" style="display:none">
     <div class="card"><h3>Добавить соцсеть</h3>
       <div class="grid">
         <input id="so_title" placeholder="Название">
-        <input id="so_icon" placeholder="Эмодзи">
+        <input id="so_icon" placeholder="Эмодзи-запаска">
       </div>
-      <input id="so_url" placeholder="https://...">
+      <input id="so_url" placeholder="https://... (иконка подставится сама)">
       <button class="btn" onclick="addSoc()">Добавить</button>
       <div class="msg" id="m-soc"></div>
     </div>
     <div class="card"><h3>Текущие ссылки</h3><div id="list-soc"></div></div>
   </div>
 
-  <!-- АДМИНЫ -->
   <div id="t-admins" style="display:none">
     <div class="card"><h3>Добавить администратора</h3>
       <input id="a_email" placeholder="E-mail">
@@ -194,7 +182,6 @@ a.back{color:var(--mut);font-size:.85rem}
   </div>
 </div>
 
-<!-- КРОППЕР -->
 <div class="crop-wrap" id="cropWrap">
   <div class="crop-box">
     <h3 id="cropSlotName"></h3>
@@ -207,15 +194,70 @@ a.back{color:var(--mut);font-size:.85rem}
   </div>
 </div>
 
-<!-- МОДАЛКА РЕДАКТИРОВАНИЯ -->
-<div class="edit-modal" id="editModal">
-  <div class="edit-box" id="editBox"></div>
-</div>
+<div class="edit-modal" id="editModal"><div class="edit-box" id="editBox"></div></div>
 
 <script>
+/* ========== СПИСОК РЕГИОНОВ (встроен, файл regions.js больше не нужен) ========== */
+var REGIONS = [
+  {name:'Республика Адыгея',code:'ADY',flag:'ady'},{name:'Республика Алтай',code:'ALT',flag:'alt'},
+  {name:'Республика Башкортостан',code:'BSH',flag:'bsh'},{name:'Республика Бурятия',code:'BUR',flag:'bur'},
+  {name:'Республика Дагестан',code:'DAG',flag:'dag'},{name:'Донецкая Народная Республика',code:'DNR',flag:'dnr'},
+  {name:'Республика Ингушетия',code:'ING',flag:'ing'},{name:'Кабардино-Балкарская Республика',code:'KBR',flag:'kbr'},
+  {name:'Республика Калмыкия',code:'KLM',flag:'klm'},{name:'Карачаево-Черкесская Республика',code:'KCH',flag:'kch'},
+  {name:'Республика Карелия',code:'KAR',flag:'kar'},{name:'Республика Коми',code:'KOM',flag:'kom'},
+  {name:'Республика Крым',code:'KRM',flag:'krm'},{name:'Луганская Народная Республика',code:'LNR',flag:'lnr'},
+  {name:'Республика Марий Эл',code:'MRL',flag:'mrl'},{name:'Республика Мордовия',code:'MRD',flag:'mrd'},
+  {name:'Республика Саха (Якутия)',code:'YAK',flag:'yak'},{name:'Республика Северная Осетия — Алания',code:'SOA',flag:'soa'},
+  {name:'Республика Татарстан',code:'TAT',flag:'tat'},{name:'Республика Тыва',code:'TUV',flag:'tuv'},
+  {name:'Удмуртская Республика',code:'UDM',flag:'udm'},{name:'Республика Хакасия',code:'KHK',flag:'khk'},
+  {name:'Чеченская Республика',code:'CHE',flag:'che'},{name:'Чувашская Республика',code:'CHV',flag:'chv'},
+  {name:'Алтайский край',code:'ALK',flag:'alk'},{name:'Забайкальский край',code:'ZAB',flag:'zab'},
+  {name:'Камчатский край',code:'KAM',flag:'kam'},{name:'Краснодарский край',code:'KRD',flag:'krd'},
+  {name:'Красноярский край',code:'KRY',flag:'kry'},{name:'Пермский край',code:'PRM',flag:'prm'},
+  {name:'Приморский край',code:'PRK',flag:'prk'},{name:'Ставропольский край',code:'STA',flag:'sta'},
+  {name:'Хабаровский край',code:'KHB',flag:'khb'},{name:'Амурская область',code:'AMU',flag:'amu'},
+  {name:'Архангельская область',code:'ARK',flag:'ark'},{name:'Астраханская область',code:'AST',flag:'ast'},
+  {name:'Белгородская область',code:'BEL',flag:'bel'},{name:'Брянская область',code:'BRY',flag:'bry'},
+  {name:'Владимирская область',code:'VLA',flag:'vla'},{name:'Волгоградская область',code:'VGG',flag:'vgg'},
+  {name:'Вологодская область',code:'VLG',flag:'vlg'},{name:'Воронежская область',code:'VOR',flag:'vor'},
+  {name:'Запорожская область',code:'ZAP',flag:'zap'},{name:'Ивановская область',code:'IVA',flag:'iva'},
+  {name:'Иркутская область',code:'IRK',flag:'irk'},{name:'Калининградская область',code:'KGD',flag:'kgd'},
+  {name:'Калужская область',code:'KLU',flag:'klu'},{name:'Кемеровская область',code:'KEM',flag:'kem'},
+  {name:'Кировская область',code:'KIR',flag:'kir'},{name:'Костромская область',code:'KOS',flag:'kos'},
+  {name:'Курганская область',code:'KUR',flag:'kur'},{name:'Курская область',code:'KRS',flag:'krs'},
+  {name:'Ленинградская область',code:'LEN',flag:'len'},{name:'Липецкая область',code:'LIP',flag:'lip'},
+  {name:'Магаданская область',code:'MAG',flag:'mag'},{name:'Московская область',code:'MOS',flag:'mos'},
+  {name:'Мурманская область',code:'MUR',flag:'mur'},{name:'Нижегородская область',code:'NIZ',flag:'niz'},
+  {name:'Новгородская область',code:'NGR',flag:'ngr'},{name:'Новосибирская область',code:'NVS',flag:'nvs'},
+  {name:'Омская область',code:'OMS',flag:'oms'},{name:'Оренбургская область',code:'ORE',flag:'ore'},
+  {name:'Орловская область',code:'ORL',flag:'orl'},{name:'Пензенская область',code:'PEN',flag:'pen'},
+  {name:'Псковская область',code:'PSK',flag:'psk'},{name:'Ростовская область',code:'ROS',flag:'ros'},
+  {name:'Рязанская область',code:'RYA',flag:'rya'},{name:'Самарская область',code:'SAM',flag:'sam'},
+  {name:'Саратовская область',code:'SAR',flag:'sar'},{name:'Сахалинская область',code:'SAK',flag:'sak'},
+  {name:'Свердловская область',code:'SVE',flag:'sve'},{name:'Смоленская область',code:'SMO',flag:'smo'},
+  {name:'Тамбовская область',code:'TAM',flag:'tam'},{name:'Тверская область',code:'TVE',flag:'tve'},
+  {name:'Томская область',code:'TOM',flag:'tom'},{name:'Тульская область',code:'TUL',flag:'tul'},
+  {name:'Тюменская область',code:'TYU',flag:'tyu'},{name:'Ульяновская область',code:'ULY',flag:'uly'},
+  {name:'Херсонская область',code:'KHE',flag:'khe'},{name:'Челябинская область',code:'CHL',flag:'chl'},
+  {name:'Ярославская область',code:'YAR',flag:'yar'},{name:'Москва',code:'MSK',flag:'msk'},
+  {name:'Санкт-Петербург',code:'SPB',flag:'spb'},{name:'Еврейская автономная область',code:'YEV',flag:'yev'},
+  {name:'Ненецкий автономный округ',code:'NEN',flag:'nen'},{name:'Ханты-Мансийский автономный округ — Югра',code:'KHM',flag:'khm'},
+  {name:'Чукотский автономный округ',code:'CHU',flag:'chu'},{name:'Ямало-Ненецкий автономный округ',code:'YAN',flag:'yan'}
+];
+function getFlagUrl(flag){ return 'flags/' + String(flag).toLowerCase() + '.png'; }
+function findRegion(q){
+  if (!q) return null;
+  var s = q.toLowerCase().trim();
+  for (var i = 0; i < REGIONS.length; i++) {
+    if (REGIONS[i].name.toLowerCase().indexOf(s) !== -1) return REGIONS[i];
+  }
+  return null;
+}
+
 var MAIN_ADMIN = 'shkiphunt@gmail.com';
 var BUCKET = 'rusvision-images';
 var $ = function(id){ return document.getElementById(id); };
+var selectedRegion = { n: null, p: null };
 
 /* Вкладки */
 document.querySelectorAll('.tabs button').forEach(function(b){
@@ -232,39 +274,61 @@ document.querySelectorAll('.tabs button').forEach(function(b){
 $('logout').onclick = function(e){
   e.preventDefault();
   if (window.rv_supabase) window.rv_supabase.auth.signOut().then(function(){ location.href = 'index.html'; });
+  else location.href = 'index.html';
 };
 
-/* АВТОКОМПЛИТ РЕГИОНОВ */
-var selectedRegion = { n: null, p: null };
-
-function setupRegionAutocomplete(inputId, suggestionsId, previewId, key) {
-  var input = $(inputId), sug = $(suggestionsId), prev = $(previewId);
-  input.oninput = function(){
-    var q = input.value.trim();
-    if (q.length < 2) { sug.classList.remove('open'); return; }
-    var matches = REGIONS.filter(function(r){ return r.name.toLowerCase().indexOf(q.toLowerCase()) !== -1; }).slice(0, 8);
-    if (!matches.length) { sug.classList.remove('open'); return; }
-    sug.innerHTML = matches.map(function(r){
-      return '<div onclick="selectRegion(\'' + key + '\',' + REGIONS.indexOf(r) + ')"><img src="' + getFlagUrl(r.flag) + '" alt=""><span>' + r.name + ' (' + r.code + ')</span></div>';
-    }).join('');
+/* ========== АВТОПОИСК РЕГИОНОВ (исправлено) ========== */
+function setupRegionAutocomplete(inputId, sugId, prevId, key) {
+  var input = $(inputId), sug = $(sugId);
+  function render(list) {
+    if (!list.length) { sug.classList.remove('open'); return; }
+    var html = '';
+    for (var i = 0; i < list.length; i++) {
+      var r = list[i];
+      html += '<div data-idx="' + REGIONS.indexOf(r) + '"><img src="' + getFlagUrl(r.flag) + '" alt="" onerror="this.style.display=\'none\'"><span>' + r.name + ' · ' + r.code + '</span></div>';
+    }
+    sug.innerHTML = html;
     sug.classList.add('open');
-  };
-  input.onblur = function(){ setTimeout(function(){ sug.classList.remove('open'); }, 200); };
+  }
+  input.addEventListener('input', function(){
+    selectedRegion[key] = null;
+    $(prevId).style.display = 'none';
+    var q = input.value.trim();
+    if (q.length < 1) { sug.classList.remove('open'); return; }
+    var s = q.toLowerCase();
+    var list = REGIONS.filter(function(r){ return r.name.toLowerCase().indexOf(s) !== -1; }).slice(0, 8);
+    render(list);
+  });
+  input.addEventListener('focus', function(){
+    if (input.value.trim()) input.dispatchEvent(new Event('input'));
+  });
+  sug.addEventListener('mousedown', function(e){
+    var item = e.target.closest('div[data-idx]');
+    if (!item) return;
+    e.preventDefault();
+    var r = REGIONS[+item.getAttribute('data-idx')];
+    selectedRegion[key] = r;
+    input.value = r.name;
+    $(prevId).innerHTML = '<img src="' + getFlagUrl(r.flag) + '" alt="" onerror="this.style.display=\'none\'"><b>' + r.code + '</b> ' + r.name;
+    $(prevId).style.display = 'inline-flex';
+    sug.classList.remove('open');
+  });
+  input.addEventListener('blur', function(){ setTimeout(function(){ sug.classList.remove('open'); }, 150); });
 }
-
-window.selectRegion = function(key, idx) {
-  var r = REGIONS[idx];
-  selectedRegion[key] = r;
-  $(key + '_region').value = r.name;
-  $(key + '_region_preview').innerHTML = '<img src="' + getFlagUrl(r.flag) + '" alt=""><b>' + r.code + '</b> ' + r.name;
-  $(key + '_region_preview').style.display = 'inline-flex';
-  $(key + '_suggestions').classList.remove('open');
-};
-
 setupRegionAutocomplete('n_region', 'n_suggestions', 'n_region_preview', 'n');
 setupRegionAutocomplete('p_region', 'p_suggestions', 'p_region_preview', 'p');
 
-/* КРОППЕР (4:3) */
+/* Регион: из списка ИЛИ вручную (больше не блокирует) */
+function resolveRegion(key) {
+  if (selectedRegion[key]) return selectedRegion[key];
+  var txt = $(key + '_region').value.trim();
+  if (!txt) return null;
+  var m = findRegion(txt);
+  if (m) return m;
+  return { name: txt, code: txt.slice(0, 3).toUpperCase(), flag: '' };
+}
+
+/* ========== КРОППЕР ========== */
 var ASPECTS = { n_file: 1.33, p_avatar: 1, p_cover: 1.33, p_photo: 0.75 };
 var NAMES = { n_file: 'Обложка новости (4:3)', p_avatar: 'Аватар (1:1)', p_cover: 'Обложка (4:3)', p_photo: 'Фотография (3:4)' };
 var pending = { n_file: '', p_avatar: '', p_cover: '', p_photo: '', p_audio: '' };
@@ -272,34 +336,25 @@ var crop = { img: null, base: 1, zoom: 1, x: 0, y: 0, w: 320, h: 240, slot: null
 
 Object.keys(ASPECTS).forEach(function(slot){
   if (!$(slot)) return;
-  $(slot).onchange = function(){
-    var f = this.files[0];
-    if (f) openCropper(f, slot);
-  };
+  $(slot).onchange = function(){ var f = this.files[0]; if (f) openCropper(f, slot); };
 });
-
-// Аудио без кроппера
 if ($('p_audio')) {
   $('p_audio').onchange = function(){
-    var f = this.files[0];
-    if (!f) return;
+    var f = this.files[0]; if (!f) return;
     var path = Date.now() + '-audio.mp3';
     window.rv_supabase.storage.from(BUCKET).upload(path, f).then(function(res){
       if (res.error) { alert('❌ ' + res.error.message); return; }
-      var url = window.rv_supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-      pending.p_audio = url;
-      $('p_audio_url').value = url;
+      pending.p_audio = window.rv_supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+      $('p_audio_url').value = pending.p_audio;
     });
   };
 }
-
 function openCropper(file, slot) {
   crop.slot = slot; crop.zoom = 1; crop.x = 0; crop.y = 0;
   var W = 320, H = Math.round(W / ASPECTS[slot]);
   crop.w = W; crop.h = H;
   var view = $('cropView');
-  view.style.width = W + 'px';
-  view.style.height = H + 'px';
+  view.style.width = W + 'px'; view.style.height = H + 'px';
   view.innerHTML = '<img id="cropImg" src="" alt="">';
   $('cropSlotName').textContent = NAMES[slot];
   var img = new Image();
@@ -312,14 +367,11 @@ function openCropper(file, slot) {
   };
   img.src = URL.createObjectURL(file);
 }
-
 function applyCrop() {
-  var img = $('cropImg');
-  if (!img || !crop.img) return;
+  var img = $('cropImg'); if (!img || !crop.img) return;
   img.src = crop.img.src;
   img.style.transform = 'translate(-50%,-50%) translate(' + crop.x + 'px,' + crop.y + 'px) scale(' + (crop.base * crop.zoom) + ')';
 }
-
 (function(){
   var view = $('cropView'), drag = null;
   view.addEventListener('pointerdown', function(e){ drag = { x: e.clientX - crop.x, y: e.clientY - crop.y }; });
@@ -330,8 +382,7 @@ function applyCrop() {
   $('cropSave').onclick = function(){
     if (!crop.img) return;
     var S = 2, cw = crop.w * S, ch = crop.h * S;
-    var cv = document.createElement('canvas');
-    cv.width = cw; cv.height = ch;
+    var cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
     var ctx = cv.getContext('2d');
     ctx.translate(cw / 2 + crop.x * S, ch / 2 + crop.y * S);
     var s = crop.base * crop.zoom * S;
@@ -342,17 +393,16 @@ function applyCrop() {
       var path = Date.now() + '-' + slot + '.jpg';
       window.rv_supabase.storage.from(BUCKET).upload(path, blob, { contentType: 'image/jpeg' }).then(function(res){
         if (res.error) { alert('❌ ' + res.error.message); return; }
-        var url = window.rv_supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-        pending[slot] = url;
+        pending[slot] = window.rv_supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
         var prev = $(slot + '_preview');
-        prev.src = url; prev.style.display = 'inline-block';
+        prev.src = pending[slot]; prev.style.display = 'inline-block';
         $('cropWrap').classList.remove('open');
       });
     }, 'image/jpeg', 0.9);
   };
 })();
 
-/* ЗАГРУЗКА ДАННЫХ */
+/* ========== ДАННЫЕ ========== */
 function boot() {
   var client = window.rv_supabase;
   if (!client) { $('lock').style.display = ''; return; }
@@ -368,19 +418,15 @@ function boot() {
 }
 
 function refreshAll() {
-  var client = window.rv_supabase;
-  if (!client) return;
-
+  var client = window.rv_supabase; if (!client) return;
   client.from('news').select('*').order('created_at', { ascending: false }).then(function(res){
     $('list-news').innerHTML = (res.data || []).map(function(x){
-      return '<div class="row"><span class="row-left">' +
-        (x.image_url ? '<img src="' + x.image_url + '" alt="">' : '') +
+      return '<div class="row"><span class="row-left">' + (x.image_url ? '<img src="' + x.image_url + '" alt="">' : '') +
         '<span><b>' + x.code + '</b> · ' + x.region + ' — ' + x.title + '</span></span>' +
         '<div class="row-actions"><button class="btn edit" onclick="editNews(' + x.id + ')">Изменить</button>' +
         '<button class="btn del" onclick="delNews(' + x.id + ')">Удалить</button></div></div>';
     }).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет новостей</p>';
   });
-
   client.from('participants').select('*').order('sort').then(function(res){
     $('list-part').innerHTML = (res.data || []).map(function(x){
       var thumbs = [x.avatar_url, x.cover_url, x.photo_url].filter(Boolean).map(function(u){ return '<img src="' + u + '" alt="">'; }).join('');
@@ -390,7 +436,6 @@ function refreshAll() {
         '<button class="btn del" onclick="delPart(' + x.id + ')">Удалить</button></div></div>';
     }).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет участников</p>';
   });
-
   client.from('site_settings').select('*').eq('id', 1).single().then(function(res){
     if (res.data) {
       $('s_name').value = res.data.site_name || '';
@@ -399,14 +444,12 @@ function refreshAll() {
       $('s_email').value = res.data.contact_email || '';
     }
   });
-
   client.from('social_links').select('*').order('sort').then(function(res){
     $('list-soc').innerHTML = (res.data || []).map(function(x){
       return '<div class="row"><span>' + x.icon + ' ' + x.title + ' — ' + x.url + '</span>' +
         '<button class="btn del" onclick="delSoc(' + x.id + ')">Удалить</button></div>';
     }).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет ссылок</p>';
   });
-
   client.from('admins').select('email').then(function(res){
     $('list-admins').innerHTML = (res.data || []).map(function(x){
       var isMain = (x.email === MAIN_ADMIN);
@@ -417,34 +460,24 @@ function refreshAll() {
   });
 }
 
-/* УДАЛЕНИЕ С ПОДТВЕРЖДЕНИЕМ */
-function delNews(id) {
-  if (!confirm('Удалить эту новость?')) return;
-  window.rv_supabase.from('news').delete().eq('id', id).then(refreshAll);
-}
-function delPart(id) {
-  if (!confirm('Удалить этого исполнителя?')) return;
-  window.rv_supabase.from('participants').delete().eq('id', id).then(refreshAll);
-}
-function delSoc(id) {
-  if (!confirm('Удалить эту ссылку?')) return;
-  window.rv_supabase.from('social_links').delete().eq('id', id).then(refreshAll);
-}
+/* Удаление с подтверждением */
+function delNews(id){ if (!confirm('Удалить эту новость?')) return; window.rv_supabase.from('news').delete().eq('id', id).then(refreshAll); }
+function delPart(id){ if (!confirm('Удалить этого исполнителя?')) return; window.rv_supabase.from('participants').delete().eq('id', id).then(refreshAll); }
+function delSoc(id){ if (!confirm('Удалить эту ссылку?')) return; window.rv_supabase.from('social_links').delete().eq('id', id).then(refreshAll); }
 
-/* ДОБАВЛЕНИЕ */
+/* Добавление */
 function addNews() {
-  var r = selectedRegion.n;
-  if (!r) { $('m-news').textContent = '❌ Выберите регион из списка'; return; }
-  var client = window.rv_supabase;
+  var r = resolveRegion('n');
+  if (!r) { $('m-news').textContent = '❌ Укажите регион'; return; }
   var imageUrl = pending.n_file || ($('n_image').value || '').trim();
-  client.from('news').insert({
+  window.rv_supabase.from('news').insert({
     region: r.name, code: r.code, flag_code: r.flag,
     title: $('n_title').value, excerpt: $('n_excerpt').value,
     image_url: imageUrl, accent: +$('n_accent').value
-  }).then(function(r){
-    $('m-news').textContent = r.error ? '❌ ' + r.error.message : '✅ Опубликовано';
-    if (!r.error) {
-      $('n_region').value = ''; $('n_title').value = ''; $('n_excerpt').value = ''; $('n_image').value = '';
+  }).then(function(res){
+    $('m-news').textContent = res.error ? '❌ ' + res.error.message : '✅ Опубликовано';
+    if (!res.error) {
+      ['n_region','n_title','n_excerpt','n_image'].forEach(function(i){ $(i).value = ''; });
       pending.n_file = ''; selectedRegion.n = null;
       $('n_file').value = ''; $('n_file_preview').style.display = 'none';
       $('n_region_preview').style.display = 'none';
@@ -452,145 +485,122 @@ function addNews() {
     }
   });
 }
-
 function addPart() {
-  var r = selectedRegion.p;
-  if (!r) { $('m-part').textContent = '❌ Выберите регион из списка'; return; }
-  var client = window.rv_supabase;
-  client.from('participants').insert({
+  var r = resolveRegion('p');
+  if (!r) { $('m-part').textContent = '❌ Укажите регион'; return; }
+  if (!$('p_artist').value.trim()) { $('m-part').textContent = '❌ Укажите исполнителя'; return; }
+  window.rv_supabase.from('participants').insert({
     artist: $('p_artist').value, region: r.name, code: r.code, flag_code: r.flag,
     avatar_url: pending.p_avatar, cover_url: pending.p_cover, photo_url: pending.p_photo,
     audio_url: pending.p_audio || $('p_audio_url').value,
     audio_start: +$('p_audio_start').value || 0,
     lyrics: $('p_lyrics').value,
     sort: Date.now() % 100000
-  }).then(function(r){
-    $('m-part').textContent = r.error ? '❌ ' + r.error.message : '✅ Добавлено';
-    if (!r.error) {
-      $('p_artist').value = ''; $('p_region').value = ''; $('p_audio_url').value = '';
-      $('p_audio_start').value = ''; $('p_lyrics').value = '';
-      ['p_avatar','p_cover','p_photo'].forEach(function(s){
-        pending[s] = ''; $(s).value = ''; $(s + '_preview').style.display = 'none';
-      });
+  }).then(function(res){
+    $('m-part').textContent = res.error ? '❌ ' + res.error.message : '✅ Добавлено';
+    if (!res.error) {
+      ['p_artist','p_region','p_audio_url','p_audio_start','p_lyrics'].forEach(function(i){ $(i).value = ''; });
+      ['p_avatar','p_cover','p_photo'].forEach(function(s){ pending[s] = ''; $(s).value = ''; $(s + '_preview').style.display = 'none'; });
       pending.p_audio = ''; $('p_audio').value = '';
       selectedRegion.p = null; $('p_region_preview').style.display = 'none';
       refreshAll();
     }
   });
 }
-
 function addSoc() {
   window.rv_supabase.from('social_links').insert({
     title: $('so_title').value, url: $('so_url').value,
     icon: $('so_icon').value || '🔗', sort: Date.now() % 100000
-  }).then(function(r){
-    $('m-soc').textContent = r.error ? '❌ ' + r.error.message : '✅ Готово';
-    if (!r.error) { $('so_title').value = ''; $('so_url').value = ''; $('so_icon').value = ''; refreshAll(); }
+  }).then(function(res){
+    $('m-soc').textContent = res.error ? '❌ ' + res.error.message : '✅ Готово';
+    if (!res.error) { ['so_title','so_url','so_icon'].forEach(function(i){ $(i).value = ''; }); refreshAll(); }
   });
 }
-
 function saveSet() {
   window.rv_supabase.from('site_settings').update({
     site_name: $('s_name').value, tagline: $('s_tag').value,
     footer_note: $('s_note').value, contact_email: $('s_email').value
-  }).eq('id', 1).then(function(r){
-    $('m-set').textContent = r.error ? '❌ ' + r.error.message : '✅ Сохранено';
+  }).eq('id', 1).then(function(res){
+    $('m-set').textContent = res.error ? '❌ ' + res.error.message : '✅ Сохранено';
   });
 }
-
 function addAdmin() {
   var email = $('a_email').value.trim();
   if (!email) { $('m-admins').textContent = '❌ Введите email'; return; }
-  window.rv_supabase.rpc('add_admin', { email: email }).then(function(r){
-    $('m-admins').textContent = r.error ? '❌ ' + r.error.message : '✅ Админ добавлен';
-    if (!r.error) { $('a_email').value = ''; refreshAll(); }
+  window.rv_supabase.rpc('add_admin', { email: email }).then(function(res){
+    $('m-admins').textContent = res.error ? '❌ ' + res.error.message : '✅ Админ добавлен';
+    if (!res.error) { $('a_email').value = ''; refreshAll(); }
   });
 }
-
 function removeAdmin(email) {
   if (email === MAIN_ADMIN) { alert('❌ Нельзя удалить главного администратора!'); return; }
   if (!confirm('Удалить администратора ' + email + '?')) return;
-  window.rv_supabase.rpc('remove_admin', { email: email }).then(function(r){
-    if (r.error) alert('❌ ' + r.error.message);
-    else refreshAll();
+  window.rv_supabase.rpc('remove_admin', { email: email }).then(function(res){
+    if (res.error) alert('❌ ' + res.error.message); else refreshAll();
   });
 }
 
-/* РЕДАКТИРОВАНИЕ */
+/* Редактирование */
 function editNews(id) {
   window.rv_supabase.from('news').select('*').eq('id', id).single().then(function(res){
     if (!res.data) return;
     var n = res.data;
-    var html = '<h3 style="margin-bottom:20px">Редактировать новость</h3>' +
+    $('editBox').innerHTML = '<h3 style="margin-bottom:20px">Редактировать новость</h3>' +
       '<input id="e_region" value="' + n.region + '" placeholder="Регион">' +
+      '<input id="e_code" value="' + (n.code || '') + '" placeholder="Код">' +
       '<input id="e_title" value="' + n.title + '" placeholder="Заголовок">' +
       '<input id="e_excerpt" value="' + (n.excerpt || '') + '" placeholder="Описание">' +
       '<input id="e_image" value="' + (n.image_url || '') + '" placeholder="URL обложки">' +
       '<div style="display:flex;gap:10px;margin-top:20px">' +
       '<button class="btn" onclick="saveNews(' + id + ')">Сохранить</button>' +
       '<button class="btn del" onclick="closeEdit()">Отмена</button></div>';
-    $('editBox').innerHTML = html;
     $('editModal').classList.add('open');
   });
 }
-
 function saveNews(id) {
   window.rv_supabase.from('news').update({
-    region: $('e_region').value,
-    title: $('e_title').value,
-    excerpt: $('e_excerpt').value,
-    image_url: $('e_image').value
-  }).eq('id', id).then(function(r){
-    if (r.error) alert('❌ ' + r.error.message);
-    else { closeEdit(); refreshAll(); }
+    region: $('e_region').value, code: $('e_code').value,
+    title: $('e_title').value, excerpt: $('e_excerpt').value, image_url: $('e_image').value
+  }).eq('id', id).then(function(res){
+    if (res.error) alert('❌ ' + res.error.message); else { closeEdit(); refreshAll(); }
   });
 }
-
 function editPart(id) {
   window.rv_supabase.from('participants').select('*').eq('id', id).single().then(function(res){
     if (!res.data) return;
     var p = res.data;
-    var html = '<h3 style="margin-bottom:20px">Редактировать исполнителя</h3>' +
+    $('editBox').innerHTML = '<h3 style="margin-bottom:20px">Редактировать исполнителя</h3>' +
       '<input id="e_artist" value="' + p.artist + '" placeholder="Исполнитель">' +
       '<input id="e_region" value="' + p.region + '" placeholder="Регион">' +
+      '<input id="e_code" value="' + (p.code || '') + '" placeholder="Код">' +
       '<input id="e_audio" value="' + (p.audio_url || '') + '" placeholder="URL аудио">' +
       '<input id="e_start" type="number" value="' + (p.audio_start || 0) + '" placeholder="Старт (сек)">' +
       '<textarea id="e_lyrics" placeholder="Текст">' + (p.lyrics || '') + '</textarea>' +
       '<div style="display:flex;gap:10px;margin-top:20px">' +
       '<button class="btn" onclick="savePart(' + id + ')">Сохранить</button>' +
       '<button class="btn del" onclick="closeEdit()">Отмена</button></div>';
-    $('editBox').innerHTML = html;
     $('editModal').classList.add('open');
   });
 }
-
 function savePart(id) {
   window.rv_supabase.from('participants').update({
-    artist: $('e_artist').value,
-    region: $('e_region').value,
-    audio_url: $('e_audio').value,
-    audio_start: +$('e_start').value || 0,
-    lyrics: $('e_lyrics').value
-  }).eq('id', id).then(function(r){
-    if (r.error) alert('❌ ' + r.error.message);
-    else { closeEdit(); refreshAll(); }
+    artist: $('e_artist').value, region: $('e_region').value, code: $('e_code').value,
+    audio_url: $('e_audio').value, audio_start: +$('e_start').value || 0, lyrics: $('e_lyrics').value
+  }).eq('id', id).then(function(res){
+    if (res.error) alert('❌ ' + res.error.message); else { closeEdit(); refreshAll(); }
   });
 }
+function closeEdit(){ $('editModal').classList.remove('open'); }
 
-function closeEdit() {
-  $('editModal').classList.remove('open');
-}
-
-/* ГОЛОСОВАНИЕ */
+/* Голосование */
 function loadVoting() {
-  window.rv_supabase.from('voting_status').select('is_open').eq('id', 1).single().then(function(r){
-    if (r.data) $('v_status').checked = r.data.is_open;
+  window.rv_supabase.from('voting_status').select('is_open').eq('id', 1).single().then(function(res){
+    if (res.data) $('v_status').checked = res.data.is_open;
   });
 }
-
 function saveVoting() {
-  window.rv_supabase.from('voting_status').update({ is_open: $('v_status').checked, updated_at: new Date().toISOString() }).eq('id', 1).then(function(r){
-    $('m-vote').textContent = r.error ? '❌ ' + r.error.message : '✅ Сохранено';
+  window.rv_supabase.from('voting_status').update({ is_open: $('v_status').checked, updated_at: new Date().toISOString() }).eq('id', 1).then(function(res){
+    $('m-vote').textContent = res.error ? '❌ ' + res.error.message : '✅ Сохранено';
   });
 }
 
