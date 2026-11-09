@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="sb.js"></script>
+<script src="regions.js"></script>
 <style>
 :root{--bg:#0a0a14;--glass:rgba(255,255,255,0.08);--glass-border:rgba(255,255,255,0.15);--paper:#f4f2f7;--mut:rgba(244,242,247,.6);--line:rgba(244,242,247,.12);--acc:#e81179;--acc-glow:rgba(232,17,121,0.4)}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -16,7 +17,7 @@ a{color:inherit;text-decoration:none}
 .wrap{max-width:1400px;margin:0 auto;padding:0 32px}
 header{position:sticky;top:0;z-index:100;background:rgba(10,10,20,0.7);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--glass-border)}
 .nav{display:flex;align-items:center;justify-content:space-between;height:80px;gap:24px}
-.brand{display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;cursor:pointer}
 .brand img{height:40px;width:auto}
 .brand-name{font-weight:900;letter-spacing:.1em;font-size:1.1rem}
 .menu{display:flex;gap:28px;list-style:none}
@@ -32,14 +33,16 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,10,20,0.7);backdrop-
 .btn-acc{background:var(--acc);border-color:var(--acc)}
 .btn-danger{border-color:#ff4d6d;color:#ff4d6d;background:none}
 .btn-danger:hover{background:#ff4d6d;color:#fff}
-.btn-vote{padding:20px 64px;font-size:1.3rem;font-weight:900;letter-spacing:.15em;text-transform:uppercase;border-radius:999px;background:linear-gradient(135deg,var(--acc),#ff6b9d);border:none;color:#fff;cursor:pointer;box-shadow:0 10px 40px var(--acc-glow);transition:all .3s;animation:pulse 2.4s infinite}
-.btn-vote:hover{transform:scale(1.06)}
+.btn-vote{padding:20px 64px;font-size:1.3rem;font-weight:900;letter-spacing:.15em;text-transform:uppercase;border-radius:999px;border:none;color:#fff;cursor:pointer;transition:all .3s;animation:pulse 2.4s infinite}
+.btn-vote.open{background:linear-gradient(135deg,var(--acc),#ff6b9d);box-shadow:0 10px 40px var(--acc-glow)}
+.btn-vote.open:hover{transform:scale(1.06)}
+.btn-vote.closed{background:rgba(255,255,255,.08);box-shadow:none;cursor:not-allowed;opacity:.5;animation:none}
 @keyframes pulse{0%,100%{box-shadow:0 10px 40px var(--acc-glow)}50%{box-shadow:0 10px 70px rgba(232,17,121,.7)}}
-/* ВКЛАДКИ-ОКНА */
 .view{display:none;animation:viewIn .45s ease}
 .view.on{display:block}
 @keyframes viewIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 .hero{min-height:82vh;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(1200px 600px at 80% -10%,rgba(232,17,121,.22),transparent 60%),radial-gradient(900px 500px at 10% 110%,rgba(106,43,217,.28),transparent 60%),linear-gradient(135deg,#1a0a2e 0%,#0a0a14 100%)}
+.hero-content{position:relative;z-index:2;padding:60px 20px}
 .hero-logo img{height:min(38vw,340px);width:auto;filter:drop-shadow(0 20px 60px rgba(232,17,121,.5));animation:float 6s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
 .hero h1{font-size:clamp(2.6rem,6vw,5rem);font-weight:900;letter-spacing:-.02em;margin:30px auto 12px;background:linear-gradient(135deg,#fff,#e81179);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -55,36 +58,26 @@ section{padding:80px 0}
 .news-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
 .news-card{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:24px;overflow:hidden;transition:all .4s;cursor:pointer}
 .news-card:hover{transform:translateY(-8px);border-color:var(--acc)}
-.news-image{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;transition:transform .5s}
+.news-image{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;transition:transform .5s}
 .news-card:hover .news-image{transform:scale(1.05)}
 .news-body{padding:26px}
 .nc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.nc-code{font-size:1.7rem;font-weight:900;color:var(--line)}
+.nc-code{display:inline-flex;align-items:center;gap:8px;font-size:1.4rem;font-weight:900;color:var(--line)}
+.nc-code img{width:28px;height:18px;border-radius:3px}
 .nc-dot{width:10px;height:10px;border-radius:50%}
 .nc-region{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);font-weight:700;margin-bottom:10px}
 .nc-title{font-weight:700;font-size:1.1rem;line-height:1.35;margin-bottom:8px}
 .nc-ex{color:var(--mut);font-size:.88rem}
 .part-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:24px}
-.part-card{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/5;border:1px solid var(--glass-border);transition:all .4s;cursor:pointer}
+.part-card{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/3;border:1px solid var(--glass-border);transition:all .4s;cursor:pointer}
 .part-card:hover{transform:translateY(-8px);border-color:var(--acc)}
 .part-card img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}
 .part-card:hover img{transform:scale(1.07)}
 .part-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(5,5,12,.9) 0%,rgba(5,5,12,.25) 45%,transparent 70%);display:flex;flex-direction:column;justify-content:flex-end;padding:22px}
-.part-code{position:absolute;top:14px;right:14px;background:rgba(10,10,20,.55);backdrop-filter:blur(10px);border:1px solid var(--glass-border);border-radius:999px;padding:6px 14px;font-weight:900;font-size:.75rem;letter-spacing:.12em}
+.part-code{position:absolute;top:14px;right:14px;background:rgba(10,10,20,.55);backdrop-filter:blur(10px);border:1px solid var(--glass-border);border-radius:999px;padding:6px 14px;font-weight:900;font-size:.75rem;letter-spacing:.12em;display:inline-flex;align-items:center;gap:6px}
+.part-code img{width:20px;height:13px;border-radius:2px}
 .part-artist{font-weight:800;font-size:1.3rem}
 .part-region{color:rgba(255,255,255,.75);font-size:.85rem;margin-top:6px}
-/* ГОЛОСОВАНИЕ */
-.vote-list{display:grid;gap:16px;max-width:860px;margin:0 auto}
-.vote-row{display:grid;grid-template-columns:64px 1fr auto;gap:18px;align-items:center;background:var(--glass);backdrop-filter:blur(15px);border:1px solid var(--glass-border);border-radius:20px;padding:18px 22px;transition:all .3s}
-.vote-row:hover{border-color:var(--acc)}
-.vote-row img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--glass-border)}
-.vote-name{font-weight:700}
-.vote-region{color:var(--mut);font-size:.83rem}
-.vote-bar{height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;margin-top:10px}
-.vote-fill{height:100%;background:linear-gradient(90deg,var(--acc),#ff6b9d);border-radius:4px;transition:width .6s}
-.vote-count{font-weight:900;font-size:1.2rem;color:var(--acc);min-width:44px;text-align:right}
-.vote-btn{margin-left:14px}
-.vote-btn.voted{background:var(--acc);border-color:var(--acc);color:#fff}
 /* МОДАЛКИ */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
 .modal.open{display:flex}
@@ -98,11 +91,16 @@ section{padding:80px 0}
 .modal-msg{font-size:.85rem;color:var(--acc);min-height:20px;margin-top:10px}
 .acc-email{font-weight:700;font-size:1.05rem;margin-bottom:20px;color:var(--acc)}
 .acc-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px;padding-top:22px;border-top:1px solid var(--glass-border)}
-.part-modal-img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:18px;margin-bottom:20px;display:block}
+.part-modal-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:18px;margin-bottom:20px;display:block}
+.pm-meta{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.pm-code{background:var(--glass);border:1px solid var(--glass-border);border-radius:999px;padding:6px 14px;font-weight:900;font-size:.75rem;letter-spacing:.12em;display:inline-flex;align-items:center;gap:6px}
+.pm-code img{width:20px;height:13px;border-radius:2px}
+.pm-audio{width:100%;margin-bottom:14px}
+.pm-lyrics{background:rgba(0,0,0,.3);border:1px solid var(--glass-border);border-radius:14px;padding:16px;margin-bottom:20px;font-size:.9rem;line-height:1.6;max-height:200px;overflow-y:auto;white-space:pre-wrap;color:var(--mut)}
 /* ЯЗЫКИ */
 .lang{position:relative}
 .lang-btn{display:flex;align-items:center;justify-content:center;background:var(--glass);border:1px solid var(--glass-border);border-radius:999px;color:var(--paper);padding:8px 16px;cursor:pointer;font:600 .85rem Rubik;letter-spacing:.08em;min-width:64px}
-.lang-menu{position:absolute;right:0;top:calc(100% + 12px);background:rgba(20,20,35,.97);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:16px;max-height:320px;overflow-y:auto;min-width:150px;display:none;z-index:60}
+.lang-menu{position:absolute;right:0;top:calc(100% + 12px);background:rgba(20,20,35,.97);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:16px;max-height:320px;overflow-y:auto;min-width:180px;display:none;z-index:60}
 .lang-menu.open{display:block}
 .lang-menu button{display:block;width:100%;background:none;border:0;color:var(--paper);padding:11px 18px;cursor:pointer;font:500 .85rem Rubik;text-align:left}
 .lang-menu button:hover{background:rgba(255,255,255,.08)}
@@ -117,17 +115,16 @@ footer{border-top:1px solid var(--line);padding:70px 0 36px;background:rgba(0,0,
 .socials{display:flex;gap:12px;flex-wrap:wrap}
 .socials a{width:46px;height:46px;background:var(--glass);border:1px solid var(--glass-border);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .3s}
 .socials a:hover{transform:translateY(-4px);border-color:var(--acc)}
-.socials svg{border-radius:8px}
 .f-bottom{border-top:1px solid var(--line);padding-top:26px;color:var(--mut);font-size:.85rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
 .cookies{position:fixed;left:24px;right:24px;bottom:24px;background:rgba(30,30,50,.95);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:24px;padding:22px 26px;display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap;z-index:150}
 .cookies p{font-size:.9rem;color:var(--mut);max-width:680px}
-@media(max-width:900px){.news-grid{grid-template-columns:1fr}.menu{gap:16px}.part-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.vote-row{grid-template-columns:52px 1fr;}.vote-row img{width:52px;height:52px}}
+@media(max-width:900px){.news-grid{grid-template-columns:1fr}.menu{gap:16px}.part-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
 </style>
 </head>
 <body>
 
 <header><div class="wrap nav">
-  <a class="brand" href="#" onclick="showView('home');return false;"><img src="logo.png" alt="RusVision"><span class="brand-name">RUSVISION</span></a>
+  <a class="brand" onclick="showView('home');return false;"><img src="logo.png" alt="RusVision"><span class="brand-name">RUSVISION</span></a>
   <ul class="menu" id="menu">
     <li><a data-view="home" class="active" data-i18n="nav_home">Главная</a></li>
     <li><a data-view="news" data-i18n="nav_news">Новости</a></li>
@@ -147,11 +144,11 @@ footer{border-top:1px solid var(--line);padding:70px 0 36px;background:rgba(0,0,
 
 <!-- ГЛАВНАЯ -->
 <div class="view on" id="view-home">
-  <div class="hero"><div class="wrap">
+  <div class="hero"><div class="hero-content">
     <div class="hero-logo"><img src="logo.png" alt="RusVision"></div>
     <h1 data-i18n="hero_title">RusVision</h1>
     <p data-i18n="hero_sub">Музыкальный конкурс регионов России</p>
-    <button class="btn-vote" onclick="showView('vote')" data-i18n="btn_vote">Голосовать</button>
+    <button class="btn-vote closed" id="heroVote" data-i18n="btn_vote">Голосовать</button>
   </div></div>
   <div class="ticker"><div class="ticker-track" id="ticker"></div></div>
   <section><div class="wrap">
@@ -174,9 +171,16 @@ footer{border-top:1px solid var(--line);padding:70px 0 36px;background:rgba(0,0,
 
 <!-- ГОЛОСОВАНИЕ -->
 <div class="view" id="view-vote"><section><div class="wrap">
-  <div class="sec-head"><h2 data-i18n="vote_title">Голосование регионов</h2></div>
-  <p style="color:var(--mut);margin:-24px 0 36px" data-i18n="vote_sub">Один голос на аккаунт. Голосуй за своего фаворита!</p>
-  <div class="vote-list" id="voteList"></div>
+  <div class="sec-head"><h2 data-i18n="vote_title">Голосование</h2></div>
+  <p style="color:var(--mut);margin:-24px 0 36px;max-width:700px" data-i18n="vote_sub">Голосование проходит в нашем официальном Telegram-боте. Один голос — один аккаунт.</p>
+  <div style="text-align:center;padding:60px 20px;background:var(--glass);border:1px solid var(--glass-border);border-radius:32px">
+    <div style="font-size:5rem;margin-bottom:20px">🗳️</div>
+    <h3 style="font-size:1.5rem;font-weight:800;margin-bottom:14px" data-i18n="vote_bot_title">Telegram-бот голосования</h3>
+    <p style="color:var(--mut);margin-bottom:30px" data-i18n="vote_bot_desc">Открой бота, авторизуйся через свой аккаунт RUSVISION и выбери любимого исполнителя</p>
+    <a href="https://t.me/RusVisionVoteBot" target="_blank" class="btn btn-solid" style="padding:18px 40px;font-size:1.1rem" id="voteBotLink">@RusVisionVoteBot</a>
+    <div id="voteStatus" style="margin-top:24px;font-size:.9rem;color:var(--mut)"></div>
+  </div>
+  <div style="margin-top:50px"><h3 style="margin-bottom:20px" data-i18n="vote_list_title">Все участники</h3><div class="part-grid" id="voteGrid"></div></div>
 </div></section></div>
 
 <footer><div class="wrap">
@@ -211,7 +215,7 @@ footer{border-top:1px solid var(--line);padding:70px 0 36px;background:rgba(0,0,
   <div class="modal-msg" id="accMsg"></div>
   <div class="acc-actions">
     <button class="btn" id="accLogout" data-i18n="acc_logout">Выйти из профиля</button>
-    <button class="btn btn-danger" id="accDelete" data-i18n="acc_delete">Удалить аккаунт с платформы</button>
+    <button class="btn btn-danger" id="accDelete" data-i18n="acc_delete">Удалить аккаунт</button>
   </div>
   <button class="btn" style="width:100%;margin-top:14px" id="accClose">✕ <span data-i18n="btn_close">Закрыть</span></button>
 </div></div>
@@ -219,10 +223,16 @@ footer{border-top:1px solid var(--line);padding:70px 0 36px;background:rgba(0,0,
 <!-- МОДАЛКА УЧАСТНИКА -->
 <div class="modal" id="partModal"><div class="modal-box wide">
   <img class="part-modal-img" id="pmImg" alt="">
-  <div class="part-code" style="position:static;display:inline-block;margin-bottom:10px" id="pmCode"></div>
-  <h3 style="font-weight:800;font-size:1.5rem" id="pmArtist"></h3>
+  <div class="pm-meta">
+    <div class="pm-code" id="pmCode"></div>
+  </div>
+  <h3 style="font-weight:800;font-size:1.6rem" id="pmArtist"></h3>
   <p style="color:var(--mut);margin:6px 0 20px" id="pmRegion"></p>
-  <button class="btn btn-solid" id="pmVote"></button>
+  <div id="pmMedia" style="display:none">
+    <audio id="pmAudio" controls class="pm-audio"></audio>
+    <div class="pm-lyrics" id="pmLyrics"></div>
+  </div>
+  <a href="https://t.me/RusVisionVoteBot" target="_blank" class="btn btn-solid" id="pmVote" data-i18n="vote_bot_title">Голосовать в Telegram</a>
   <button class="btn" style="margin-left:10px" id="pmClose">✕ <span data-i18n="btn_close">Закрыть</span></button>
 </div></div>
 
@@ -235,10 +245,11 @@ footer{border-top:1px solid var(--line);padding:70px 0 36px;background:rgba(0,0,
 </div>
 
 <script>
-/* ========== ВКЛАДКИ-ОКНА ========== */
+/* ===== ВКЛАДКИ-ОКНА ===== */
 function showView(v) {
   document.querySelectorAll('.view').forEach(function(x){ x.classList.remove('on'); });
-  document.getElementById('view-' + v).classList.add('on');
+  var el = document.getElementById('view-' + v);
+  if (el) el.classList.add('on');
   document.querySelectorAll('.menu a').forEach(function(a){ a.classList.toggle('active', a.getAttribute('data-view') === v); });
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -246,9 +257,31 @@ document.querySelectorAll('.menu a').forEach(function(a){
   a.onclick = function(){ showView(a.getAttribute('data-view')); };
 });
 
-/* ========== ЯЗЫКИ (RU вручную, остальные — Google) ========== */
-var LANGS = [['ru','Русский'],['en','English'],['fr','Français'],['es','Español'],['de','Deutsch'],['tt','Татарча'],['ba','Башҡортса'],['be','Беларуская'],['kk','Қазақша'],['uz','Oʻzbekcha'],['hy','Հայերեն'],['az','Azərbaycanca'],['ky','Кыргызча'],['cv','Чӑвашла'],['udm','Удмурт'],['mhr','Марий'],['ce','Нохчийн']];
-var DICT_RU = {nav_home:'Главная',nav_news:'Новости',nav_part:'Участники',nav_vote:'Голосование',hero_title:'RusVision',hero_sub:'Музыкальный конкурс регионов России',btn_vote:'Голосовать',sec_news:'Последние новости',sec_news2:'Все новости',sec_all:'Все новости',sec_part:'Участники 2026',vote_title:'Голосование регионов',vote_sub:'Один голос на аккаунт. Голосуй за своего фаворита!',vote_btn:'Голосовать',vote_remove:'Убрать голос',vote_need:'Войдите, чтобы голосовать',auth_login:'Войти',auth_register:'Регистрация',auth_admin:'Админ',acc_title:'Аккаунт',acc_pass:'Сменить пароль (письмо на почту)',acc_pass_sent:'✅ Письмо для смены пароля отправлено',acc_logout:'Выйти из профиля',acc_delete:'Удалить аккаунт с платформы',acc_confirm_del:'Удалить аккаунт безвозвратно?',btn_close:'Закрыть',cookie_text:'Мы используем cookies для работы сайта и голосования.',cookie_ok:'Принять',cookie_no:'Отклонить',foot_social:'Соцсети',foot_contacts:'Контакты',foot_note:'© 2026 RusVision. Все права защищены.'};
+/* ===== ЯЗЫКИ ===== */
+var LANGS = [
+  ['ru','Русский'],['en','English'],['fr','Français'],['es','Español'],['de','Deutsch'],
+  ['tt','Татарча'],['ba','Башҡортса'],['be','Беларуская'],['kk','Қазақша'],['uz','Oʻzbekcha'],
+  ['hy','Հայերեն'],['az','Azərbaycanca'],['ky','Кыргызча'],['cv','Чӑвашла'],['udm','Удмурт'],
+  ['mhr','Марий'],['ce','Нохчийн']
+];
+var DICT_RU = {
+  nav_home:'Главная',nav_news:'Новости',nav_part:'Участники',nav_vote:'Голосование',
+  hero_title:'RusVision',hero_sub:'Музыкальный конкурс регионов России',
+  btn_vote:'Голосовать',
+  sec_news:'Последние новости',sec_news2:'Все новости',sec_all:'Все новости',
+  sec_part:'Участники 2026',
+  vote_title:'Голосование',vote_sub:'Голосование проходит в нашем официальном Telegram-боте. Один голос — один аккаунт.',
+  vote_bot_title:'Голосовать в Telegram',vote_bot_desc:'Открой бота, авторизуйся через свой аккаунт RUSVISION и выбери любимого исполнителя',
+  vote_list_title:'Все участники',
+  vote_open:'Голосование открыто',vote_closed:'Голосование закрыто',
+  auth_login:'Войти',auth_register:'Регистрация',auth_admin:'Админ',
+  acc_title:'Аккаунт',acc_pass:'Сменить пароль (письмо на почту)',acc_pass_sent:'✅ Письмо отправлено',
+  acc_logout:'Выйти из профиля',acc_delete:'Удалить аккаунт',acc_confirm_del:'Удалить аккаунт безвозвратно?',
+  btn_close:'Закрыть',
+  cookie_text:'Мы используем cookies для работы сайта и голосования.',
+  cookie_ok:'Принять',cookie_no:'Отклонить',
+  foot_social:'Соцсети',foot_contacts:'Контакты',foot_note:'© 2026 RusVision. Все права защищены.'
+};
 var currentLang = localStorage.getItem('rv_lang') || 'ru';
 var tCache = {};
 
@@ -302,7 +335,7 @@ langMenu.onclick = function(e){
 };
 document.addEventListener('click', function(){ langMenu.classList.remove('open'); });
 
-/* ========== ИКОНКИ СОЦСЕТЕЙ (авто по ссылке) ========== */
+/* ===== ИКОНКИ СОЦСЕТЕЙ ===== */
 function socialIcon(url) {
   var u = (url || '').toLowerCase();
   function box(bg, inner){ return '<svg viewBox="0 0 24 24" width="22" height="22"><rect width="24" height="24" rx="7" fill="' + bg + '"/>' + inner + '</svg>'; }
@@ -317,11 +350,11 @@ function socialIcon(url) {
   if (u.indexOf('rutube') !== -1) return box('#000', '<text x="12" y="16.4" font-family="Rubik,Arial" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">R</text>');
   if (u.indexOf('dzen') !== -1) return box('#000', '<text x="12" y="16.4" font-family="Rubik,Arial" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">Д</text>');
   if (u.indexOf('twitch') !== -1) return box('#9146FF', '<path d="M7 5h10v7l-3 3h-2l-2 2H9v-2H7z M11 8v3M14 8v3" fill="#fff" stroke="#9146FF" stroke-width="1"/>');
-  if (u.indexOf('discord') !== -1) return box('#5865F2', '<circle cx="9.3" cy="12" r="1.5" fill="#5865F2"/><circle cx="14.7" cy="12" r="1.5" fill="#5865F2"/><path d="M8 6.5c2.6-.9 5.4-.9 8 0 1.6 2.4 2.3 5 2 7.6-1.4 1.1-2.9 1.8-4.4 2.1l-.7-1.3c-1 .3-2 .3-3 0l-.7 1.3c-1.5-.3-3-1-4.4-2.1-.3-2.6.4-5.2 2-7.6z" fill="#fff"/></svg>');
+  if (u.indexOf('discord') !== -1) return box('#5865F2', '<circle cx="9.3" cy="12" r="1.5" fill="#5865F2"/><circle cx="14.7" cy="12" r="1.5" fill="#5865F2"/><path d="M8 6.5c2.6-.9 5.4-.9 8 0 1.6 2.4 2.3 5 2 7.6-1.4 1.1-2.9 1.8-4.4 2.1l-.7-1.3c-1 .3-2 .3-3 0l-.7 1.3c-1.5-.3-3-1-4.4-2.1-.3-2.6.4-5.2 2-7.6z" fill="#fff"/>');
   return box('#555', '<circle cx="12" cy="12" r="3.4" fill="#fff"/>');
 }
 
-/* ========== АВТОРИЗАЦИЯ + АККАУНТ ========== */
+/* ===== АВТОРИЗАЦИЯ ===== */
 var mode = 'login', modal = document.getElementById('modal'), msgBox = document.getElementById('authMsg');
 function openModal(m) {
   mode = m; modal.classList.add('open');
@@ -355,7 +388,8 @@ document.getElementById('authForm').onsubmit = function(e){
     }).catch(function(err){ msgBox.style.color = '#e81179'; msgBox.textContent = '❌ ' + err.message; });
   }
 };
-/* Аккаунт */
+
+/* ===== АККАУНТ ===== */
 var accModal = document.getElementById('accModal');
 document.getElementById('accBtn').onclick = function(){
   var c = window.rv_supabase; if (!c) return;
@@ -399,31 +433,54 @@ function refreshAuth() {
 }
 if (window.rv_supabase) { window.rv_supabase.auth.onAuthStateChange(function(){ refreshAuth(); }); refreshAuth(); }
 
-/* ========== COOKIES ========== */
+/* ===== COOKIES ===== */
 function okCookies(){ document.getElementById('cookies').style.display = 'none'; localStorage.setItem('rv_ck','1'); }
 document.getElementById('ckOk').onclick = okCookies;
 document.getElementById('ckNo').onclick = okCookies;
 if (localStorage.getItem('rv_ck')) document.getElementById('cookies').style.display = 'none';
 
-/* ========== ДАННЫЕ ========== */
-var PARTS = [], VOTES = [], MY_VOTES = [];
+/* ===== ДАННЫЕ ===== */
+var PARTS = [];
+var VOTING_OPEN = false;
+
+function updateVoteButton() {
+  var btn = document.getElementById('heroVote');
+  var status = document.getElementById('voteStatus');
+  if (VOTING_OPEN) {
+    btn.className = 'btn-vote open';
+    btn.textContent = DICT_RU.btn_vote;
+    btn.onclick = function(){ window.open('https://t.me/RusVisionVoteBot', '_blank'); };
+    if (status) status.textContent = '🟢 ' + DICT_RU.vote_open;
+  } else {
+    btn.className = 'btn-vote closed';
+    btn.textContent = DICT_RU.vote_closed || 'Голосование закрыто';
+    btn.onclick = function(){ return false; };
+    if (status) status.textContent = '⚫ ' + DICT_RU.vote_closed;
+  }
+}
+
+function flagTag(code) {
+  if (!code || typeof getFlagUrl !== 'function') return '';
+  return '<img src="' + getFlagUrl(code) + '" alt="" onerror="this.style.display=\'none\'">';
+}
+
 function loadAll() {
   var c = window.rv_supabase; if (!c) return;
   var ACC = ['#e81179','#00b3c4','#f7b733','#6a2bd9','#0e9f6e','#ff7a59'];
 
   c.from('news').select('*').eq('published', true).order('created_at', { ascending: false }).then(function(r){
     var news = r.data || [];
-    var html = news.length ? news.map(function(n){
-      var img = n.image_url || ('https://via.placeholder.com/400x500/1a1a2e/e81179?text=' + encodeURIComponent(n.code || 'NEWS'));
+    var renderCard = function(n){
+      var img = n.image_url || ('https://via.placeholder.com/400x300/1a1a2e/e81179?text=' + encodeURIComponent(n.code || 'NEWS'));
       return '<article class="news-card"><img class="news-image" src="' + img + '" alt="">' +
-        '<div class="news-body"><div class="nc-top"><span class="nc-code">' + (n.code || '···') + '</span><span class="nc-dot" style="background:' + ACC[(n.accent || 1) % 6] + '"></span></div>' +
+        '<div class="news-body"><div class="nc-top"><span class="nc-code">' + (n.code || '···') + flagTag(n.flag_code) + '</span><span class="nc-dot" style="background:' + ACC[(n.accent || 1) % 6] + '"></span></div>' +
         '<div class="nc-region" data-original="' + n.region + '">' + n.region + '</div>' +
         '<div class="nc-title" data-original="' + n.title + '">' + n.title + '</div>' +
         '<div class="nc-ex" data-original="' + (n.excerpt || '') + '">' + (n.excerpt || '') + '</div></div></article>';
-    }).join('') : '<p style="grid-column:1/-1;text-align:center;color:var(--mut);padding:50px">Новостей пока нет</p>';
-    document.getElementById('newsGrid').innerHTML = html;
+    };
+    document.getElementById('newsGrid').innerHTML = news.length ? news.map(renderCard).join('') : '<p style="grid-column:1/-1;text-align:center;color:var(--mut);padding:50px">Новостей пока нет</p>';
     document.getElementById('homeNews').innerHTML = news.slice(0, 3).map(function(n){
-      var img = n.image_url || ('https://via.placeholder.com/400x500/1a1a2e/e81179?text=' + encodeURIComponent(n.code || 'NEWS'));
+      var img = n.image_url || ('https://via.placeholder.com/400x300/1a1a2e/e81179?text=' + encodeURIComponent(n.code || 'NEWS'));
       return '<article class="news-card" onclick="showView(\'news\')"><img class="news-image" src="' + img + '" alt="">' +
         '<div class="news-body"><div class="nc-region" data-original="' + n.region + '">' + n.region + '</div>' +
         '<div class="nc-title" data-original="' + n.title + '">' + n.title + '</div></div></article>';
@@ -433,16 +490,18 @@ function loadAll() {
 
   c.from('participants').select('*').order('sort').then(function(r){
     PARTS = r.data || [];
-    document.getElementById('partGrid').innerHTML = PARTS.length ? PARTS.map(function(p){
-      var img = p.cover_url || p.image_url || ('https://via.placeholder.com/400x500/1a1a2e/e81179?text=' + encodeURIComponent(p.artist || 'RUSVISION'));
+    var renderCard = function(p){
+      var img = p.cover_url || p.image_url || ('https://via.placeholder.com/400x300/1a1a2e/e81179?text=' + encodeURIComponent(p.artist || 'RUSVISION'));
       return '<div class="part-card" onclick="openPart(' + p.id + ')"><img src="' + img + '" alt="">' +
-        '<span class="part-code">' + (p.code || '—') + '</span>' +
+        '<span class="part-code">' + (p.code || '—') + flagTag(p.flag_code) + '</span>' +
         '<div class="part-overlay"><div class="part-artist" data-original="' + p.artist + '">' + p.artist + '</div>' +
         '<div class="part-region" data-original="' + p.region + '">' + p.region + '</div></div></div>';
-    }).join('') : '<p style="grid-column:1/-1;text-align:center;color:var(--mut);padding:50px">Участников пока нет</p>';
+    };
+    var html = PARTS.length ? PARTS.map(renderCard).join('') : '<p style="grid-column:1/-1;text-align:center;color:var(--mut);padding:50px">Участников пока нет</p>';
+    document.getElementById('partGrid').innerHTML = html;
+    document.getElementById('voteGrid').innerHTML = html;
     document.getElementById('ticker').innerHTML = (PARTS.map(function(p){ return p.region + ' <em>★</em> '; }).join('') || 'RUSVISION <em>★</em> ').repeat(2);
     translateDynamic();
-    loadVotes();
   });
 
   c.from('social_links').select('*').order('sort').then(function(r){
@@ -451,71 +510,55 @@ function loadAll() {
       return '<a href="' + x.url + '" title="' + x.title + '" target="_blank">' + socialIcon(x.url) + '</a>';
     }).join('');
   });
+
   c.from('site_settings').select('*').eq('id', 1).single().then(function(r){
-    if (r.data) document.getElementById('fEmail').textContent = r.data.contact_email || '';
-  });
-}
-
-/* ========== ГОЛОСОВАНИЕ ========== */
-function loadVotes() {
-  var c = window.rv_supabase; if (!c) return;
-  c.from('votes').select('user_id,participant_id').then(function(r){
-    VOTES = r.data || [];
-    c.auth.getSession().then(function(s){
-      var uid = s.data.session ? s.data.session.user.id : null;
-      MY_VOTES = VOTES.filter(function(v){ return v.user_id === uid; }).map(function(v){ return v.participant_id; });
-      renderVotes();
-    });
-  });
-}
-function countFor(pid){ return VOTES.filter(function(v){ return v.participant_id === pid; }).length; }
-function renderVotes() {
-  var max = 1;
-  PARTS.forEach(function(p){ max = Math.max(max, countFor(p.id)); });
-  var sorted = PARTS.slice().sort(function(a, b){ return countFor(b.id) - countFor(a.id); });
-  var need = DICT_RU.vote_need;
-  document.getElementById('voteList').innerHTML = sorted.length ? sorted.map(function(p){
-    var cnt = countFor(p.id), voted = MY_VOTES.indexOf(p.id) !== -1;
-    var av = p.avatar_url || p.cover_url || ('https://via.placeholder.com/80/1a1a2e/e81179?text=' + encodeURIComponent((p.artist || '?')[0]));
-    return '<div class="vote-row"><img src="' + av + '" alt="">' +
-      '<div><div class="vote-name" data-original="' + p.artist + '">' + p.artist + '</div>' +
-      '<div class="vote-region" data-original="' + p.region + '">' + p.region + '</div>' +
-      '<div class="vote-bar"><div class="vote-fill" style="width:' + Math.round(cnt / max * 100) + '%"></div></div></div>' +
-      '<div style="display:flex;align-items:center"><span class="vote-count">' + cnt + '</span>' +
-      '<button class="btn vote-btn' + (voted ? ' voted' : '') + '" onclick="toggleVote(' + p.id + ')">' + (voted ? DICT_RU.vote_remove : DICT_RU.vote_btn) + '</button></div></div>';
-  }).join('') : '<p style="text-align:center;color:var(--mut)">Участников пока нет</p>';
-  translateDynamic();
-}
-function toggleVote(pid) {
-  var c = window.rv_supabase; if (!c) return;
-  c.auth.getSession().then(function(r){
-    if (!r.data.session) { openModal('login'); return; }
-    var uid = r.data.session.user.id;
-    if (MY_VOTES.indexOf(pid) !== -1) {
-      return c.from('votes').delete().eq('user_id', uid).eq('participant_id', pid).then(loadVotes);
+    if (r.data) {
+      document.querySelector('.f-brand b').textContent = r.data.site_name || 'RUSVISION';
+      document.querySelector('.f-brand span').textContent = r.data.tagline || DICT_RU.hero_sub;
+      document.getElementById('fEmail').textContent = r.data.contact_email || '';
     }
-    return c.from('votes').insert({ user_id: uid, participant_id: pid }).then(loadVotes);
+  });
+
+  // Статус голосования
+  c.from('voting_status').select('is_open').eq('id', 1).single().then(function(r){
+    VOTING_OPEN = !!(r.data && r.data.is_open);
+    updateVoteButton();
+  }).catch(function(){
+    VOTING_OPEN = false;
+    updateVoteButton();
   });
 }
 
-/* ========== КАРТОЧКА УЧАСТНИКА ========== */
-var pmId = null;
+/* ===== КАРТОЧКА УЧАСТНИКА ===== */
 function openPart(id) {
   var p = PARTS.filter(function(x){ return x.id === id; })[0]; if (!p) return;
-  pmId = id;
-  document.getElementById('pmImg').src = p.photo_url || p.cover_url || 'https://via.placeholder.com/600x800/1a1a2e/e81179?text=RUSVISION';
-  document.getElementById('pmCode').textContent = p.code || '—';
+  document.getElementById('pmImg').src = p.photo_url || p.cover_url || 'https://via.placeholder.com/600x450/1a1a2e/e81179?text=RUSVISION';
+  document.getElementById('pmCode').innerHTML = (p.code || '—') + flagTag(p.flag_code);
   document.getElementById('pmArtist').textContent = p.artist;
   document.getElementById('pmRegion').textContent = p.region;
-  updatePmVote();
+  
+  var mediaDiv = document.getElementById('pmMedia');
+  if (p.audio_url) {
+    var audio = document.getElementById('pmAudio');
+    var start = p.audio_start || 0;
+    audio.src = p.audio_url + '#t=' + start + ',' + (start + 15);
+    audio.currentTime = start;
+    audio.addEventListener('timeupdate', function(){
+      if (audio.currentTime > start + 15) { audio.pause(); audio.currentTime = start; }
+    });
+    document.getElementById('pmLyrics').textContent = p.lyrics || '';
+    document.getElementById('pmLyrics').style.display = p.lyrics ? 'block' : 'none';
+    mediaDiv.style.display = 'block';
+  } else {
+    mediaDiv.style.display = 'none';
+  }
   document.getElementById('partModal').classList.add('open');
 }
-function updatePmVote() {
-  var voted = MY_VOTES.indexOf(pmId) !== -1;
-  document.getElementById('pmVote').textContent = voted ? DICT_RU.vote_remove : DICT_RU.vote_btn;
-}
-document.getElementById('pmVote').onclick = function(){ toggleVote(pmId); setTimeout(function(){ updatePmVote(); }, 600); };
-document.getElementById('pmClose').onclick = function(){ document.getElementById('partModal').classList.remove('open'); };
+document.getElementById('pmClose').onclick = function(){
+  document.getElementById('partModal').classList.remove('open');
+  var audio = document.getElementById('pmAudio');
+  if (audio) { audio.pause(); audio.src = ''; }
+};
 
 applyLanguage();
 loadAll();
