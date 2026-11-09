@@ -16,37 +16,47 @@ body{font-family:Rubik,sans-serif;background:var(--bg);color:var(--paper);font-w
 h1{font-weight:900;letter-spacing:.05em;margin-bottom:8px;font-size:2rem}
 .sub{color:var(--mut);font-size:.9rem;margin-bottom:36px}
 .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
-.tabs button{border:1px solid var(--glass-border);background:var(--glass);backdrop-filter:blur(10px);color:var(--mut);border-radius:999px;padding:12px 24px;cursor:pointer;font:600 .85rem Rubik;transition:all 0.3s}
+.tabs button{border:1px solid var(--glass-border);background:var(--glass);backdrop-filter:blur(10px);color:var(--mut);border-radius:999px;padding:12px 24px;cursor:pointer;font:600 .85rem Rubik;transition:all .3s}
 .tabs button.on{color:var(--paper);border-color:var(--acc);background:rgba(232,17,121,0.2)}
 .card{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:24px;padding:32px;margin-bottom:24px}
 .card h3{font-weight:700;margin-bottom:20px;font-size:1.1rem}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 input,select{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--glass-border);border-radius:14px;color:var(--paper);padding:14px;margin-bottom:14px;font:400 .95rem Rubik}
 input:focus{outline:none;border-color:var(--acc)}
-/* КНОПКА-ФАЙЛ И ПРЕВЬЮ */
 .file-label{display:flex;align-items:center;justify-content:center;gap:10px;border:1px dashed var(--glass-border);border-radius:14px;padding:16px 20px;cursor:pointer;color:var(--mut);font-size:.9rem;margin-bottom:14px;transition:all .3s}
 .file-label:hover{border-color:var(--acc);color:var(--paper)}
-.preview{width:130px;height:162px;object-fit:cover;border-radius:14px;border:1px solid var(--glass-border);margin-bottom:14px;display:block}
-.btn{border-radius:999px;padding:14px 32px;font:700 .9rem Rubik;cursor:pointer;border:1px solid var(--paper);background:var(--paper);color:var(--bg);transition:all 0.3s}
+.preview{width:120px;height:150px;object-fit:cover;border-radius:14px;border:1px solid var(--glass-border);margin:0 10px 14px 0;display:inline-block}
+.preview.sq{width:120px;height:120px;border-radius:50%}
+.btn{border-radius:999px;padding:14px 32px;font:700 .9rem Rubik;cursor:pointer;border:1px solid var(--paper);background:var(--paper);color:var(--bg);transition:all .3s}
 .btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}
 .btn.del{background:none;border-color:var(--glass-border);color:var(--mut);padding:8px 18px;font-size:.85rem}
 .btn.del:hover{border-color:#e81179;color:#e81179}
 .row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 8px;border-bottom:1px solid var(--glass-border);font-size:.95rem}
 .row:last-child{border:0}
-.row img{width:44px;height:55px;object-fit:cover;border-radius:8px;border:1px solid var(--glass-border)}
-.row-left{display:flex;align-items:center;gap:12px}
+.row img{width:40px;height:50px;object-fit:cover;border-radius:8px;border:1px solid var(--glass-border)}
+.row-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .msg{color:var(--acc);font-size:.85rem;margin-top:12px;min-height:20px}
 a.back{color:var(--mut);font-size:.85rem}
 #lock{text-align:center;padding:100px 20px}
 .badge-main{color:var(--acc);font-size:.75rem;margin-left:8px}
 .badge-protected{color:var(--mut);font-size:.8rem}
+/* КРОППЕР */
+.crop-wrap{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
+.crop-wrap.open{display:flex}
+.crop-box{background:#1e1e32;border:1px solid var(--glass-border);border-radius:24px;padding:30px;text-align:center}
+.crop-box h3{margin-bottom:16px}
+.crop-view{position:relative;overflow:hidden;border-radius:16px;margin:0 auto 14px;background:#000;cursor:grab;touch-action:none;border:1px solid var(--glass-border)}
+.crop-view img{position:absolute;left:50%;top:50%;max-width:none;pointer-events:none;user-select:none}
+.crop-zoom{width:260px;margin-bottom:16px}
+.crop-actions{display:flex;gap:10px;justify-content:center}
 </style>
 </head>
 <body>
+
 <div class="wrap" id="lock" style="display:none">
   <h1>Доступ закрыт</h1>
   <p class="sub">Админ-панель доступна только подтверждённым администраторам.<br><br>
-  <a class="back" href="index.html">← На сайт</a> · 
+  <a class="back" href="index.html">← На сайт</a> ·
   <button class="btn" style="margin-top:20px" onclick="location.reload()">Проверить снова</button></p>
 </div>
 
@@ -61,6 +71,7 @@ a.back{color:var(--mut);font-size:.85rem}
     <button data-t="admins">Администраторы</button>
   </div>
 
+  <!-- НОВОСТИ -->
   <div id="t-news">
     <div class="card"><h3>Добавить новость</h3>
       <div class="grid">
@@ -69,16 +80,21 @@ a.back{color:var(--mut);font-size:.85rem}
       </div>
       <input id="n_title" placeholder="Заголовок">
       <input id="n_excerpt" placeholder="Краткое описание">
-      <label class="file-label" for="n_file">📷 Загрузить обложку с устройства</label>
+      <label class="file-label" for="n_file">📷 Обложка новости (4:5) — с устройства</label>
       <input type="file" id="n_file" accept="image/*" hidden>
-      <img id="n_preview" class="preview" alt="" style="display:none">
-      <input id="n_image" placeholder="...или вставь URL обложки (если не загружаешь файл)">
-      <select id="n_accent"><option value="1">Акцент 1</option><option value="2">Акцент 2</option><option value="3">Акцент 3</option><option value="4">Акцент 4</option><option value="5">Акцент 5</option><option value="0">Акцент 6</option></select>
-      <button class="btn" onclick="addNews()">Опубликовать</button><div class="msg" id="m-news"></div>
+      <div><img id="n_file_preview" class="preview" alt="" style="display:none"></div>
+      <input id="n_image" placeholder="...или URL обложки (если не загружаешь файл)">
+      <select id="n_accent">
+        <option value="1">Акцент 1</option><option value="2">Акцент 2</option><option value="3">Акцент 3</option>
+        <option value="4">Акцент 4</option><option value="5">Акцент 5</option><option value="0">Акцент 6</option>
+      </select>
+      <button class="btn" onclick="addNews()">Опубликовать</button>
+      <div class="msg" id="m-news"></div>
     </div>
     <div class="card"><h3>Опубликованные</h3><div id="list-news"></div></div>
   </div>
 
+  <!-- ИСПОЛНИТЕЛИ -->
   <div id="t-part" style="display:none">
     <div class="card"><h3>Добавить исполнителя</h3>
       <div class="grid">
@@ -86,214 +102,304 @@ a.back{color:var(--mut);font-size:.85rem}
         <input id="p_region" placeholder="Регион">
       </div>
       <input id="p_code" placeholder="Код">
-      <label class="file-label" for="p_file">📷 Загрузить обложку с устройства</label>
-      <input type="file" id="p_file" accept="image/*" hidden>
-      <img id="p_preview" class="preview" alt="" style="display:none">
-      <input id="p_image" placeholder="...или вставь URL обложки (если не загружаешь файл)">
-      <button class="btn" onclick="addPart()">Добавить</button><div class="msg" id="m-part"></div>
+      <label class="file-label" for="p_avatar">👤 Аватар (1:1) — для таблицы голосования</label>
+      <input type="file" id="p_avatar" accept="image/*" hidden>
+      <div><img id="p_avatar_preview" class="preview sq" alt="" style="display:none"></div>
+      <label class="file-label" for="p_cover">🖼 Обложка (4:5) — список участников и новости</label>
+      <input type="file" id="p_cover" accept="image/*" hidden>
+      <div><img id="p_cover_preview" class="preview" alt="" style="display:none"></div>
+      <label class="file-label" for="p_photo">📷 Фотография (3:4) — карточка участника</label>
+      <input type="file" id="p_photo" accept="image/*" hidden>
+      <div><img id="p_photo_preview" class="preview" alt="" style="display:none"></div>
+      <button class="btn" onclick="addPart()">Добавить</button>
+      <div class="msg" id="m-part"></div>
     </div>
     <div class="card"><h3>Список</h3><div id="list-part"></div></div>
   </div>
 
+  <!-- РЕКВИЗИТЫ -->
   <div id="t-set" style="display:none">
     <div class="card"><h3>Реквизиты сайта</h3>
       <input id="s_name" placeholder="Название">
       <input id="s_tag" placeholder="Слоган">
       <input id="s_note" placeholder="Копирайт">
       <input id="s_email" placeholder="E-mail">
-      <button class="btn" onclick="saveSet()">Сохранить</button><div class="msg" id="m-set"></div>
+      <button class="btn" onclick="saveSet()">Сохранить</button>
+      <div class="msg" id="m-set"></div>
     </div>
   </div>
 
+  <!-- СОЦСЕТИ -->
   <div id="t-soc" style="display:none">
     <div class="card"><h3>Добавить соцсеть</h3>
       <div class="grid">
-        <input id="so_title" placeholder="Название">
-        <input id="so_icon" placeholder="Эмодзи (✈️)">
+        <input id="so_title" placeholder="Название (Telegram)">
+        <input id="so_icon" placeholder="Эмодзи-запаска (✈️)">
       </div>
-      <input id="so_url" placeholder="https://...">
-      <button class="btn" onclick="addSoc()">Добавить</button><div class="msg" id="m-soc"></div>
+      <input id="so_url" placeholder="https://... (иконка платформы подставится сама)">
+      <button class="btn" onclick="addSoc()">Добавить</button>
+      <div class="msg" id="m-soc"></div>
     </div>
     <div class="card"><h3>Текущие ссылки</h3><div id="list-soc"></div></div>
   </div>
 
+  <!-- АДМИНЫ -->
   <div id="t-admins" style="display:none">
     <div class="card"><h3>Добавить администратора</h3>
       <input id="a_email" placeholder="E-mail нового админа">
-      <button class="btn" onclick="addAdmin()">Добавить</button><div class="msg" id="m-admins"></div>
+      <button class="btn" onclick="addAdmin()">Добавить</button>
+      <div class="msg" id="m-admins"></div>
     </div>
     <div class="card"><h3>Текущие администраторы</h3><div id="list-admins"></div></div>
   </div>
 </div>
 
+<!-- КРОППЕР -->
+<div class="crop-wrap" id="cropWrap">
+  <div class="crop-box">
+    <h3 id="cropSlotName"></h3>
+    <div class="crop-view" id="cropView"></div>
+    <input type="range" class="crop-zoom" id="cropZoom" min="1" max="3" step="0.01" value="1">
+    <div class="crop-actions">
+      <button class="btn" id="cropSave">Сохранить обрезку</button>
+      <button class="btn del" id="cropCancel">Отмена</button>
+    </div>
+  </div>
+</div>
+
 <script>
-const MAIN_ADMIN = 'shkiphunt@gmail.com';
-const BUCKET = 'rusvision-images';
-const $ = id => document.getElementById(id);
+var MAIN_ADMIN = 'shkiphunt@gmail.com';
+var BUCKET = 'rusvision-images';
+var $ = function(id){ return document.getElementById(id); };
 
-document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
-  document.querySelectorAll('.tabs button').forEach(x => x.classList.remove('on'));
-  b.classList.add('on');
-  ['news','part','set','soc','admins'].forEach(t => $('t-'+t).style.display = t === b.dataset.t ? '' : 'none');
-});
-
-$('logout').onclick = async e => {
-  e.preventDefault();
-  if (window.rv_supabase) await window.rv_supabase.auth.signOut();
-  location.href = 'index.html';
-};
-
-// Превью при выборе файла
-['n_file','p_file'].forEach(id => {
-  $(id).onchange = () => {
-    const prev = $(id.charAt(0) + '_preview');
-    const f = $(id).files[0];
-    if (f) { prev.src = URL.createObjectURL(f); prev.style.display = 'block'; }
-    else prev.style.display = 'none';
+/* Вкладки */
+document.querySelectorAll('.tabs button').forEach(function(b){
+  b.onclick = function(){
+    document.querySelectorAll('.tabs button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    ['news','part','set','soc','admins'].forEach(function(t){
+      $('t-' + t).style.display = (t === b.getAttribute('data-t')) ? '' : 'none';
+    });
   };
 });
 
-// Загрузка файла в Supabase Storage → возвращает публичный URL
-async function uploadCover(inputId) {
-  const file = $(inputId).files[0];
-  if (!file) return null;
-  const path = Date.now() + '-' + file.name.replace(/[^\w.\-]+/g, '_');
-  const { error } = await window.rv_supabase.storage
-    .from(BUCKET)
-    .upload(path, file, { cacheControl: '3600', upsert: false });
-  if (error) throw error;
-  const { data } = window.rv_supabase.storage.from(BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+$('logout').onclick = function(e){
+  e.preventDefault();
+  if (window.rv_supabase) window.rv_supabase.auth.signOut().then(function(){ location.href = 'index.html'; });
+  else location.href = 'index.html';
+};
+
+/* ========== КРОППЕР (3 формата) ========== */
+var ASPECTS = { n_file: 0.8, p_avatar: 1, p_cover: 0.8, p_photo: 0.75 };
+var NAMES   = { n_file: 'Обложка новости (4:5)', p_avatar: 'Аватар (1:1)', p_cover: 'Обложка (4:5)', p_photo: 'Фотография (3:4)' };
+var pending = { n_file: '', p_avatar: '', p_cover: '', p_photo: '' };
+var crop = { img: null, base: 1, zoom: 1, x: 0, y: 0, w: 320, h: 320, slot: null };
+
+Object.keys(ASPECTS).forEach(function(slot){
+  $(slot).onchange = function(){
+    var f = this.files[0];
+    if (f) openCropper(f, slot);
+  };
+});
+
+function openCropper(file, slot) {
+  crop.slot = slot; crop.zoom = 1; crop.x = 0; crop.y = 0;
+  var W = 320, H = Math.round(W / ASPECTS[slot]);
+  crop.w = W; crop.h = H;
+  var view = $('cropView');
+  view.style.width = W + 'px';
+  view.style.height = H + 'px';
+  view.innerHTML = '<img id="cropImg" src="" alt="">';
+  $('cropSlotName').textContent = NAMES[slot];
+  var img = new Image();
+  img.onload = function(){
+    crop.img = img;
+    crop.base = Math.max(W / img.width, H / img.height);
+    applyCrop();
+    $('cropZoom').value = 1;
+    $('cropWrap').classList.add('open');
+  };
+  img.src = URL.createObjectURL(file);
 }
 
-async function boot() {
-  const client = window.rv_supabase;
+function applyCrop() {
+  var img = $('cropImg');
+  if (!img || !crop.img) return;
+  img.src = crop.img.src;
+  img.style.transform = 'translate(-50%,-50%) translate(' + crop.x + 'px,' + crop.y + 'px) scale(' + (crop.base * crop.zoom) + ')';
+}
+
+(function(){
+  var view = $('cropView'), drag = null;
+  view.addEventListener('pointerdown', function(e){ drag = { x: e.clientX - crop.x, y: e.clientY - crop.y }; });
+  window.addEventListener('pointermove', function(e){ if (!drag) return; crop.x = e.clientX - drag.x; crop.y = e.clientY - drag.y; applyCrop(); });
+  window.addEventListener('pointerup', function(){ drag = null; });
+  $('cropZoom').oninput = function(){ crop.zoom = +this.value; applyCrop(); };
+  $('cropCancel').onclick = function(){ $('cropWrap').classList.remove('open'); };
+  $('cropSave').onclick = function(){
+    if (!crop.img) return;
+    var S = 2, cw = crop.w * S, ch = crop.h * S;
+    var cv = document.createElement('canvas');
+    cv.width = cw; cv.height = ch;
+    var ctx = cv.getContext('2d');
+    ctx.translate(cw / 2 + crop.x * S, ch / 2 + crop.y * S);
+    var s = crop.base * crop.zoom * S;
+    ctx.scale(s, s);
+    ctx.drawImage(crop.img, -crop.img.width / 2, -crop.img.height / 2);
+    var slot = crop.slot;
+    cv.toBlob(function(blob){
+      var path = Date.now() + '-' + slot + '.jpg';
+      window.rv_supabase.storage.from(BUCKET).upload(path, blob, { contentType: 'image/jpeg' }).then(function(res){
+        if (res.error) { alert('❌ ' + res.error.message); return; }
+        var url = window.rv_supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        pending[slot] = url;
+        var prev = $(slot + '_preview');
+        prev.src = url; prev.style.display = 'inline-block';
+        $('cropWrap').classList.remove('open');
+      });
+    }, 'image/jpeg', 0.9);
+  };
+})();
+
+/* ========== ДАННЫЕ ========== */
+function boot() {
+  var client = window.rv_supabase;
   if (!client) { $('lock').style.display = ''; return; }
-  try {
-    const { data: { session } } = await client.auth.getSession();
-    if (!session || !(await isAdmin())) { $('lock').style.display = ''; return; }
-    $('who').textContent = session.user.email;
-    $('panel').style.display = '';
-    refreshAll();
-  } catch (e) { console.error('Boot error:', e); $('lock').style.display = ''; }
+  client.auth.getSession().then(function(r){
+    var session = r.data.session;
+    if (!session) { $('lock').style.display = ''; return; }
+    return isAdmin().then(function(adm){
+      if (!adm) { $('lock').style.display = ''; return; }
+      $('who').textContent = session.user.email;
+      $('panel').style.display = '';
+      refreshAll();
+    });
+  }).catch(function(e){ console.error('Boot error:', e); $('lock').style.display = ''; });
 }
 
-async function refreshAll() {
-  const client = window.rv_supabase;
+function refreshAll() {
+  var client = window.rv_supabase;
   if (!client) return;
-  try {
-    const newsRes = await client.from('news').select('*').order('created_at', { ascending: false });
-    $('list-news').innerHTML = (newsRes.data || []).map(x =>
-      `<div class="row"><span class="row-left">${x.image_url ? `<img src="${x.image_url}" alt="">` : ''}<span><b>${x.code}</b> · ${x.region} — ${x.title}</span></span><button class="btn del" onclick="del('news',${x.id})">Удалить</button></div>`
-    ).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет новостей</p>';
 
-    const partRes = await client.from('participants').select('*').order('sort');
-    $('list-part').innerHTML = (partRes.data || []).map(x =>
-      `<div class="row"><span class="row-left">${x.image_url ? `<img src="${x.image_url}" alt="">` : ''}<span><b>${x.code}</b> · ${x.artist} — ${x.region}</span></span><button class="btn del" onclick="del('participants',${x.id})">Удалить</button></div>`
-    ).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет участников</p>';
+  client.from('news').select('*').order('created_at', { ascending: false }).then(function(res){
+    $('list-news').innerHTML = (res.data || []).map(function(x){
+      return '<div class="row"><span class="row-left">' +
+        (x.image_url ? '<img src="' + x.image_url + '" alt="">' : '') +
+        '<span><b>' + x.code + '</b> · ' + x.region + ' — ' + x.title + '</span></span>' +
+        '<button class="btn del" onclick="del(\'news\',' + x.id + ')">Удалить</button></div>';
+    }).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет новостей</p>';
+  });
 
-    const setRes = await client.from('site_settings').select('*').eq('id', 1).single();
-    if (setRes.data) {
-      $('s_name').value = setRes.data.site_name || '';
-      $('s_tag').value = setRes.data.tagline || '';
-      $('s_note').value = setRes.data.footer_note || '';
-      $('s_email').value = setRes.data.contact_email || '';
+  client.from('participants').select('*').order('sort').then(function(res){
+    $('list-part').innerHTML = (res.data || []).map(function(x){
+      var thumbs = [x.avatar_url, x.cover_url, x.photo_url].filter(Boolean).map(function(u){ return '<img src="' + u + '" alt="">'; }).join('');
+      return '<div class="row"><span class="row-left">' + thumbs +
+        '<span><b>' + x.code + '</b> · ' + x.artist + ' — ' + x.region + '</span></span>' +
+        '<button class="btn del" onclick="del(\'participants\',' + x.id + ')">Удалить</button></div>';
+    }).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет участников</p>';
+  });
+
+  client.from('site_settings').select('*').eq('id', 1).single().then(function(res){
+    if (res.data) {
+      $('s_name').value = res.data.site_name || '';
+      $('s_tag').value = res.data.tagline || '';
+      $('s_note').value = res.data.footer_note || '';
+      $('s_email').value = res.data.contact_email || '';
     }
+  });
 
-    const socRes = await client.from('social_links').select('*').order('sort');
-    $('list-soc').innerHTML = (socRes.data || []).map(x =>
-      `<div class="row"><span>${x.icon} ${x.title} — ${x.url}</span><button class="btn del" onclick="del('social_links',${x.id})">Удалить</button></div>`
-    ).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет ссылок</p>';
+  client.from('social_links').select('*').order('sort').then(function(res){
+    $('list-soc').innerHTML = (res.data || []).map(function(x){
+      return '<div class="row"><span>' + x.icon + ' ' + x.title + ' — ' + x.url + '</span>' +
+        '<button class="btn del" onclick="del(\'social_links\',' + x.id + ')">Удалить</button></div>';
+    }).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет ссылок</p>';
+  });
 
-    const admRes = await client.from('admins').select('email');
-    $('list-admins').innerHTML = (admRes.data || []).map(x => {
-      const isMain = x.email === MAIN_ADMIN;
-      return `<div class="row"><span>👤 ${x.email}${isMain ? '<span class="badge-main">(главный)</span>' : ''}</span>` +
+  client.from('admins').select('email').then(function(res){
+    $('list-admins').innerHTML = (res.data || []).map(function(x){
+      var isMain = (x.email === MAIN_ADMIN);
+      return '<div class="row"><span>👤 ' + x.email + (isMain ? '<span class="badge-main">(главный)</span>' : '') + '</span>' +
         (isMain ? '<span class="badge-protected">защищён</span>'
-                : `<button class="btn del" onclick="removeAdmin('${x.email}')">Удалить</button>`) + `</div>`;
+                : '<button class="btn del" onclick="removeAdmin(\'' + x.email + '\')">Удалить</button>') + '</div>';
     }).join('') || '<p style="color:var(--mut);text-align:center;padding:20px">Нет администраторов</p>';
-  } catch (e) { console.error('Refresh error:', e); }
+  });
 }
 
-async function del(table, id) {
-  await window.rv_supabase.from(table).delete().eq('id', id);
-  refreshAll();
+function del(table, id) {
+  window.rv_supabase.from(table).delete().eq('id', id).then(refreshAll);
 }
 
-async function addNews() {
-  const client = window.rv_supabase;
-  let imageUrl = $('n_image').value.trim();
-  try {
-    if ($('n_file').files[0]) {
-      $('m-news').textContent = '⏫ Загрузка обложки...';
-      imageUrl = await uploadCover('n_file');
-    }
-    const { error } = await client.from('news').insert({
-      region: $('n_region').value, code: $('n_code').value,
-      title: $('n_title').value, excerpt: $('n_excerpt').value,
-      image_url: imageUrl, accent: +$('n_accent').value
-    });
-    $('m-news').textContent = error ? '❌ ' + error.message : '✅ Опубликовано';
-    if (!error) {
-      ['n_region','n_code','n_title','n_excerpt','n_image'].forEach(i => $(i).value = '');
-      $('n_file').value = ''; $('n_preview').style.display = 'none';
+/* ========== ДОБАВЛЕНИЕ ========== */
+function addNews() {
+  var client = window.rv_supabase;
+  var imageUrl = pending.n_file || ($('n_image').value || '').trim();
+  client.from('news').insert({
+    region: $('n_region').value, code: $('n_code').value,
+    title: $('n_title').value, excerpt: $('n_excerpt').value,
+    image_url: imageUrl, accent: +$('n_accent').value
+  }).then(function(r){
+    $('m-news').textContent = r.error ? '❌ ' + r.error.message : '✅ Опубликовано';
+    if (!r.error) {
+      ['n_region','n_code','n_title','n_excerpt','n_image'].forEach(function(i){ $(i).value = ''; });
+      pending.n_file = ''; $('n_file').value = ''; $('n_file_preview').style.display = 'none';
       refreshAll();
     }
-  } catch (e) { $('m-news').textContent = '❌ Ошибка загрузки: ' + e.message; }
+  });
 }
 
-async function addPart() {
-  const client = window.rv_supabase;
-  let imageUrl = $('p_image').value.trim();
-  try {
-    if ($('p_file').files[0]) {
-      $('m-part').textContent = '⏫ Загрузка обложки...';
-      imageUrl = await uploadCover('p_file');
-    }
-    const { error } = await client.from('participants').insert({
-      artist: $('p_artist').value, region: $('p_region').value,
-      code: $('p_code').value, image_url: imageUrl, sort: Date.now() % 100000
-    });
-    $('m-part').textContent = error ? '❌ ' + error.message : '✅ Добавлено';
-    if (!error) {
-      ['p_artist','p_region','p_code','p_image'].forEach(i => $(i).value = '');
-      $('p_file').value = ''; $('p_preview').style.display = 'none';
+function addPart() {
+  var client = window.rv_supabase;
+  client.from('participants').insert({
+    artist: $('p_artist').value, region: $('p_region').value, code: $('p_code').value,
+    avatar_url: pending.p_avatar, cover_url: pending.p_cover, photo_url: pending.p_photo,
+    sort: Date.now() % 100000
+  }).then(function(r){
+    $('m-part').textContent = r.error ? '❌ ' + r.error.message : '✅ Добавлено';
+    if (!r.error) {
+      ['p_artist','p_region','p_code'].forEach(function(i){ $(i).value = ''; });
+      ['p_avatar','p_cover','p_photo'].forEach(function(s){
+        pending[s] = ''; $(s).value = ''; $(s + '_preview').style.display = 'none';
+      });
       refreshAll();
     }
-  } catch (e) { $('m-part').textContent = '❌ Ошибка загрузки: ' + e.message; }
+  });
 }
 
-async function addSoc() {
-  const { error } = await window.rv_supabase.from('social_links').insert({
+function addSoc() {
+  window.rv_supabase.from('social_links').insert({
     title: $('so_title').value, url: $('so_url').value,
     icon: $('so_icon').value || '🔗', sort: Date.now() % 100000
+  }).then(function(r){
+    $('m-soc').textContent = r.error ? '❌ ' + r.error.message : '✅ Готово';
+    if (!r.error) { ['so_title','so_url','so_icon'].forEach(function(i){ $(i).value = ''; }); refreshAll(); }
   });
-  $('m-soc').textContent = error ? '❌ ' + error.message : '✅ Готово';
-  if (!error) { ['so_title','so_url','so_icon'].forEach(i => $(i).value = ''); refreshAll(); }
 }
 
-async function saveSet() {
-  const { error } = await window.rv_supabase.from('site_settings').update({
+function saveSet() {
+  window.rv_supabase.from('site_settings').update({
     site_name: $('s_name').value, tagline: $('s_tag').value,
     footer_note: $('s_note').value, contact_email: $('s_email').value
-  }).eq('id', 1);
-  $('m-set').textContent = error ? '❌ ' + error.message : '✅ Сохранено';
+  }).eq('id', 1).then(function(r){
+    $('m-set').textContent = r.error ? '❌ ' + r.error.message : '✅ Сохранено';
+  });
 }
 
-async function addAdmin() {
-  const email = $('a_email').value.trim();
+function addAdmin() {
+  var email = $('a_email').value.trim();
   if (!email) { $('m-admins').textContent = '❌ Введите email'; return; }
-  const { error } = await window.rv_supabase.rpc('add_admin', { email });
-  $('m-admins').textContent = error ? '❌ ' + error.message : '✅ Админ добавлен';
-  if (!error) { $('a_email').value = ''; refreshAll(); }
+  window.rv_supabase.rpc('add_admin', { email: email }).then(function(r){
+    $('m-admins').textContent = r.error ? '❌ ' + r.error.message : '✅ Админ добавлен';
+    if (!r.error) { $('a_email').value = ''; refreshAll(); }
+  });
 }
 
-async function removeAdmin(email) {
+function removeAdmin(email) {
   if (email === MAIN_ADMIN) { alert('❌ Нельзя удалить главного администратора!'); return; }
   if (!confirm('Удалить администратора ' + email + '?')) return;
-  const { error } = await window.rv_supabase.rpc('remove_admin', { email });
-  if (error) alert('❌ ' + error.message);
-  else refreshAll();
+  window.rv_supabase.rpc('remove_admin', { email: email }).then(function(r){
+    if (r.error) alert('❌ ' + r.error.message);
+    else refreshAll();
+  });
 }
 
 boot();
