@@ -1,7 +1,3 @@
-/* ========== СПИСОК РЕГИОНОВ РФ ==========
-   flag — имя файла в папке flags/ (без расширения)
-   Пример: flags/tat.png, flags/msk.png
-========================================== */
 var REGIONS = [
   {name:'Республика Адыгея',code:'ADY',flag:'ady'},
   {name:'Республика Алтай',code:'ALT',flag:'alt'},
@@ -92,32 +88,3 @@ var REGIONS = [
   {name:'Чукотский автономный округ',code:'CHU',flag:'chu'},
   {name:'Ямало-Ненецкий автономный округ',code:'YAN',flag:'yan'}
 ];
-
-/* Путь к PNG флага региона */
-function getFlagUrl(flag) {
-  if (!flag) return '';
-  return 'flags/' + String(flag).toLowerCase() + '.png';
-}
-
-/* Поиск региона по части названия или коду */
-function findRegion(query) {
-  if (!query) return null;
-  var s = String(query).toLowerCase().trim();
-  for (var i = 0; i < REGIONS.length; i++) {
-    var r = REGIONS[i];
-    if (r.name.toLowerCase().indexOf(s) !== -1 || r.code.toLowerCase() === s) return r;
-  }
-  return null;
-}
-
-/* Все совпадения (для автокомплита) */
-function searchRegions(query, limit) {
-  if (!query) return [];
-  var s = String(query).toLowerCase().trim();
-  var out = [];
-  for (var i = 0; i < REGIONS.length; i++) {
-    if (REGIONS[i].name.toLowerCase().indexOf(s) !== -1) out.push(REGIONS[i]);
-    if (limit && out.length >= limit) break;
-  }
-  return out;
-}
